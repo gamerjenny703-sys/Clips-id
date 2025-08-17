@@ -1,5 +1,5 @@
 "use client";
-import SocialOAuth from "@/components/social-oauth";
+import SocialOAuth from "@/components/features/social/social-oauth";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";

@@ -1,8 +1,15 @@
-import Layout from "../../../components/layout"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { CheckCircle, ArrowRight, Zap, Palette, Code, Smartphone } from "lucide-react"
-import Link from "next/link"
+import Layout from "../../components/shared/layout";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  CheckCircle,
+  ArrowRight,
+  Zap,
+  Palette,
+  Code,
+  Smartphone,
+} from "lucide-react";
+import Link from "next/link";
 
 export default function WebDesignPage() {
   const features = [
@@ -14,7 +21,7 @@ export default function WebDesignPage() {
     "ACCESSIBILITY COMPLIANT",
     "UNLIMITED REVISIONS",
     "6 MONTHS FREE SUPPORT",
-  ]
+  ];
 
   const process = [
     {
@@ -45,7 +52,7 @@ export default function WebDesignPage() {
       icon: Smartphone,
       color: "bg-yellow-400",
     },
-  ]
+  ];
 
   return (
     <Layout>
@@ -62,8 +69,8 @@ export default function WebDesignPage() {
                 THAT KILLS
               </h1>
               <p className="text-xl font-bold mb-8">
-                FORGET BORING TEMPLATES. WE CREATE CUSTOM WEBSITES THAT STOP VISITORS IN THEIR TRACKS AND CONVERT LIKE
-                CRAZY.
+                FORGET BORING TEMPLATES. WE CREATE CUSTOM WEBSITES THAT STOP
+                VISITORS IN THEIR TRACKS AND CONVERT LIKE CRAZY.
               </p>
               <Link href="/contact">
                 <Button className="bg-pink-500 text-white border-4 border-white hover:bg-white hover:text-black font-black uppercase text-lg px-8 py-6 shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
@@ -75,7 +82,9 @@ export default function WebDesignPage() {
             <div className="relative">
               <div className="bg-yellow-400 border-4 border-white p-8 shadow-[12px_12px_0px_0px_rgba(255,255,255,1)] transform rotate-2">
                 <div className="text-4xl font-black mb-4">300%</div>
-                <div className="font-bold uppercase">AVERAGE CONVERSION INCREASE</div>
+                <div className="font-bold uppercase">
+                  AVERAGE CONVERSION INCREASE
+                </div>
               </div>
             </div>
           </div>
@@ -85,7 +94,9 @@ export default function WebDesignPage() {
       {/* Features Section */}
       <section className="bg-yellow-400 py-20">
         <div className="mx-auto max-w-6xl px-4">
-          <h2 className="text-5xl font-black uppercase text-center mb-16">WHAT YOU GET</h2>
+          <h2 className="text-5xl font-black uppercase text-center mb-16">
+            WHAT YOU GET
+          </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, index) => (
               <Card
@@ -114,8 +125,12 @@ export default function WebDesignPage() {
               >
                 <div className="text-4xl font-black mb-4">{step.step}</div>
                 <step.icon className="h-12 w-12 mx-auto mb-4 text-black" />
-                <h3 className="text-xl font-black uppercase mb-3 text-black">{step.title}</h3>
-                <p className="font-bold text-black text-sm">{step.description}</p>
+                <h3 className="text-xl font-black uppercase mb-3 text-black">
+                  {step.title}
+                </h3>
+                <p className="font-bold text-black text-sm">
+                  {step.description}
+                </p>
               </Card>
             ))}
           </div>
@@ -133,15 +148,23 @@ export default function WebDesignPage() {
               {
                 name: "STARTER",
                 price: "$15K",
-                description: "PERFECT FOR SMALL BUSINESSES READY TO MAKE AN IMPACT",
-                features: ["5 PAGES", "CUSTOM DESIGN", "MOBILE RESPONSIVE", "BASIC SEO", "3 MONTHS SUPPORT"],
+                description:
+                  "PERFECT FOR SMALL BUSINESSES READY TO MAKE AN IMPACT",
+                features: [
+                  "5 PAGES",
+                  "CUSTOM DESIGN",
+                  "MOBILE RESPONSIVE",
+                  "BASIC SEO",
+                  "3 MONTHS SUPPORT",
+                ],
                 color: "bg-yellow-400",
                 popular: false,
               },
               {
                 name: "PROFESSIONAL",
                 price: "$35K",
-                description: "FOR BUSINESSES SERIOUS ABOUT DOMINATING THEIR MARKET",
+                description:
+                  "FOR BUSINESSES SERIOUS ABOUT DOMINATING THEIR MARKET",
                 features: [
                   "15 PAGES",
                   "ADVANCED DESIGN SYSTEM",
@@ -179,15 +202,23 @@ export default function WebDesignPage() {
                   </div>
                 )}
                 <div className="text-center mb-6">
-                  <h3 className="text-2xl font-black uppercase mb-2 text-black">{plan.name}</h3>
-                  <div className="text-4xl font-black mb-4 text-black">{plan.price}</div>
-                  <p className="font-bold text-black text-sm">{plan.description}</p>
+                  <h3 className="text-2xl font-black uppercase mb-2 text-black">
+                    {plan.name}
+                  </h3>
+                  <div className="text-4xl font-black mb-4 text-black">
+                    {plan.price}
+                  </div>
+                  <p className="font-bold text-black text-sm">
+                    {plan.description}
+                  </p>
                 </div>
                 <ul className="space-y-3 mb-8">
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-center gap-3">
                       <CheckCircle className="h-5 w-5 text-black flex-shrink-0" />
-                      <span className="font-bold text-black text-sm">{feature}</span>
+                      <span className="font-bold text-black text-sm">
+                        {feature}
+                      </span>
                     </li>
                   ))}
                 </ul>
@@ -210,7 +241,9 @@ export default function WebDesignPage() {
             <br />
             <span className="text-black">BRUTAL WEBSITE?</span>
           </h2>
-          <p className="text-xl font-bold mb-8 text-white">STOP SETTLING FOR BORING. GET A WEBSITE THAT CONVERTS.</p>
+          <p className="text-xl font-bold mb-8 text-white">
+            STOP SETTLING FOR BORING. GET A WEBSITE THAT CONVERTS.
+          </p>
           <Link href="/contact">
             <Button className="bg-black text-white border-4 border-black hover:bg-white hover:text-black font-black uppercase text-xl px-12 py-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
               START YOUR PROJECT
@@ -219,5 +252,5 @@ export default function WebDesignPage() {
         </div>
       </section>
     </Layout>
-  )
+  );
 }

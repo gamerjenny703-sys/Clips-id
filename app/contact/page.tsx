@@ -1,9 +1,9 @@
-import Layout from "../../components/layout"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { MapPin, Phone, Mail, Clock } from "lucide-react"
+import Layout from "../../components/shared/layout";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { MapPin, Phone, Mail, Clock } from "lucide-react";
 
 export default function ContactPage() {
   return (
@@ -17,7 +17,8 @@ export default function ContactPage() {
             <span className="text-yellow-400">BRUTAL</span> MAGIC
           </h1>
           <p className="text-xl font-bold max-w-3xl mx-auto">
-            READY TO TRANSFORM YOUR DIGITAL PRESENCE? LET'S TALK ABOUT YOUR PROJECT AND MAKE SOMETHING EXTRAORDINARY.
+            READY TO TRANSFORM YOUR DIGITAL PRESENCE? LET'S TALK ABOUT YOUR
+            PROJECT AND MAKE SOMETHING EXTRAORDINARY.
           </p>
         </div>
       </section>
@@ -28,11 +29,15 @@ export default function ContactPage() {
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Contact Form */}
             <Card className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-8">
-              <h2 className="text-3xl font-black uppercase mb-8">START YOUR PROJECT</h2>
+              <h2 className="text-3xl font-black uppercase mb-8">
+                START YOUR PROJECT
+              </h2>
               <form className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block font-bold uppercase text-sm mb-2">FIRST NAME *</label>
+                    <label className="block font-bold uppercase text-sm mb-2">
+                      FIRST NAME *
+                    </label>
                     <Input
                       required
                       className="border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-bold"
@@ -40,7 +45,9 @@ export default function ContactPage() {
                     />
                   </div>
                   <div>
-                    <label className="block font-bold uppercase text-sm mb-2">LAST NAME *</label>
+                    <label className="block font-bold uppercase text-sm mb-2">
+                      LAST NAME *
+                    </label>
                     <Input
                       required
                       className="border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-bold"
@@ -49,7 +56,9 @@ export default function ContactPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="block font-bold uppercase text-sm mb-2">EMAIL *</label>
+                  <label className="block font-bold uppercase text-sm mb-2">
+                    EMAIL *
+                  </label>
                   <Input
                     type="email"
                     required
@@ -58,14 +67,18 @@ export default function ContactPage() {
                   />
                 </div>
                 <div>
-                  <label className="block font-bold uppercase text-sm mb-2">COMPANY</label>
+                  <label className="block font-bold uppercase text-sm mb-2">
+                    COMPANY
+                  </label>
                   <Input
                     className="border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-bold"
                     placeholder="YOUR COMPANY"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold uppercase text-sm mb-2">PROJECT TYPE *</label>
+                  <label className="block font-bold uppercase text-sm mb-2">
+                    PROJECT TYPE *
+                  </label>
                   <select className="w-full border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-bold p-3 bg-white">
                     <option>WEB DESIGN</option>
                     <option>DEVELOPMENT</option>
@@ -75,7 +88,9 @@ export default function ContactPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block font-bold uppercase text-sm mb-2">BUDGET RANGE *</label>
+                  <label className="block font-bold uppercase text-sm mb-2">
+                    BUDGET RANGE *
+                  </label>
                   <select className="w-full border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-bold p-3 bg-white">
                     <option>$10K - $25K</option>
                     <option>$25K - $50K</option>
@@ -85,7 +100,9 @@ export default function ContactPage() {
                   </select>
                 </div>
                 <div>
-                  <label className="block font-bold uppercase text-sm mb-2">PROJECT DETAILS *</label>
+                  <label className="block font-bold uppercase text-sm mb-2">
+                    PROJECT DETAILS *
+                  </label>
                   <Textarea
                     required
                     rows={6}
@@ -102,7 +119,9 @@ export default function ContactPage() {
             {/* Contact Info */}
             <div className="space-y-8">
               <Card className="bg-yellow-400 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-8">
-                <h3 className="text-2xl font-black uppercase mb-6">GET IN TOUCH</h3>
+                <h3 className="text-2xl font-black uppercase mb-6">
+                  GET IN TOUCH
+                </h3>
                 <div className="space-y-4">
                   <div className="flex items-center gap-4">
                     <Mail className="h-6 w-6" />
@@ -121,7 +140,9 @@ export default function ContactPage() {
                   <div className="flex items-center gap-4">
                     <MapPin className="h-6 w-6" />
                     <div>
-                      <div className="font-bold uppercase text-sm">LOCATION</div>
+                      <div className="font-bold uppercase text-sm">
+                        LOCATION
+                      </div>
                       <div className="font-black">NEW YORK, NY</div>
                     </div>
                   </div>
@@ -136,18 +157,23 @@ export default function ContactPage() {
               </Card>
 
               <Card className="bg-pink-500 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-8 text-white">
-                <h3 className="text-2xl font-black uppercase mb-4">RESPONSE TIME</h3>
+                <h3 className="text-2xl font-black uppercase mb-4">
+                  RESPONSE TIME
+                </h3>
                 <div className="text-4xl font-black mb-2">&lt; 24 HRS</div>
                 <p className="font-bold">
-                  WE DON'T BELIEVE IN KEEPING CLIENTS WAITING. EXPECT A BRUTAL RESPONSE WITHIN 24 HOURS.
+                  WE DON'T BELIEVE IN KEEPING CLIENTS WAITING. EXPECT A BRUTAL
+                  RESPONSE WITHIN 24 HOURS.
                 </p>
               </Card>
 
               <Card className="bg-cyan-400 border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] p-8">
-                <h3 className="text-2xl font-black uppercase mb-4">FREE CONSULTATION</h3>
+                <h3 className="text-2xl font-black uppercase mb-4">
+                  FREE CONSULTATION
+                </h3>
                 <p className="font-bold mb-4">
-                  NOT SURE WHERE TO START? BOOK A FREE 30-MINUTE CONSULTATION AND WE'LL HELP YOU PLAN YOUR BRUTAL
-                  TRANSFORMATION.
+                  NOT SURE WHERE TO START? BOOK A FREE 30-MINUTE CONSULTATION
+                  AND WE'LL HELP YOU PLAN YOUR BRUTAL TRANSFORMATION.
                 </p>
                 <Button className="bg-black text-white border-4 border-black hover:bg-white hover:text-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                   BOOK NOW
@@ -183,14 +209,17 @@ export default function ContactPage() {
               },
               {
                 question: "DO YOU PROVIDE ONGOING SUPPORT?",
-                answer: "YES. WE OFFER MAINTENANCE PACKAGES AND 24/7 SUPPORT. YOUR SUCCESS IS OUR SUCCESS.",
+                answer:
+                  "YES. WE OFFER MAINTENANCE PACKAGES AND 24/7 SUPPORT. YOUR SUCCESS IS OUR SUCCESS.",
               },
             ].map((faq, index) => (
               <Card
                 key={index}
                 className="bg-white text-black border-4 border-white shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] p-6"
               >
-                <h3 className="text-xl font-black uppercase mb-3">{faq.question}</h3>
+                <h3 className="text-xl font-black uppercase mb-3">
+                  {faq.question}
+                </h3>
                 <p className="font-bold">{faq.answer}</p>
               </Card>
             ))}
@@ -198,5 +227,5 @@ export default function ContactPage() {
         </div>
       </section>
     </Layout>
-  )
+  );
 }

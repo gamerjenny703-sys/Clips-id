@@ -1,5 +1,5 @@
 "use client";
-import PaymentSystem from "@/components/payment-system";
+import PaymentSystem from "@/components/payment/payment-system";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
