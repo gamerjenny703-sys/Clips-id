@@ -70,7 +70,9 @@ export default function UserDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-black text-white">$1,247</div>
-              <p className="text-xs font-bold text-white">+$180 this month</p>
+              <p className="text-xs font-bold text-white">
+                +$180 this month
+              </p>{" "}
             </CardContent>
           </Card>
 
@@ -122,7 +124,7 @@ export default function UserDashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="text-xl font-black uppercase text-black">
-                      AVAILABLE CONTESTS
+                      CONTEST SAVED
                     </CardTitle>
                     <CardDescription className="font-bold text-black">
                       Find and join contests to start earning

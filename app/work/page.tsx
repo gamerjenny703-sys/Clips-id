@@ -140,7 +140,7 @@ export default async function WorkPage() {
             <br />
             <span className="text-black">BRUTAL PROJECT?</span>
           </h2>
-          {/* PERBAIKAN DI SINI: Arahkan ke halaman kontak */}
+
           <Link href="/contact">
             <Button className="bg-black text-white border-4 border-black hover:bg-white hover:text-black font-black uppercase text-xl px-12 py-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
               START YOUR PROJECT

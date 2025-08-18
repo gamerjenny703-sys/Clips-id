@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -18,49 +18,181 @@ import {
   Check,
 } from "lucide-react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 
+type SocialAccount = {
+  platform: string;
+  username?: string | null;
+  connected: boolean;
+};
 export default function UserSettings() {
+  const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
   const [userInfo, setUserInfo] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+1 (555) 123-4567",
-    joinDate: "January 2024",
+    name: "",
+    email: "",
+    phone: "",
+    joinDate: "",
   });
+  // State baru untuk loading saat menyimpan
+  const [isSaving, setIsSaving] = useState(false);
+  // State untuk data akun sosial yang akan ditampilkan
+  const [socialAccounts, setSocialAccounts] = useState<SocialAccount[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingPlatform, setLoadingPlatform] = useState<string | null>(null);
 
-  // Mock connected accounts data
-  const connectedAccounts = [
-    {
-      platform: "YouTube",
-      username: "@johndoe",
-      connected: true,
-      followers: "12.5K",
-    },
-    {
-      platform: "TikTok",
-      username: "@johndoe_clips",
-      connected: true,
-      followers: "8.2K",
-    },
-    {
-      platform: "Twitter",
-      username: "@johndoe",
-      connected: false,
-      followers: "0",
-    },
-    {
-      platform: "Instagram",
-      username: "@johndoe",
-      connected: true,
-      followers: "15.3K",
-    },
-  ];
+  // Master list semua platform yang didukung
+  const availablePlatforms = ["YouTube", "TikTok", "Twitter", "Instagram"];
 
-  const handleSave = () => {
-    setIsEditing(false);
-    // Save logic here
+  const fetchConnections = async () => {
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      router.push("/auth/sign-in");
+      return;
+    }
+
+    const { data: connections, error } = await supabase
+      .from("social_connections")
+      .select("platform, username")
+      .eq("user_id", user.id);
+
+    if (error) {
+      console.error("Error fetching connections:", error);
+      setLoading(false);
+      return;
+    }
+
+    // Gabungkan master list dengan data koneksi yang ada
+    const newSocialAccounts = availablePlatforms.map((platformName) => {
+      const existingConnection = connections.find(
+        (c) => c.platform.toLowerCase() === platformName.toLowerCase(),
+      );
+      return {
+        platform: platformName,
+        connected: !!existingConnection,
+        username: existingConnection?.username,
+      };
+    });
+
+    setSocialAccounts(newSocialAccounts);
+    setLoading(false);
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.push("/auth/sign-in");
+        return;
+      }
+
+      // --- TAMBAHAN: Ambil data dari tabel 'profiles' ---
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("full_name, phone_number")
+        .eq("id", user.id)
+        .single();
+      // ---------------------------------------------
+
+      // Isi state userInfo dengan data asli
+      setUserInfo({
+        name: profileData?.full_name || "Nama Belum Diatur",
+        email: user.email || "",
+        phone: profileData?.phone_number || "No. Telepon Belum Diatur",
+        joinDate: user.created_at
+          ? new Date(user.created_at).toLocaleDateString()
+          : "N/A",
+      });
+
+      // --- Logika untuk fetchConnections tetap sama ---
+      const { data: connectionData } = await supabase
+        .from("social_connections")
+        .select("platform, username")
+        .eq("user_id", user.id);
+
+      const availablePlatforms = ["YouTube", "TikTok", "Twitter", "Instagram"];
+      const newSocialAccounts = availablePlatforms.map((platformName) => {
+        const existingConnection = connectionData?.find(
+          (c) => c.platform.toLowerCase() === platformName.toLowerCase(),
+        );
+        return {
+          platform: platformName,
+          connected: !!existingConnection,
+          username: existingConnection?.username,
+        };
+      });
+      setSocialAccounts(newSocialAccounts);
+      // ---------------------------------------------
+
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [router]);
+
+  const handleDisconnect = async (platform: string) => {
+    setLoadingPlatform(platform);
+    try {
+      // Panggil API endpoint disconnect yang baru kita buat
+      const response = await fetch(`/api/auth/disconnect`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ platform }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to disconnect");
+      }
+
+      console.log(`${platform} disconnected successfully`);
+
+      // Penting: Panggil ulang fetchConnections untuk me-refresh UI
+      // agar statusnya berubah dari "CONNECTED" menjadi "CONNECT"
+      await fetchConnections();
+    } catch (err) {
+      console.error(`Disconnection from ${platform} failed`, err);
+      // Di sini bisa ditambahkan notifikasi error jika perlu
+    } finally {
+      setLoadingPlatform(null);
+    }
+  };
+  const handleSave = async () => {
+    setIsSaving(true);
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (user) {
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          full_name: userInfo.name,
+          phone_number: userInfo.phone,
+        })
+        .eq("id", user.id);
+
+      if (error) {
+        console.error("Error updating profile:", error);
+        // Di sini Anda bisa menambahkan notifikasi error
+      } else {
+        console.log("Profile updated successfully!");
+        setIsEditing(false); // Matikan mode edit jika berhasil
+      }
+    }
+    setIsSaving(false);
+  };
   return (
     <div className="min-h-screen bg-white p-4">
       {/* Header */}
@@ -183,47 +315,60 @@ export default function UserSettings() {
               <h2 className="text-2xl font-black uppercase text-black">
                 CONNECTED ACCOUNTS
               </h2>
-              <Button className="bg-black text-white border-4 border-black hover:bg-white hover:text-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                MANAGE CONNECTIONS
-              </Button>
+              {/* Tombol ini bisa dihapus jika semua manajemen ada di sini */}
             </div>
           </div>
           <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {connectedAccounts.map((account, index) => (
-                <div
-                  key={index}
-                  className={`border-4 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${
-                    account.connected ? "bg-green-100" : "bg-red-100"
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-black uppercase text-black">
-                      {account.platform}
-                    </h3>
-                    <Badge
-                      className={`border-2 border-black font-black uppercase ${
-                        account.connected
-                          ? "bg-green-500 text-white"
-                          : "bg-red-500 text-white"
-                      }`}
-                    >
-                      {account.connected ? "CONNECTED" : "NOT CONNECTED"}
-                    </Badge>
-                  </div>
-                  {account.connected && (
-                    <div className="space-y-2">
-                      <p className="font-bold text-black">
-                        Username: {account.username}
-                      </p>
-                      <p className="font-bold text-black">
-                        Followers: {account.followers}
-                      </p>
+            {loading ? (
+              <p className="font-bold text-center">Loading accounts...</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {socialAccounts.map((account) => (
+                  <div
+                    key={account.platform}
+                    className={`border-4 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${
+                      account.connected ? "bg-green-100" : "bg-gray-100"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-black uppercase text-black">
+                        {account.platform}
+                      </h3>
+                      {account.connected ? (
+                        <Button
+                          size="sm"
+                          onClick={() => handleDisconnect(account.platform)}
+                          disabled={!!loadingPlatform}
+                          className="bg-red-500 text-white border-4 border-black hover:bg-red-600 font-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                        >
+                          {loadingPlatform === account.platform
+                            ? "..."
+                            : "DISCONNECT"}
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          onClick={() => handleConnect(account.platform)}
+                          disabled={!!loadingPlatform}
+                          className="bg-black text-white border-4 border-black hover:bg-gray-700 font-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                        >
+                          {loadingPlatform === account.platform
+                            ? "..."
+                            : "CONNECT"}
+                        </Button>
+                      )}
                     </div>
-                  )}
-                </div>
-              ))}
-            </div>
+                    {account.connected && (
+                      <div className="space-y-2">
+                        <p className="font-bold text-black">
+                          Username: {account.username}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </Card>
 
