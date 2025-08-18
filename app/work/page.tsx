@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ExternalLink, Calendar, Search } from "lucide-react";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server"; // <-- Gunakan server client
+import { createClient } from "@/lib/supabase/server";
+export const dynamic = "force-dynamic";
 
 // Ubah fungsi komponen menjadi async
 export default async function WorkPage() {
@@ -174,7 +175,8 @@ export default async function WorkPage() {
             <br />
             <span className="text-black">BRUTAL PROJECT?</span>
           </h2>
-          <Link href="/auth/sign-in">
+          {/* UBAH BARIS DI BAWAH INI */}
+          <Link href="/contact">
             <Button className="bg-black text-white border-4 border-black hover:bg-white hover:text-black font-black uppercase text-xl px-12 py-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
               START YOUR PROJECT
             </Button>
