@@ -40,7 +40,6 @@ export default function Header() {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setShowProfileMenu(false);
-    // State akan otomatis terupdate oleh onAuthStateChange
   };
 
   return (
@@ -105,11 +104,11 @@ export default function Header() {
                       DASHBOARD
                     </Link>
                     <Link
-                      href="/user/progress"
+                      href="/user/settings"
                       className="flex items-center gap-3 p-3 hover:bg-cyan-400 font-bold uppercase text-sm border-2 border-transparent hover:border-black"
                     >
                       <Settings className="h-4 w-4" />
-                      PROGRESS
+                      SETTING
                     </Link>
                     <button
                       onClick={handleSignOut}

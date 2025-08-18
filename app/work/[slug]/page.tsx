@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Layout from "../../../components/layout";
+import Layout from "@/components/shared/layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";

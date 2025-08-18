@@ -1,4 +1,4 @@
-import ProgressTracker from "@/components/progress/progress-tracker";
+import ProgressTracker from "@/components/features/progress/progress-tracker";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";

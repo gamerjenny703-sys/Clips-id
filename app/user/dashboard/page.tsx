@@ -1,7 +1,14 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Search,
   DollarSign,
@@ -19,7 +26,7 @@ import {
   Instagram,
   Twitter,
   CheckCircle,
-} from "lucide-react"
+} from "lucide-react";
 
 export default function UserDashboard() {
   return (
@@ -29,29 +36,36 @@ export default function UserDashboard() {
         <div className="mx-auto max-w-7xl px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-black uppercase text-white">CLIPPER DASHBOARD</h1>
-              <p className="text-white font-bold">FIND CONTESTS, SUBMIT CLIPS, AND EARN REWARDS</p>
+              <h1 className="text-4xl font-black uppercase text-white">
+                CLIPPER DASHBOARD
+              </h1>
+              <p className="text-white font-bold">
+                FIND CONTESTS, SUBMIT CLIPS, AND EARN REWARDS
+              </p>
             </div>
             <div className="flex items-center gap-3">
               <Badge className="border-4 border-white bg-yellow-400 text-black font-black uppercase">
                 <Star className="mr-1 h-3 w-3 fill-black text-black" />
                 LEVEL 3 CLIPPER
               </Badge>
-              <Button className="bg-pink-500 text-white border-4 border-white hover:bg-white hover:text-black font-black uppercase shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
-                <Upload className="mr-2 h-4 w-4" />
-                SUBMIT CLIP
-              </Button>
+              <Link href="/user/contest-details">
+                <Button className="bg-pink-500 text-white border-4 border-white hover:bg-white hover:text-black font-black uppercase shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
+                  <Upload className="mr-2 h-4 w-4" />
+                  SUBMIT CLIP
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
       </header>
 
       <div className="mx-auto max-w-7xl px-4 py-8">
-        {/* Stats Overview */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="border-4 border-black bg-pink-500 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-black uppercase text-white">Total Earnings</CardTitle>
+              <CardTitle className="text-sm font-black uppercase text-white">
+                Total Earnings
+              </CardTitle>
               <DollarSign className="h-4 w-4 text-white" />
             </CardHeader>
             <CardContent>
@@ -62,7 +76,9 @@ export default function UserDashboard() {
 
           <Card className="border-4 border-black bg-yellow-400 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-black uppercase text-black">Contests Won</CardTitle>
+              <CardTitle className="text-sm font-black uppercase text-black">
+                Contests Won
+              </CardTitle>
               <Trophy className="h-4 w-4 text-black" />
             </CardHeader>
             <CardContent>
@@ -73,7 +89,9 @@ export default function UserDashboard() {
 
           <Card className="border-4 border-black bg-cyan-400 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-black uppercase text-black">Active Submissions</CardTitle>
+              <CardTitle className="text-sm font-black uppercase text-black">
+                Active Submissions
+              </CardTitle>
               <Clock className="h-4 w-4 text-black" />
             </CardHeader>
             <CardContent>
@@ -84,7 +102,9 @@ export default function UserDashboard() {
 
           <Card className="border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-black uppercase text-black">Total Views</CardTitle>
+              <CardTitle className="text-sm font-black uppercase text-black">
+                Total Views
+              </CardTitle>
               <Eye className="h-4 w-4 text-black" />
             </CardHeader>
             <CardContent>
@@ -101,7 +121,9 @@ export default function UserDashboard() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle className="text-xl font-black uppercase text-black">AVAILABLE CONTESTS</CardTitle>
+                    <CardTitle className="text-xl font-black uppercase text-black">
+                      AVAILABLE CONTESTS
+                    </CardTitle>
                     <CardDescription className="font-bold text-black">
                       Find and join contests to start earning
                     </CardDescription>
@@ -161,10 +183,16 @@ export default function UserDashboard() {
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <h3 className="font-bold text-lg">{contest.title}</h3>
-                        <p className="text-sm text-black">by {contest.creator}</p>
+                        <p className="text-sm text-black">
+                          by {contest.creator}
+                        </p>
                         <div className="flex items-center gap-2 mt-2">
                           {contest.tags.map((tag, tagIndex) => (
-                            <Badge key={tagIndex} variant="secondary" className="text-xs">
+                            <Badge
+                              key={tagIndex}
+                              variant="secondary"
+                              className="text-xs"
+                            >
                               {tag}
                             </Badge>
                           ))}
@@ -222,16 +250,33 @@ export default function UserDashboard() {
             {/* Social Media Connections */}
             <Card className="border-4 border-black bg-yellow-400 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
               <CardHeader>
-                <CardTitle className="text-lg font-black uppercase text-black">SOCIAL ACCOUNTS</CardTitle>
+                <CardTitle className="text-lg font-black uppercase text-black">
+                  SOCIAL ACCOUNTS
+                </CardTitle>
                 <CardDescription className="font-bold text-black">
                   Connect your accounts to submit clips
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 {[
-                  { platform: "YouTube", icon: Youtube, connected: true, username: "@yourhandle" },
-                  { platform: "TikTok", icon: Instagram, connected: true, username: "@yourhandle" },
-                  { platform: "Twitter", icon: Twitter, connected: false, username: null },
+                  {
+                    platform: "YouTube",
+                    icon: Youtube,
+                    connected: true,
+                    username: "@yourhandle",
+                  },
+                  {
+                    platform: "TikTok",
+                    icon: Instagram,
+                    connected: true,
+                    username: "@yourhandle",
+                  },
+                  {
+                    platform: "Twitter",
+                    icon: Twitter,
+                    connected: false,
+                    username: null,
+                  },
                 ].map((account, index) => (
                   <div
                     key={index}
@@ -240,14 +285,24 @@ export default function UserDashboard() {
                     <div className="flex items-center gap-3">
                       <account.icon className="h-5 w-5" />
                       <div>
-                        <p className="font-medium text-sm">{account.platform}</p>
-                        {account.connected && <p className="text-xs text-black">{account.username}</p>}
+                        <p className="font-medium text-sm">
+                          {account.platform}
+                        </p>
+                        {account.connected && (
+                          <p className="text-xs text-black">
+                            {account.username}
+                          </p>
+                        )}
                       </div>
                     </div>
                     {account.connected ? (
                       <CheckCircle className="h-4 w-4 text-black" />
                     ) : (
-                      <Button size="sm" variant="outline" className="border-4 border-black text-xs bg-transparent">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-4 border-black text-xs bg-transparent"
+                      >
                         Connect
                       </Button>
                     )}
@@ -259,7 +314,9 @@ export default function UserDashboard() {
             {/* Recent Performance */}
             <Card className="border-4 border-black bg-pink-500 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
               <CardHeader>
-                <CardTitle className="text-lg font-black uppercase text-white">RECENT SUBMISSIONS</CardTitle>
+                <CardTitle className="text-lg font-black uppercase text-white">
+                  RECENT SUBMISSIONS
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {[
@@ -285,9 +342,14 @@ export default function UserDashboard() {
                     timeAgo: "3 days ago",
                   },
                 ].map((submission, index) => (
-                  <div key={index} className="p-3 border border-black rounded-lg bg-white">
+                  <div
+                    key={index}
+                    className="p-3 border border-black rounded-lg bg-white"
+                  >
                     <div className="flex items-center justify-between mb-2">
-                      <p className="font-medium text-sm">{submission.contest}</p>
+                      <p className="font-medium text-sm">
+                        {submission.contest}
+                      </p>
                       <div className="flex items-center gap-2">
                         <Badge
                           variant={
@@ -301,7 +363,9 @@ export default function UserDashboard() {
                         >
                           {submission.position}
                         </Badge>
-                        {submission.status === "winning" && <Trophy className="h-3 w-3 text-white" />}
+                        {submission.status === "winning" && (
+                          <Trophy className="h-3 w-3 text-white" />
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center justify-between text-xs text-black">
@@ -329,7 +393,9 @@ export default function UserDashboard() {
             {/* Quick Stats */}
             <Card className="border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
               <CardHeader>
-                <CardTitle className="text-lg font-black uppercase text-black">THIS MONTH</CardTitle>
+                <CardTitle className="text-lg font-black uppercase text-black">
+                  THIS MONTH
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -356,5 +422,5 @@ export default function UserDashboard() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,95 +1,51 @@
-"use client";
-
-import { useState, useMemo } from "react";
-import Layout from "../../components/shared/layout";
+import Layout from "@/components/shared/layout";
+// import { useState, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ExternalLink, Calendar, Search } from "lucide-react";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server"; // <-- Gunakan server client
 
-export default function WorkPage() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [activeFilter, setActiveFilter] = useState("ALL");
+// Ubah fungsi komponen menjadi async
+export default async function WorkPage() {
+  // const [searchTerm, setSearchTerm] = useState("");
+  const supabase = createClient();
 
-  const projects = [
-    {
-      title: "CRYPTO EXCHANGE",
-      category: "WEB DESIGN",
-      year: "2024",
-      description:
-        "BOLD TRADING PLATFORM THAT MAKES CRYPTO ACCESSIBLE TO EVERYONE",
-      image: "/placeholder.svg?height=400&width=600",
-      color: "bg-yellow-400",
-      tags: ["REACT", "TYPESCRIPT", "DESIGN SYSTEM"],
-    },
-    {
-      title: "FASHION BRAND",
-      category: "BRANDING",
-      year: "2024",
-      description: "COMPLETE BRAND IDENTITY FOR STREETWEAR COMPANY",
-      image: "/placeholder.svg?height=400&width=600",
-      color: "bg-pink-500",
-      tags: ["BRANDING", "E-COMMERCE", "PHOTOGRAPHY"],
-    },
-    {
-      title: "TECH STARTUP",
-      category: "DEVELOPMENT",
-      year: "2023",
-      description: "FULL-STACK APPLICATION FOR AI-POWERED ANALYTICS",
-      image: "/placeholder.svg?height=400&width=600",
-      color: "bg-cyan-400",
-      tags: ["NEXT.JS", "AI", "ANALYTICS"],
-    },
-    {
-      title: "RESTAURANT CHAIN",
-      category: "WEB DESIGN",
-      year: "2023",
-      description: "ORDERING SYSTEM THAT INCREASED SALES BY 300%",
-      image: "/placeholder.svg?height=400&width=600",
-      color: "bg-yellow-400",
-      tags: ["UX/UI", "MOBILE", "ORDERING"],
-    },
-    {
-      title: "MUSIC FESTIVAL",
-      category: "BRANDING",
-      year: "2023",
-      description: "EVENT BRANDING THAT SOLD OUT IN 24 HOURS",
-      image: "/placeholder.svg?height=400&width=600",
-      color: "bg-pink-500",
-      tags: ["EVENT", "TICKETS", "SOCIAL"],
-    },
-    {
-      title: "FINTECH APP",
-      category: "DEVELOPMENT",
-      year: "2023",
-      description: "BANKING APP TRUSTED BY 100K+ USERS",
-      image: "/placeholder.svg?height=400&width=600",
-      color: "bg-cyan-400",
-      tags: ["FINTECH", "SECURITY", "MOBILE"],
-    },
-  ];
+  // Ambil data kontes langsung dari Supabase
+  const { data: contests, error } = await supabase.from("contests").select(`
+      id,
+      title,
+      description,
+      created_at,
+      requirements,
+      *,
+      profiles (
+        username,
+        full_name
+      )
+    `);
 
-  const filteredProjects = useMemo(() => {
-    return projects.filter((project) => {
-      const matchesSearch =
-        searchTerm === "" ||
-        project.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        project.tags.some((tag) =>
-          tag.toLowerCase().includes(searchTerm.toLowerCase()),
-        );
+  if (error) {
+    console.error("Error fetching contests:", error);
+    // Anda bisa menampilkan pesan error di sini
+  }
 
-      const matchesFilter =
-        activeFilter === "ALL" || project.category === activeFilter;
-
-      return matchesSearch && matchesFilter;
-    });
-  }, [searchTerm, activeFilter, projects]);
+  // Karena data sudah dari database, kita tidak perlu state atau useMemo lagi
+  const projects =
+    contests?.map((contest) => ({
+      id: contest.id,
+      title: contest.title,
+      category: contest.requirements?.tags?.[0] || "GENERAL",
+      year: new Date(contest.created_at).getFullYear().toString(),
+      description: contest.description,
+      image: "/placeholder.svg?height=400&width=600", // Ganti dengan data asli nanti
+      color: "bg-yellow-400", // Ganti dengan data asli atau logika nanti
+      tags: contest.requirements?.tags || [],
+    })) || [];
 
   return (
     <Layout>
-      {/* Hero Section */}
       <section className="bg-black text-white py-20">
         <div className="mx-auto max-w-6xl px-4 text-center">
           <h1 className="text-6xl md:text-8xl font-black uppercase mb-8">
@@ -102,8 +58,7 @@ export default function WorkPage() {
         </div>
       </section>
 
-      {/* Search and Filter Section */}
-      <section className="bg-yellow-400 py-8">
+      {/*<section className="bg-yellow-400 py-8">
         <div className="mx-auto max-w-6xl px-4">
           <div className="mb-6">
             <div className="relative max-w-md mx-auto">
@@ -141,30 +96,30 @@ export default function WorkPage() {
             </span>
           </div>
         </div>
-      </section>
+      </section>*/}
 
       {/* Projects Grid */}
       <section className="bg-white py-20">
         <div className="mx-auto max-w-6xl px-4">
-          {filteredProjects.length === 0 ? (
+          {projects.length === 0 ? (
             <div className="text-center py-20">
               <h3 className="text-4xl font-black uppercase mb-4">
-                NO PROJECTS FOUND
+                NO CONTESTS FOUND
               </h3>
               <p className="text-lg font-bold text-gray-600">
-                TRY ADJUSTING YOUR SEARCH OR FILTER
+                COME BACK LATER FOR MORE OPPORTUNITIES!
               </p>
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredProjects.map((project, index) => (
+              {projects.map((project, index) => (
                 <Card
                   key={index}
                   className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] overflow-hidden group hover:translate-x-2 hover:translate-y-2 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
                 >
                   <div className="relative overflow-hidden">
                     <img
-                      src={project.image || "/placeholder.svg"}
+                      src={project.image}
                       alt={project.title}
                       className="w-full h-48 object-cover"
                     />
@@ -197,10 +152,12 @@ export default function WorkPage() {
                         </span>
                       ))}
                     </div>
-                    <Button className="w-full bg-black text-white border-4 border-black hover:bg-yellow-400 hover:text-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                      VIEW PROJECT
-                      <ExternalLink className="ml-2 h-4 w-4" />
-                    </Button>
+                    <Link href={`/work/${projects.id}`}>
+                      <Button className="w-full bg-black text-white border-4 border-black hover:bg-yellow-400 hover:text-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                        VIEW PROJECT
+                        <ExternalLink className="ml-2 h-4 w-4" />
+                      </Button>
+                    </Link>
                   </div>
                 </Card>
               ))}
