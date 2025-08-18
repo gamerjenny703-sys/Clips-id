@@ -183,11 +183,9 @@ export default function UserSettings() {
               <h2 className="text-2xl font-black uppercase text-black">
                 CONNECTED ACCOUNTS
               </h2>
-              <Link href="/connect-accounts">
-                <Button className="bg-black text-white border-4 border-black hover:bg-white hover:text-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                  MANAGE CONNECTIONS
-                </Button>
-              </Link>
+              <Button className="bg-black text-white border-4 border-black hover:bg-white hover:text-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                MANAGE CONNECTIONS
+              </Button>
             </div>
           </div>
           <div className="p-6">
