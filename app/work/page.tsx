@@ -17,7 +17,7 @@ export default async function WorkPage() {
       description,
       created_at,
       requirements,
-      profiles (
+      profiles!contests_creator_id_fkey (
         username,
         full_name
       )
@@ -30,11 +30,16 @@ export default async function WorkPage() {
   // Transformasi data untuk UI
   const projects =
     contests?.map((contest) => ({
-      id: contest.id, // Pastikan id ada di sini
+      id: contest.id,
       title: contest.title,
       category: contest.requirements?.tags?.[0] || "GENERAL",
       year: new Date(contest.created_at).getFullYear().toString(),
       description: contest.description,
+      // Akses nama creator dari relasi yang sudah benar
+      creatorName:
+        contest.profiles?.full_name ||
+        contest.profiles?.username ||
+        "Anonymous",
       image: "/placeholder.svg?height=400&width=600",
       color: "bg-yellow-400",
       tags: contest.requirements?.tags || [],

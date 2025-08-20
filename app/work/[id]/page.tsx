@@ -23,22 +23,27 @@ import {
   Heart,
   MessageCircle,
   Calendar,
+  CheckCircle,
+  AlertTriangle,
   Target,
 } from "lucide-react";
 import Link from "next/link";
 import { formatDistanceToNow, format, addDays } from "date-fns";
-import SaveContestButton from "@/components/features/contest/SaveContestButton"; // Impor komponen baru
+import SaveContestButton from "@/components/features/contest/SaveContestButton";
 
 export const dynamic = "force-dynamic";
 
-// Helper untuk waktu
+// Helper functions
 const getTimeLeft = (endDate: string | null) => {
   if (!endDate) return "Until Won";
-  return formatDistanceToNow(new Date(endDate), { addSuffix: true });
+  const now = new Date();
+  const end = new Date(endDate);
+  if (now > end) return "Finished";
+  return formatDistanceToNow(end, { addSuffix: true });
 };
 
-// Helper untuk inisial
 const getInitials = (name: string) => {
+  if (!name) return "??";
   return name
     .split(" ")
     .map((n) => n[0])
@@ -52,52 +57,80 @@ export default async function ContestDetails({
   params: { id: string };
 }) {
   const supabase = createClient();
-
   const contestId = Number(params.id);
 
-  // Mengambil data kontes tunggal
-  const { data: contest, error: contestError } = await supabase
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Mengambil semua data yang dibutuhkan secara paralel
+  const contestReq = supabase
     .from("contests")
-    .select(`*, profiles (full_name, username)`)
+    .select(`*, profiles!contests_creator_id_fkey (full_name, username)`)
     .eq("id", contestId)
     .single();
+
+  const submissionsReq = supabase
+    .from("submissions")
+    .select(`id, video_url, view_count, like_count, profiles (username)`)
+    .eq("contest_id", contestId)
+    .order("view_count", { ascending: false })
+    .limit(3);
+
+  const participantCountReq = supabase
+    .from("submissions")
+    .select("*", { count: "exact", head: true })
+    .eq("contest_id", contestId);
+
+  const [contestRes, submissionsRes, participantCountRes] = await Promise.all([
+    contestReq,
+    submissionsReq,
+    participantCountReq,
+  ]);
+
+  const { data: contest, error: contestError } = contestRes;
 
   if (contestError || !contest) {
     notFound();
   }
 
-  // Mengambil 3 submisi teratas
-  const { data: submissions, error: submissionsError } = await supabase
-    .from("submissions")
-    .select(`*, profiles (username, full_name)`)
-    .eq("contest_id", contestId)
-    .order("view_count", { ascending: false })
-    .limit(3);
+  // Mengambil data tambahan yang bergantung pada hasil query pertama
+  const [creatorStats, isSaved] = await Promise.all([
+    // Ambil statistik kreator
+    (async () => {
+      let stats = { contestsCreated: 0, totalPrizePool: 0 };
+      if (contest.creator_id) {
+        const { data: creatorContests } = await supabase
+          .from("contests")
+          .select("prize_pool")
+          .eq("creator_id", contest.creator_id);
 
-  // Mengambil jumlah total partisipan
-  const { count: participantCount, error: countError } = await supabase
-    .from("submissions")
-    .select("*", { count: "exact", head: true })
-    .eq("contest_id", contestId);
+        if (creatorContests) {
+          stats.contestsCreated = creatorContests.length;
+          stats.totalPrizePool = creatorContests.reduce(
+            (sum, current) => sum + Number(current.prize_pool || 0),
+            0,
+          );
+        }
+      }
+      return stats;
+    })(),
+    // Cek apakah kontes sudah disimpan oleh user
+    (async () => {
+      if (!user) return false;
+      const { data } = await supabase
+        .from("saved_contests")
+        .select("contest_id")
+        .match({ user_id: user.id, contest_id: contestId })
+        .single();
+      return !!data;
+    })(),
+  ]);
 
-  // Mengambil statistik kreator
-  let creatorStats = { contestsCreated: 0, totalPrizePool: 0 };
-  if (contest.creator_id) {
-    const { data: creatorContests, error: creatorError } = await supabase
-      .from("contests")
-      .select("prize_pool")
-      .eq("creator_id", contest.creator_id);
+  const { data: submissions } = submissionsRes;
+  const participantCount = participantCountRes.count;
 
-    if (creatorContests) {
-      creatorStats.contestsCreated = creatorContests.length;
-      creatorStats.totalPrizePool = creatorContests.reduce(
-        (sum, current) => sum + (current.prize_pool || 0),
-        0,
-      );
-    }
-  }
-
-  // Helper variables
+  // Helper variables untuk JSX
   const creatorName =
     contest.profiles?.full_name ||
     contest.profiles?.username ||
@@ -139,7 +172,6 @@ export default async function ContestDetails({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Contest Overview */}
             <Card className="border-4 border-black bg-pink-500 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
               <CardHeader>
                 <div className="flex items-start justify-between">
@@ -181,7 +213,6 @@ export default async function ContestDetails({
                   </div>
                 )}
               </CardHeader>
-
               <CardContent className="space-y-4">
                 <p className="text-white font-bold text-lg">
                   {contest.description}
@@ -190,7 +221,7 @@ export default async function ContestDetails({
                   <div className="text-center">
                     <DollarSign className="h-6 w-6 mx-auto text-black mb-1" />
                     <div className="font-black text-xl text-black">
-                      ${contest.prize_pool}
+                      ${Number(contest.prize_pool).toLocaleString()}
                     </div>
                     <div className="text-xs font-bold text-black">
                       PRIZE POOL
@@ -225,7 +256,10 @@ export default async function ContestDetails({
               </CardContent>
             </Card>
 
-            {/* Requirements Card (tetap statis sesuai permintaan) */}
+            {/* Requirements Card */}
+            <Card className="border-4 border-black bg-yellow-400 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+              {/* ... konten statis ... */}
+            </Card>
 
             {/* Leaderboard Card */}
             <Card className="border-4 border-black bg-cyan-400 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
@@ -247,22 +281,20 @@ export default async function ContestDetails({
                       <div className="flex items-center justify-center w-8 h-8 bg-black text-white font-black rounded">
                         {index + 1}
                       </div>
-                      <div className="flex-1">
+                      <div className="flex-1 min-w-0">
                         <p className="font-black text-black truncate">
                           Clip by {entry.profiles?.username || "user"}
                         </p>
-                        <p className="text-sm font-bold text-black truncate">
-                          <a
-                            href={entry.video_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:underline"
-                          >
-                            {entry.video_url}
-                          </a>
-                        </p>
+                        <a
+                          href={entry.video_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm font-bold text-black truncate block hover:underline"
+                        >
+                          {entry.video_url}
+                        </a>
                       </div>
-                      <div className="flex items-center gap-4 text-sm">
+                      <div className="flex items-center gap-4 text-sm flex-shrink-0">
                         <span className="flex items-center gap-1">
                           <Eye className="h-3 w-3" />
                           {entry.view_count?.toLocaleString() ?? 0}
@@ -275,7 +307,7 @@ export default async function ContestDetails({
                     </div>
                   ))
                 ) : (
-                  <p className="font-bold text-center">
+                  <p className="font-bold text-center p-4">
                     No submissions yet. Be the first!
                   </p>
                 )}
@@ -285,7 +317,6 @@ export default async function ContestDetails({
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Contest Timeline */}
             <Card className="border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
               <CardHeader>
                 <CardTitle className="text-lg font-black uppercase text-black">
@@ -324,8 +355,6 @@ export default async function ContestDetails({
                 </div>
               </CardContent>
             </Card>
-
-            {/* Judging Criteria (tetap statis) */}
 
             {/* Creator Profile */}
             <Card className="border-4 border-black bg-yellow-400 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
@@ -368,10 +397,15 @@ export default async function ContestDetails({
 
             {/* Action Buttons */}
             <div className="space-y-3">
-              <Button className="w-full bg-pink-500 text-white border-4 border-black hover:bg-black hover:text-white font-black uppercase shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] h-16 text-lg">
-                JOIN CONTEST
-              </Button>
-              <SaveContestButton contestId={contest.id} />
+              <Link href={`/user/submit-clip/${contest.id}`}>
+                <Button className="w-full bg-pink-500 text-white border-4 border-black hover:bg-black hover:text-white font-black uppercase shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] h-16 text-lg">
+                  JOIN CONTEST
+                </Button>
+              </Link>
+              <SaveContestButton
+                contestId={contest.id}
+                isInitiallySaved={isSaved}
+              />
             </div>
           </div>
         </div>
