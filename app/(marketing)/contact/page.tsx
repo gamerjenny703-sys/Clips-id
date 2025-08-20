@@ -1,4 +1,3 @@
-import Layout from "../../components/shared/layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +6,7 @@ import { MapPin, Phone, Mail, Clock } from "lucide-react";
 
 export default function ContactPage() {
   return (
-    <Layout>
+    <>
       {/* Hero Section */}
       <section className="bg-black text-white py-20">
         <div className="mx-auto max-w-6xl px-4 text-center">
@@ -226,6 +225,6 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
-    </Layout>
+    </>
   );
 }

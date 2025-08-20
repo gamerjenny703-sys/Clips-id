@@ -1,4 +1,3 @@
-import Layout from "@/components/shared/layout";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,7 +45,7 @@ export default async function WorkPage() {
     })) || [];
 
   return (
-    <Layout>
+    <>
       <section className="bg-black text-white py-20">
         <div className="mx-auto max-w-6xl px-4 text-center">
           <h1 className="text-6xl md:text-8xl font-black uppercase mb-8">
@@ -153,6 +152,6 @@ export default async function WorkPage() {
           </Link>
         </div>
       </section>
-    </Layout>
+    </>
   );
 }

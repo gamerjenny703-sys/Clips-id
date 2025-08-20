@@ -15,7 +15,6 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
-    // 2. Ambil semua submisi dari kontes yang masih aktif.
     const { data: submissions, error } = await supabase
       .from("submissions")
       .select(
@@ -42,10 +41,8 @@ serve(async (req) => {
       console.log(
         `Processing submission ID: ${submission.id}, Platform: ${submission.platform}`,
       );
-      // Di sini nanti kita akan tambahkan logika untuk memanggil API YouTube, TikTok, dll.
     }
 
-    // 4. Kirim respons sukses.
     return new Response(
       JSON.stringify({
         message: `Successfully processed ${submissions.length} submissions.`,
