@@ -1,9 +1,9 @@
 export default function StatsSection() {
   const stats = [
-    { number: "500+", label: "PROJECTS COMPLETED" },
-    { number: "99%", label: "CLIENT SATISFACTION" },
-    { number: "24/7", label: "SUPPORT AVAILABLE" },
-    { number: "0", label: "BORING WEBSITES" },
+    { number: "1,200+", label: "KLIP DI-SUBMIT" },
+    { number: "$25,000+", label: "TOTAL HADIAH" },
+    { number: "500+", label: "KONTES DIBUAT" },
+    { number: "0", label: "BIAYA TERSEMBUNYI" },
   ];
 
   return (

@@ -5,23 +5,23 @@ export default function FeaturesSection() {
   const features = [
     {
       icon: Zap,
-      title: "LIGHTNING FAST",
+      title: "BAYARAN BERBASIS PERFORMA",
       description:
-        "WEBSITES THAT LOAD IN MILLISECONDS, NOT MINUTES. SPEED IS EVERYTHING.",
+        "Clippers dibayar berdasarkan views, likes, dan engagement. Semakin viral, semakin besar pendapatanmu.",
       color: "bg-yellow-400",
     },
     {
       icon: Shield,
-      title: "BULLETPROOF",
+      title: "DANA AMAN (ESCROW)",
       description:
-        "SECURE, RELIABLE, AND BUILT TO WITHSTAND ANYTHING THE INTERNET THROWS AT IT.",
+        "Prize pool disimpan dengan aman oleh Clips.ID dan dicairkan secara otomatis saat pemenang ditentukan oleh sistem.",
       color: "bg-pink-500",
     },
     {
       icon: Target,
-      title: "CONVERSION FOCUSED",
+      title: "PELACAKAN OTOMATIS",
       description:
-        "EVERY PIXEL DESIGNED TO TURN VISITORS INTO CUSTOMERS. RESULTS GUARANTEED.",
+        "Sistem kami melacak metrik video dari YouTube & TikTok secara real-time. Tidak perlu lagi laporan manual.",
       color: "bg-cyan-400",
     },
   ];
@@ -30,7 +30,7 @@ export default function FeaturesSection() {
     <section className="bg-black text-white py-20">
       <div className="mx-auto max-w-6xl px-4">
         <h2 className="text-5xl font-black uppercase text-center mb-16">
-          WHY CHOOSE <span className="text-yellow-400">BRUTAL?</span>
+          KENAPA MEMILIH <span className="text-yellow-400">CLIPS.ID?</span>
         </h2>
         <div className="grid md:grid-cols-3 gap-8">
           {features.map((feature, index) => (
