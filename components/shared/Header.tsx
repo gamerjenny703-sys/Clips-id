@@ -66,10 +66,16 @@ export default function Header() {
             ABOUT
           </Link>
           <Link
-            href="/contact"
+            href="/terms"
             className="font-bold uppercase text-sm hover:underline decoration-4"
           >
-            CONTACT-US
+            TERMS
+          </Link>
+          <Link
+            href="/privacy"
+            className="font-bold uppercase text-sm hover:underline decoration-4"
+          >
+            PRIVACY
           </Link>
         </nav>
         <div className="flex items-center gap-4">
