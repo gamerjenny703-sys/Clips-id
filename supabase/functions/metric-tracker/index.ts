@@ -217,6 +217,29 @@ serve(async (req) => {
               prize_awarded: submission.contests.prize_pool,
             });
 
+          if (!winnerInsertError) {
+            // --- TAMBAHAN BARU: Panggil fungsi untuk menambah saldo ---
+            const { error: balanceError } = await supabase.rpc(
+              "increment_balance",
+              {
+                user_id_input: submission.clipper_id,
+                amount_input: submission.contests.prize_pool,
+              },
+            );
+
+            if (balanceError) {
+              console.error(
+                `Failed to increment balance for user ${submission.clipper_id}:`,
+                balanceError.message,
+              );
+            } else {
+              console.log(
+                `Successfully incremented balance for winner ${submission.clipper_id}.`,
+              );
+            }
+            // ---------------------------------------------------------
+          }
+
           if (winnerInsertError) {
             console.error(
               `Failed to insert winner for contest ${submission.contest_id}:`,

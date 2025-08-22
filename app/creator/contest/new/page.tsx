@@ -36,11 +36,19 @@ import {
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
+declare global {
+  interface Window {
+    snap: any;
+  }
+}
+
 export default function CreateContestPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [newTag, setNewTag] = useState("");
+
+  const [paymentToken, setPaymentToken] = useState<string | null>(null);
 
   const [contestData, setContestData] = useState({
     title: "",
@@ -65,6 +73,21 @@ export default function CreateContestPage() {
     requirements: "",
     tags: [] as string[],
   });
+  useEffect(() => {
+    const snapScriptUrl = "https://app.sandbox.midtrans.com/snap/snap.js";
+    const clientKey = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY;
+
+    const script = document.createElement("script");
+    script.src = snapScriptUrl;
+    script.setAttribute("data-client-key", clientKey!);
+    script.async = true;
+
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
 
   const platformsOptions = [
     { id: "youtube", name: "YouTube", icon: Youtube },
@@ -109,6 +132,8 @@ export default function CreateContestPage() {
     });
   };
 
+  // Ganti seluruh fungsi handleSubmit Anda dengan ini
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -125,36 +150,112 @@ export default function CreateContestPage() {
       return;
     }
 
-    const endDate = new Date();
-    const durationDays =
-      contestData.rules.duration.type === "fixed"
-        ? contestData.rules.duration.days
-        : contestData.rules.duration.max_days;
-    endDate.setDate(endDate.getDate() + durationDays);
-
-    const { error: insertError } = await supabase.from("contests").insert({
-      title: contestData.title,
-      description: contestData.description,
-      prize_pool: parseFloat(contestData.prize_pool),
-      creator_id: user.id,
-      end_date: endDate.toISOString(),
-      rules: contestData.rules,
-      requirements: {
-        platforms: contestData.platforms,
-        tags: contestData.tags,
-        custom: contestData.requirements,
-      },
-    });
-
-    if (insertError) {
-      console.error("Error creating contest:", insertError);
-      setError(insertError.message);
-    } else {
-      console.log("Contest created successfully!");
-      router.push("/creator/dashboard");
+    // Validasi dasar
+    if (
+      !contestData.title ||
+      !contestData.description ||
+      !contestData.prize_pool
+    ) {
+      setError("Please fill all required fields.");
+      setIsSubmitting(false);
+      return;
     }
 
-    setIsSubmitting(false);
+    try {
+      // Langkah 1: Minta payment token dari backend kita
+      console.log("Requesting payment token...");
+      const response = await fetch("/api/payments/midtrans/create-token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: parseFloat(contestData.prize_pool),
+          contestTitle: contestData.title,
+          user: {
+            first_name: user.user_metadata?.full_name || "User",
+            email: user.email,
+          },
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(
+          data.error || "Failed to get payment token from server.",
+        );
+      }
+
+      const token = data.token;
+      if (!token) {
+        throw new Error("Received an empty token from server.");
+      }
+
+      console.log("Payment token received. Opening Midtrans Snap...");
+
+      // Langkah 2: Tampilkan popup pembayaran Midtrans Snap
+      window.snap.pay(token, {
+        onSuccess: async (result: any) => {
+          console.log("Payment successful!", result);
+
+          // Langkah 3: HANYA SETELAH PEMBAYARAN SUKSES, simpan kontes ke Supabase
+          const endDate = new Date();
+          const durationDays =
+            contestData.rules.duration.type === "fixed"
+              ? contestData.rules.duration.days
+              : contestData.rules.duration.max_days;
+          endDate.setDate(endDate.getDate() + durationDays);
+
+          const { error: insertError } = await supabase
+            .from("contests")
+            .insert({
+              title: contestData.title,
+              description: contestData.description,
+              prize_pool: parseFloat(contestData.prize_pool),
+              creator_id: user.id,
+              end_date: endDate.toISOString(),
+              rules: contestData.rules,
+              requirements: {
+                platforms: contestData.platforms,
+                tags: contestData.tags,
+                custom: contestData.requirements,
+              },
+            })
+            .select()
+            .single(); // .select().single() untuk mendapatkan data yang baru dibuat
+
+          if (insertError) {
+            throw new Error(insertError.message);
+          }
+
+          console.log("Contest successfully saved to database.");
+
+          // (Opsional) Langkah 4: Panggil API escrow kita
+          // await fetch('/api/payments/escrow', { ... });
+
+          router.push("/creator/dashboard");
+        },
+        onPending: (result: any) => {
+          console.log("Payment pending:", result);
+          setError(
+            "Payment is pending. Please complete your payment to create the contest.",
+          );
+          setIsSubmitting(false);
+        },
+        onError: (result: any) => {
+          console.error("Payment error:", result);
+          setError("Payment failed. Please try again.");
+          setIsSubmitting(false);
+        },
+        onClose: () => {
+          console.log("Payment popup closed without finishing.");
+          // Jangan set error jika pengguna hanya menutupnya
+          setIsSubmitting(false);
+        },
+      });
+    } catch (err: any) {
+      console.error("HandleSubmit Error:", err);
+      setError(err.message);
+      setIsSubmitting(false);
+    }
   };
 
   return (
