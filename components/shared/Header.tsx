@@ -135,7 +135,7 @@ export default function Header() {
                   GET STARTED
                 </Button>
               </Link>
-              <Link href="/auth/sign-in">
+              <Link href="/sign-in">
                 <Button className="bg-pink-500 text-white border-4 border-black hover:bg-white hover:text-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                   SIGN IN
                 </Button>

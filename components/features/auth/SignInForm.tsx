@@ -159,7 +159,7 @@ export default function SignInForm() {
             <p className="text-black font-bold">
               DON'T HAVE AN ACCOUNT?{" "}
               <Link
-                href="/auth/sign-up"
+                href="/sign-up"
                 className="text-pink-500 hover:text-cyan-400 underline font-black uppercase"
               >
                 SIGN UP HERE
