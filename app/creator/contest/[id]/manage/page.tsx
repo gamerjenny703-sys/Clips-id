@@ -64,7 +64,7 @@ export default async function ManageContestPage({
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) redirect("/auth/sign-in");
+  if (!user) redirect("/sign-in");
 
   const { data: contest, error: contestError } = await supabase
     .from("contests")

@@ -36,7 +36,7 @@ export default async function CreatorDashboard() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth/sign-in");
+    redirect("/sign-in");
   }
 
   // 1. Ambil semua kontes yang dibuat oleh user ini
