@@ -1,5 +1,3 @@
-// components/features/contest/SubmitClipForm.tsx
-
 "use client";
 
 import { useState } from "react";
@@ -13,8 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Upload, Link as LinkIcon, PlusCircle, XCircle } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { Upload, PlusCircle, XCircle } from "lucide-react";
 
 type SubmissionEntry = {
   platform: string;
@@ -23,14 +20,12 @@ type SubmissionEntry = {
 
 type SubmitClipFormProps = {
   contestId: number;
-  clipperId: string;
   allowedPlatforms: string[];
   connectedPlatforms: { platform: string; username: string }[];
 };
 
 export default function SubmitClipForm({
   contestId,
-  clipperId,
   allowedPlatforms,
   connectedPlatforms,
 }: SubmitClipFormProps) {
@@ -40,6 +35,7 @@ export default function SubmitClipForm({
   ]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState(""); // State untuk pesan sukses
 
   const availablePlatforms = connectedPlatforms.filter((p) =>
     allowedPlatforms.includes(p.platform.toLowerCase()),
@@ -68,43 +64,76 @@ export default function SubmitClipForm({
     e.preventDefault();
     setIsLoading(true);
     setError("");
+    setSuccess("");
 
     const validSubmissions = submissions.filter(
       (s) => s.platform && s.video_url,
     );
-
     if (validSubmissions.length === 0) {
       setError("Please add at least one valid clip link and platform.");
       setIsLoading(false);
       return;
     }
 
-    const supabase = createClient();
-    const submissionsToInsert = validSubmissions.map((s) => ({
-      contest_id: contestId,
-      clipper_id: clipperId,
-      ...s,
-    }));
+    // Gunakan Promise.all untuk mengirim semua submisi secara paralel
+    const submissionPromises = validSubmissions.map((submission) =>
+      fetch("/api/submissions/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contestId: contestId,
+          platform: submission.platform,
+          video_url: submission.video_url,
+        }),
+      }).then((res) => {
+        // Handle respons yang mungkin bukan JSON
+        if (!res.ok) {
+          return res.text().then((text) => {
+            try {
+              return { error: JSON.parse(text).error || "Server error" };
+            } catch {
+              return { error: text || "Server error" };
+            }
+          });
+        }
+        return res.json();
+      }),
+    );
 
-    const { error: insertError } = await supabase
-      .from("submissions")
-      .insert(submissionsToInsert);
+    try {
+      const results = await Promise.all(submissionPromises);
 
-    if (insertError) {
-      setError(insertError.message);
-    } else {
-      console.log("Submissions successful!");
-      router.push("/user/dashboard");
-      router.refresh();
+      const failedSubmissions = results.filter((res) => res.error);
+      if (failedSubmissions.length > 0) {
+        throw new Error(failedSubmissions[0].error);
+      }
+
+      setSuccess(
+        `${results.length} clip(s) submitted successfully and are now pending review.`,
+      );
+      setSubmissions([{ platform: "", video_url: "" }]);
+
+      setTimeout(() => {
+        router.push(`/work/${contestId}`);
+        router.refresh();
+      }, 3000);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       {error && (
-        <p className="text-red-500 font-bold p-2 bg-red-100 border-2 border-red-500">
+        <p className="font-bold text-red-500 p-2 bg-red-100 border-2 border-red-500">
           {error}
+        </p>
+      )}
+      {success && (
+        <p className="font-bold text-green-600 p-2 bg-green-100 border-2 border-green-500">
+          {success}
         </p>
       )}
 
