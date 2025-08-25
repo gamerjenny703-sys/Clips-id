@@ -1,0 +1,18 @@
+name: Trigger Supabase Metric Tracker
+
+on:
+  workflow_dispatch: # Memungkinkan kita menjalankan manual dari tab Actions di GitHub
+  schedule:
+    # Menjalankan setiap jam, pada menit ke-0
+    - cron: "0 * * * *"
+
+jobs:
+  trigger-function:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Supabase Edge Function URL
+        # Menggunakan curl untuk memanggil fungsi dengan metode POST dan header Authorization
+        run: |
+          curl -X POST "${{ https://skhhodaegohhedcomccs.supabase.co/functions/v1/metric-tracker }}" \
+          -H "Authorization: Bearer ${{eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNraGhvZGFlZ29oaGVkY29tY2NzIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1NTQyMzA0OCwiZXhwIjoyMDcwOTk5MDQ4fQ.ILCovV0WH0s8l_K_eRCoAWouCnmjz9xinAQXlL1qNHo }}" \
+          -H "Content-Type: application/json"
