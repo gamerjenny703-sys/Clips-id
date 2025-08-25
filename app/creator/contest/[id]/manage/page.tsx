@@ -33,24 +33,36 @@ import { formatDistanceToNowStrict } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // --- SERVER ACTION BARU UNTUK APPROVE/REJECT ---
-async function approveSubmission(submissionId: number) {
+async function approveSubmission(submissionId: number, contestId: number) {
   "use server";
   const supabase = createClient();
-  await supabase
+  const { error } = await supabase
     .from("submissions")
     .update({ status: "approved" })
     .eq("id", submissionId);
-  revalidatePath(`/creator/contest/${submissionId}/manage`); // Refresh halaman
+
+  if (!error) {
+    revalidatePath(`/creator/contest/${contestId}/manage`); // Refresh halaman
+  } else {
+    console.error("Error approving submission:", error.message);
+    // Anda bisa menambahkan penanganan error yang lebih baik di sini
+  }
 }
 
-async function rejectSubmission(submissionId: number) {
+async function rejectSubmission(submissionId: number, contestId: number) {
   "use server";
   const supabase = createClient();
-  await supabase
+  const { error } = await supabase
     .from("submissions")
     .update({ status: "rejected" })
     .eq("id", submissionId);
-  revalidatePath(`/creator/contest/${submissionId}/manage`); // Refresh halaman
+
+  if (!error) {
+    revalidatePath(`/creator/contest/${contestId}/manage`); // Refresh halaman
+  } else {
+    console.error("Error rejecting submission:", error.message);
+    // Anda bisa menambahkan penanganan error yang lebih baik di sini
+  }
 }
 
 export default async function ManageContestPage({
@@ -84,17 +96,73 @@ export default async function ManageContestPage({
     (s) => s.status === "approved",
   );
 
-  // ... (Kalkulasi statistik lainnya tetap sama) ...
+  // Kalkulasi statistik lainnya
   const totalParticipants = new Set(
     approvedSubmissions.map((s) => s.profiles?.username),
   ).size;
 
   return (
     <div className="min-h-screen bg-white">
-      {/* ... Header (tidak berubah) ... */}
+      {/* Header */}
+      <header className="border-b-4 border-black bg-black text-white">
+        <div className="mx-auto max-w-7xl px-4 py-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Link href="/creator/dashboard">
+                <Button className="bg-white text-black border-4 border-white hover:bg-pink-500 hover:text-white font-black uppercase shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  DASHBOARD
+                </Button>
+              </Link>
+              <div>
+                <h1 className="text-4xl font-black uppercase text-white">
+                  MANAGE CONTEST
+                </h1>
+                <p className="text-white font-bold">{contest.title}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
 
       <div className="mx-auto max-w-7xl px-4 py-8">
-        {/* ... Card Progress (tidak berubah) ... */}
+        {/* Contest Progress Card (statis untuk saat ini) */}
+        <Card className="mb-8 border-4 border-black bg-cyan-400 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <CardHeader>
+            <CardTitle className="text-2xl font-black uppercase text-black">
+              Contest Progress
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="text-center bg-white p-4 border-2 border-black">
+              <Users className="h-6 w-6 mx-auto mb-1" />
+              <div className="font-black text-xl">{totalParticipants}</div>
+              <div className="text-xs font-bold">Participants</div>
+            </div>
+            <div className="text-center bg-white p-4 border-2 border-black">
+              <Eye className="h-6 w-6 mx-auto mb-1" />
+              <div className="font-black text-xl">
+                {/* Data ini perlu dihitung */}
+                12.5K
+              </div>
+              <div className="text-xs font-bold">Total Views</div>
+            </div>
+            <div className="text-center bg-white p-4 border-2 border-black">
+              <Clock className="h-6 w-6 mx-auto mb-1" />
+              <div className="font-black text-xl">
+                {formatDistanceToNowStrict(new Date(contest.end_date))}
+              </div>
+              <div className="text-xs font-bold">Time Left</div>
+            </div>
+            <div className="text-center bg-white p-4 border-2 border-black">
+              <DollarSign className="h-6 w-6 mx-auto mb-1" />
+              <div className="font-black text-xl">
+                ${Number(contest.prize_pool).toLocaleString()}
+              </div>
+              <div className="text-xs font-bold">Prize Pool</div>
+            </div>
+          </CardContent>
+        </Card>
 
         <Tabs defaultValue="review" className="space-y-6">
           <TabsList className="grid w-full grid-cols-3 bg-yellow-400 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
@@ -151,8 +219,15 @@ export default async function ManageContestPage({
                           {submission.video_url}
                         </p>
                       </div>
-                      <form action={() => approveSubmission(submission.id)}>
+                      <form
+                        action={approveSubmission.bind(
+                          null,
+                          submission.id,
+                          contest.id,
+                        )}
+                      >
                         <Button
+                          type="submit"
                           size="sm"
                           className="bg-green-500 hover:bg-green-600 border-2 border-black font-bold uppercase"
                         >
@@ -160,8 +235,15 @@ export default async function ManageContestPage({
                           Approve
                         </Button>
                       </form>
-                      <form action={() => rejectSubmission(submission.id)}>
+                      <form
+                        action={rejectSubmission.bind(
+                          null,
+                          submission.id,
+                          contest.id,
+                        )}
+                      >
                         <Button
+                          type="submit"
                           size="sm"
                           variant="destructive"
                           className="border-2 border-black font-bold uppercase"
@@ -184,11 +266,17 @@ export default async function ManageContestPage({
           {/* TAB LEADERBOARD (sebelumnya Submissions) */}
           <TabsContent value="leaderboard" className="space-y-4">
             {/* Logika untuk menampilkan leaderboard dari 'approvedSubmissions' */}
+            <p className="text-center font-bold p-8">
+              Leaderboard will be displayed here.
+            </p>
           </TabsContent>
 
           {/* TAB SETTINGS */}
           <TabsContent value="settings">
-            {/* ... Konten statis settings ... */}
+            {/* Konten statis settings */}
+            <p className="text-center font-bold p-8">
+              Contest settings will be available here.
+            </p>
           </TabsContent>
         </Tabs>
       </div>

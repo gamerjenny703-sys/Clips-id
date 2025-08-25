@@ -139,6 +139,35 @@ export default function UserSettings() {
     fetchData();
   }, [router]);
 
+  const handleConnect = async (platform: string) => {
+    setLoadingPlatform(platform);
+    try {
+      // Panggil API endpoint kita untuk mendapatkan URL otorisasi
+      const response = await fetch(`/api/auth/${platform.toLowerCase()}`, {
+        method: "POST",
+        // Body bisa ditambahkan jika perlu mengirim user_id, tapi untuk GET URL tidak perlu
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to get auth URL for ${platform}`);
+      }
+
+      const { authUrl } = await response.json();
+
+      if (authUrl) {
+        // Arahkan pengguna ke halaman otorisasi platform
+        window.location.href = authUrl;
+      } else {
+        throw new Error(`No authUrl received for ${platform}`);
+      }
+    } catch (err) {
+      console.error(`Connection to ${platform} failed`, err);
+      // Di sini bisa ditambahkan notifikasi error jika perlu
+      setLoadingPlatform(null);
+    }
+    // Tidak perlu finally karena halaman akan redirect
+  };
+
   const handleDisconnect = async (platform: string) => {
     setLoadingPlatform(platform);
     try {
