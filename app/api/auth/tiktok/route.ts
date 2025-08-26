@@ -1,4 +1,7 @@
-import { createClient } from "@/lib/supabase/server";
+// app/api/auth/tiktok/route.ts
+
+import { createClient as createServerClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -11,7 +14,7 @@ export async function GET(request: NextRequest) {
   }
 
   const userId = state;
-  const supabase = createClient();
+  const supabaseAdmin = createAdminClient();
 
   try {
     const tokenResponse = await fetch(
@@ -30,8 +33,12 @@ export async function GET(request: NextRequest) {
     );
 
     const tokenData = await tokenResponse.json();
-    if (!tokenResponse.ok || tokenData.error?.error) {
-      // Cek jika ada error dari token exchange
+    if (
+      !tokenResponse.ok ||
+      (tokenData.error &&
+        tokenData.error.code !== "ok" &&
+        tokenData.error.error)
+    ) {
       console.error("TikTok Token Exchange Error:", tokenData);
       throw new Error(
         tokenData.error_description || "Failed to exchange code for tokens",
@@ -47,9 +54,6 @@ export async function GET(request: NextRequest) {
     );
 
     const profileData = await profileResponse.json();
-
-    // --- PERBAIKAN KONDISI DI SINI ---
-    // Hanya anggap error jika code BUKAN "ok"
     if (
       !profileResponse.ok ||
       (profileData.error && profileData.error.code !== "ok")
@@ -60,7 +64,7 @@ export async function GET(request: NextRequest) {
 
     const tiktokUser = profileData.data.user;
 
-    const { error: upsertError } = await supabase
+    const { error: upsertError } = await supabaseAdmin
       .from("social_connections")
       .upsert(
         {
@@ -90,9 +94,8 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// ... (fungsi POST Anda tetap di sini, tidak perlu diubah) ...
 export async function POST(request: NextRequest) {
-  const supabase = createClient();
+  const supabase = createServerClient(); // Menggunakan nama alias
   const {
     data: { user },
   } = await supabase.auth.getUser();
