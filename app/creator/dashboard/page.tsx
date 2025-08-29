@@ -22,10 +22,15 @@ import {
   Heart,
   MessageCircle,
   Share2,
+  ArrowLeft,
+  Star,
+  Repeat,
 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
+import PaymentRetryButton from "@/components/PaymentRetryButton";
+import Script from "next/script";
 
 // Jadikan ini sebagai Server Component yang dinamis
 export default async function CreatorDashboard() {
@@ -43,24 +48,24 @@ export default async function CreatorDashboard() {
   const { data: contests, error: contestsError } = await supabase
     .from("contests")
     .select(
-      "id, title, prize_pool, status, end_date, submissions(id, view_count)",
+      "id, title, prize_pool, status, end_date, submissions(id, view_count), payment_status, created_at",
     )
     .eq("creator_id", user.id);
 
   if (contestsError) {
     console.error("Error fetching contests:", contestsError);
-    // Tampilkan halaman error atau state kosong jika gagal
   }
 
-  // 2. Kalkulasi statistik dari data kontes
   const activeContests = contests?.filter((c) => c.status === "active") || [];
+  const pendingPaymentContests = contests?.filter((c) => c.status === "pending_payment" || c.payment_status === "pending") || [];
+  const failedPaymentContests = contests?.filter((c) => c.status === "payment_failed" || c.payment_status === "failed") || [];
   const totalSubmissions =
     contests?.reduce((sum, c) => sum + c.submissions.length, 0) || 0;
   const totalViews =
     contests?.reduce(
       (sum, c) =>
         sum +
-        c.submissions.reduce((subSum, s) => subSum + (s.view_count || 0), 0),
+        c.submissions.reduce((subSum: number, s: any) => subSum + (s.view_count || 0), 0),
       0,
     ) || 0;
   const totalPrizePool =
@@ -73,8 +78,8 @@ export default async function CreatorDashboard() {
       `
       id,
       created_at,
-      profiles(full_name),
-      contests(title)
+      profiles!inner(full_name),
+      contests!inner(title)
     `,
     )
     .in("contest_id", contests?.map((c) => c.id) || [])
@@ -82,284 +87,417 @@ export default async function CreatorDashboard() {
     .limit(3);
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header (statis, tidak berubah) */}
-      <header className="border-b-4 border-black bg-black text-white">
-        <div className="mx-auto max-w-7xl px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-black uppercase text-white">
-                CREATOR DASHBOARD
-              </h1>
-              <p className="text-white font-bold">
-                MANAGE YOUR CONTENT CLIPPING CONTESTS
-              </p>
+    <>
+      {/* Load Midtrans Snap Script */}
+      <Script
+        src="https://app.sandbox.midtrans.com/snap/snap.js"
+        data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
+        strategy="beforeInteractive"
+      />
+      
+      <div className="min-h-screen bg-white">
+        <header className="border-b-4 border-black bg-black text-white">
+          <div className="mx-auto max-w-7xl px-4 py-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                {/* Back Arrow to Home */}
+                <Link href="/" className="flex items-center">
+                  <ArrowLeft className="h-8 w-8 text-white hover:text-yellow-400" />
+                </Link>
+
+                <div>
+                  <h1 className="text-4xl font-black uppercase text-white">
+                    CREATOR DASHBOARD
+                  </h1>
+                  <p className="text-white font-bold">
+                    MANAGE YOUR CONTENT CLIPPING CONTESTS
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-6">
+                <Badge className="border-4 border-white bg-yellow-400 text-black font-black uppercase">
+                  <Star className="mr-1 h-3 w-3 fill-black text-black" />
+                  CLIPPER
+                </Badge>
+                <Link href="/creator/dashboard">
+                  <Button className="bg-cyan-400 text-black border-4 border-black hover:bg-white font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    <Repeat className="mr-2 h-4 w-4" />
+                  </Button>
+                </Link>
+              </div>
             </div>
-            <Link href="/creator/contest/new">
-              <Button className="bg-pink-500 text-white border-4 border-white hover:bg-white hover:text-black font-black uppercase shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
-                <Plus className="mr-2 h-4 w-4" />
-                CREATE CONTEST
-              </Button>
-            </Link>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <div className="mx-auto max-w-7xl px-4 py-8">
-        {/* Stats Overview - Sekarang dinamis */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="border-4 border-black bg-cyan-400 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-black uppercase text-black">
-                Active Contests
-              </CardTitle>
-              <Trophy className="h-4 w-4 text-black" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-black text-black">
-                {activeContests.length}
-              </div>
-              <p className="text-xs font-bold text-black">
-                {/* DATA STATIS SEMENTARA: Perbandingan bulan lalu belum ada */}
-                +2 from last month
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-4 border-black bg-yellow-400 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-black uppercase text-black">
-                Total Submissions
-              </CardTitle>
-              <Users className="h-4 w-4 text-black" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-black text-black">
-                {totalSubmissions.toLocaleString()}
-              </div>
-              <p className="text-xs font-bold text-black">
-                {/* DATA STATIS SEMENTARA: Perbandingan minggu ini belum ada */}
-                +180 this week
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-4 border-black bg-pink-500 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-black uppercase text-white">
-                Total Views
-              </CardTitle>
-              <Eye className="h-4 w-4 text-white" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-black text-white">
-                {(totalViews / 1000).toFixed(1)}K
-              </div>
-              <p className="text-xs font-bold text-white">
-                {/* DATA STATIS SEMENTARA: Perbandingan minggu lalu belum ada */}
-                +12% from last week
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-black uppercase text-black">
-                Prize Pool
-              </CardTitle>
-              <DollarSign className="h-4 w-4 text-black" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-black text-black">
-                ${totalPrizePool.toLocaleString()}
-              </div>
-              <p className="text-xs font-bold text-black">
-                Across all contests
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Active Contests - Sekarang dinamis */}
-          <div className="lg:col-span-2">
-            <Card className="border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-              <CardHeader>
-                <CardTitle className="text-xl font-black uppercase text-black">
-                  ACTIVE CONTESTS
+        <div className="mx-auto max-w-7xl px-4 py-8">
+          {/* Stats Overview - Sekarang dinamis */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <Card className="border-4 border-black bg-cyan-400 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-black uppercase text-black">
+                  Active Contests
                 </CardTitle>
-                <CardDescription className="font-bold text-black">
-                  Monitor your ongoing content clipping contests
-                </CardDescription>
+                <Trophy className="h-4 w-4 text-black" />
               </CardHeader>
-              <CardContent className="space-y-4">
-                {activeContests.length > 0 ? (
-                  activeContests.map((contest) => {
-                    const timeLeftMs =
-                      new Date(contest.end_date).getTime() -
-                      new Date().getTime();
-                    const timeLeftDays = Math.ceil(
-                      timeLeftMs / (1000 * 60 * 60 * 24),
-                    );
-                    // DATA STATIS SEMENTARA: Progress bar belum memiliki data
-                    const progress = 75;
+              <CardContent>
+                <div className="text-2xl font-black text-black">
+                  {activeContests.length}
+                </div>
+                <p className="text-xs font-bold text-black">+2 from last month</p>
+              </CardContent>
+            </Card>
 
-                    return (
-                      <div
-                        key={contest.id}
-                        className="border-4 border-black rounded-lg p-4 bg-cyan-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-                      >
-                        <div className="flex items-start justify-between mb-3">
-                          <div>
-                            <h3 className="font-bold text-lg">
-                              {contest.title}
-                            </h3>
-                            <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-                              <span className="flex items-center gap-1">
-                                <DollarSign className="h-3 w-3" />$
-                                {Number(contest.prize_pool).toLocaleString()}
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Users className="h-3 w-3" />
-                                {contest.submissions.length} submissions
-                              </span>
-                              <span className="flex items-center gap-1">
-                                <Clock className="h-3 w-3" />
-                                {timeLeftDays > 0
-                                  ? `${timeLeftDays} days left`
-                                  : "Ending soon"}
-                              </span>
+            <Card className="border-4 border-black bg-yellow-400 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-black uppercase text-black">
+                  Total Submissions
+                </CardTitle>
+                <Users className="h-4 w-4 text-black" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-black text-black">
+                  {totalSubmissions.toLocaleString()}
+                </div>
+                <p className="text-xs font-bold text-black">+180 this week</p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-4 border-black bg-pink-500 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-black uppercase text-white">
+                  Total Views
+                </CardTitle>
+                <Eye className="h-4 w-4 text-white" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-black text-white">
+                  {(totalViews / 1000).toFixed(1)}K
+                </div>
+                <p className="text-xs font-bold text-white">
+                  {/* DATA STATIS SEMENTARA: Perbandingan minggu lalu belum ada */}
+                  +12% from last week
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-black uppercase text-black">
+                  Prize Pool
+                </CardTitle>
+                <DollarSign className="h-4 w-4 text-black" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-black text-black">
+                  ${totalPrizePool.toLocaleString()}
+                </div>
+                <p className="text-xs font-bold text-black">
+                  Across all contests
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Payment Issues Section */}
+          {(pendingPaymentContests.length > 0 || failedPaymentContests.length > 0) && (
+            <div className="mb-8">
+              <Card className="border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                <CardHeader className="bg-red-500">
+                  <CardTitle className="text-xl font-black uppercase text-white">
+                    PAYMENT ISSUES
+                  </CardTitle>
+                  <CardDescription className="font-bold text-red-100">
+                    Complete payment to activate your contests
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4 p-6">
+                  {/* Pending Payment Contests */}
+                  {pendingPaymentContests.length > 0 && (
+                    <div className="space-y-3">
+                      <h3 className="font-bold text-lg text-yellow-600">🔄 Payment Pending</h3>
+                      {pendingPaymentContests.map((contest: any) => (
+                        <div
+                          key={contest.id}
+                          className="border-4 border-yellow-400 rounded-lg p-4 bg-yellow-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <h4 className="font-bold text-lg text-black">
+                                {contest.title}
+                              </h4>
+                              <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+                                <span className="flex items-center gap-1">
+                                  <DollarSign className="h-3 w-3" />
+                                  Rp {Number(contest.prize_pool).toLocaleString('id-ID')}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  Created {new Date(contest.created_at).toLocaleDateString()}
+                                </span>
+                              </div>
                             </div>
+                            <Badge className="bg-yellow-400 text-black font-bold border-2 border-black">
+                              PAYMENT PENDING
+                            </Badge>
                           </div>
-                          <Badge
-                            variant={
-                              timeLeftDays < 3 ? "destructive" : "default"
-                            }
-                            className="font-bold"
-                          >
-                            {timeLeftDays < 3 ? "ENDING SOON" : "ACTIVE"}
-                          </Badge>
-                        </div>
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span>Progress</span>
-                            <span>{progress}%</span>
-                          </div>
-                          <Progress value={progress} className="h-2" />
-                        </div>
-                        <div className="flex gap-2 mt-3">
-                          <Link href={`/creator/contest/${contest.id}/manage`}>
+                          <p className="text-sm text-gray-600 mb-3">
+                            Your contest is saved but waiting for payment completion. 
+                            Complete the payment to activate your contest.
+                          </p>
+                          <div className="flex gap-2">
+                            <PaymentRetryButton 
+                              contestId={contest.id}
+                              contestTitle={contest.title}
+                              prizePool={contest.prize_pool}
+                            />
                             <Button
                               size="sm"
-                              className="bg-black text-white border-4 border-black hover:bg-white hover:text-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
+                              variant="outline"
+                              className="border-4 border-black bg-white text-black hover:bg-gray-100 font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                             >
-                              VIEW SUBMISSIONS
+                              VIEW DETAILS
                             </Button>
-                          </Link>
-                          {/* Tombol Edit Contest belum ada fungsionalitasnya */}
-                          <Button
-                            size="sm"
-                            className="bg-yellow-400 text-black border-4 border-black hover:bg-black hover:text-white font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-                          >
-                            EDIT CONTEST
-                          </Button>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <p className="text-center font-bold p-4">
-                    You have no active contests.
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Recent Activity & Quick Actions */}
-          <div className="space-y-6">
-            {/* Recent Submissions - Sekarang dinamis */}
-            <Card className="border-4 border-black bg-yellow-400 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-              <CardHeader>
-                <CardTitle className="text-lg font-black uppercase text-black">
-                  RECENT SUBMISSIONS
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {recentSubmissionsData && recentSubmissionsData.length > 0 ? (
-                  recentSubmissionsData.map((submission) => (
-                    <div
-                      key={submission.id}
-                      className="flex items-start gap-3 p-3 border border-border rounded-lg bg-muted/50"
-                    >
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src="/placeholder.svg" />
-                        <AvatarFallback>
-                          {submission.profiles?.full_name?.substring(0, 2) ||
-                            "??"}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium">
-                          {submission.profiles?.full_name || "Anonymous"}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {submission.contests?.title}
-                        </p>
-                        <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                          {/* DATA STATIS SEMENTARA: Engagement (likes, comments, shares) belum diambil di query ini */}
-                          <span className="flex items-center gap-1">
-                            {" "}
-                            <Heart className="h-3 w-3" /> 12{" "}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            {" "}
-                            <MessageCircle className="h-3 w-3" /> 3{" "}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            {" "}
-                            <Share2 className="h-3 w-3" /> 1{" "}
-                          </span>
-                        </div>
-                      </div>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(submission.created_at).toLocaleTimeString()}
-                      </span>
+                      ))}
                     </div>
-                  ))
-                ) : (
-                  <p className="text-center font-bold p-4">
-                    No recent submissions to your contests.
-                  </p>
-                )}
-              </CardContent>
-            </Card>
+                  )}
 
-            {/* Quick Actions (statis, tidak berubah) */}
-            <Card className="border-4 border-black bg-pink-500 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-              <CardHeader>
-                <CardTitle className="text-lg font-black uppercase text-white">
-                  QUICK ACTIONS
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button className="w-full justify-start bg-black text-white border-4 border-white hover:bg-white hover:text-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
-                  <Plus className="mr-2 h-4 w-4" />
-                  CREATE NEW CONTEST
-                </Button>
-                <Button className="w-full justify-start bg-white text-black border-4 border-black hover:bg-black hover:text-white font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                  <TrendingUp className="mr-2 h-4 w-4" />
-                  VIEW ANALYTICS
-                </Button>
-                <Button className="w-full justify-start bg-cyan-400 text-black border-4 border-black hover:bg-black hover:text-white font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                  <DollarSign className="mr-2 h-4 w-4" />
-                  MANAGE PAYMENTS
-                </Button>
-              </CardContent>
-            </Card>
+                  {/* Failed Payment Contests */}
+                  {failedPaymentContests.length > 0 && (
+                    <div className="space-y-3">
+                      <h3 className="font-bold text-lg text-red-600">❌ Payment Failed</h3>
+                      {failedPaymentContests.map((contest: any) => (
+                        <div
+                          key={contest.id}
+                          className="border-4 border-red-400 rounded-lg p-4 bg-red-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <h4 className="font-bold text-lg text-black">
+                                {contest.title}
+                              </h4>
+                              <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+                                <span className="flex items-center gap-1">
+                                  <DollarSign className="h-3 w-3" />
+                                  Rp {Number(contest.prize_pool).toLocaleString('id-ID')}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  Created {new Date(contest.created_at).toLocaleDateString()}
+                                </span>
+                              </div>
+                            </div>
+                            <Badge className="bg-red-500 text-white font-bold border-2 border-black">
+                              PAYMENT FAILED
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-3">
+                            Payment for this contest failed. You can retry the payment or contact support.
+                          </p>
+                          <div className="flex gap-2">
+                            <PaymentRetryButton 
+                              contestId={contest.id}
+                              contestTitle={contest.title}
+                              prizePool={contest.prize_pool}
+                            />
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-4 border-black bg-white text-black hover:bg-gray-100 font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                            >
+                              CONTACT SUPPORT
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Active Contests - Sekarang dinamis */}
+            <div className="lg:col-span-2">
+              <Card className="border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                <CardHeader>
+                  <CardTitle className="text-xl font-black uppercase text-black">
+                    ACTIVE CONTESTS
+                  </CardTitle>
+                  <CardDescription className="font-bold text-black">
+                    Monitor your ongoing content clipping contests
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {activeContests.length > 0 ? (
+                    activeContests.map((contest) => {
+                      const timeLeftMs =
+                        new Date(contest.end_date).getTime() -
+                        new Date().getTime();
+                      const timeLeftDays = Math.ceil(
+                        timeLeftMs / (1000 * 60 * 60 * 24),
+                      );
+                      const progress = 75;
+
+                      return (
+                        <div
+                          key={contest.id}
+                          className="border-4 border-black rounded-lg p-4 bg-cyan-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                        >
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <h3 className="font-bold text-lg">
+                                {contest.title}
+                              </h3>
+                              <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+                                <span className="flex items-center gap-1">
+                                  <DollarSign className="h-3 w-3" />$
+                                  {Number(contest.prize_pool).toLocaleString()}
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Users className="h-3 w-3" />
+                                  {contest.submissions.length} submissions
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  {timeLeftDays > 0
+                                    ? `${timeLeftDays} days left`
+                                    : "Ending soon"}
+                                </span>
+                              </div>
+                            </div>
+                            <Badge
+                              variant={
+                                timeLeftDays < 3 ? "destructive" : "default"
+                              }
+                              className="font-bold"
+                            >
+                              {timeLeftDays < 3 ? "ENDING SOON" : "ACTIVE"}
+                            </Badge>
+                          </div>
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span>Progress</span>
+                              <span>{progress}%</span>
+                            </div>
+                            <Progress value={progress} className="h-2" />
+                          </div>
+                          <div className="flex gap-2 mt-3">
+                            <Link href={`/creator/contest/${contest.id}/manage`}>
+                              <Button
+                                size="sm"
+                                className="bg-black text-white border-4 border-black hover:bg-white hover:text-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
+                              >
+                                VIEW SUBMISSIONS
+                              </Button>
+                            </Link>
+                            {/* Tombol Edit Contest belum ada fungsionalitasnya */}
+                            <Button
+                              size="sm"
+                              className="bg-yellow-400 text-black border-4 border-black hover:bg-black hover:text-white font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                            >
+                              EDIT CONTEST
+                            </Button>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p className="text-center font-bold p-4">
+                      You have no active contests.
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Recent Activity & Quick Actions */}
+            <div className="space-y-6">
+              {/* Recent Submissions - Sekarang dinamis */}
+              <Card className="border-4 border-black bg-yellow-400 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                <CardHeader>
+                  <CardTitle className="text-lg font-black uppercase text-black">
+                    RECENT SUBMISSIONS
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {recentSubmissionsData && recentSubmissionsData.length > 0 ? (
+                    recentSubmissionsData.map((submission) => (
+                      <div
+                        key={submission.id}
+                        className="flex items-start gap-3 p-3 border border-border rounded-lg bg-muted/50"
+                      >
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src="/placeholder.svg" />
+                          <AvatarFallback>
+                            {submission.profiles?.[0]?.full_name?.substring(0, 2) ||
+                              "??"}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium">
+                            {submission.profiles?.[0]?.full_name || "Anonymous"}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {submission.contests?.[0]?.title}
+                          </p>
+                          <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
+                            {/* DATA STATIS SEMENTARA: Engagement (likes, comments, shares) belum diambil di query ini */}
+                            <span className="flex items-center gap-1">
+                              <Heart className="h-3 w-3" />
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <MessageCircle className="h-3 w-3" />
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Share2 className="h-3 w-3" />
+                            </span>
+                          </div>
+                        </div>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(submission.created_at).toLocaleTimeString()}
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-center font-bold p-4">
+                      No recent submissions to your contests.
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Quick Actions (statis, tidak berubah) */}
+              <Card className="border-4 border-black bg-pink-500 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+                <CardHeader>
+                  <CardTitle className="text-lg font-black uppercase text-white">
+                    QUICK ACTIONS
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <Link href="/creator/contest/new">
+                    <Button className="w-full justify-start bg-black text-white border-4 border-white hover:bg-white hover:text-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+                      <Plus className="mr-2 h-4 w-4" />
+                      CREATE NEW CONTEST
+                    </Button>
+                  </Link>
+                  <Button className="w-full justify-start bg-white text-black border-4 border-black hover:bg-black hover:text-white font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    <TrendingUp className="mr-2 h-4 w-4" />
+                    VIEW ANALYTICS
+                  </Button>
+                  <Button className="w-full justify-start bg-cyan-400 text-black border-4 border-black hover:bg-black hover:text-white font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    <DollarSign className="mr-2 h-4 w-4" />
+                    MANAGE PAYMENTS
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

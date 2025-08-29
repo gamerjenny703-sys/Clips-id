@@ -1,0 +1,11 @@
+[storage.contest-videos]
+public = true
+file_size_limit = "100MB"
+allowed_mime_types = [
+  "video/mp4",
+  "video/avi", 
+  "video/mov",
+  "video/wmv",
+  "video/flv",
+  "video/webm"
+]

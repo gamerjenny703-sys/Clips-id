@@ -25,7 +25,6 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   ArrowLeft,
-  DollarSign,
   Info,
   Plus,
   X,
@@ -35,6 +34,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import VideoUpload from "@/components/features/contest/VideoUpload";
 
 declare global {
   interface Window {
@@ -65,14 +65,32 @@ export default function CreateContestPage() {
       },
       duration: {
         type: "fixed",
-        days: 7,
-        max_days: 90,
+        days: 0,
+        max_days: 0,
       },
     },
     platforms: [] as string[],
     requirements: "",
     tags: [] as string[],
+    video: {
+      type: 'none' as 'none' | 'file' | 'youtube_link',
+      filePath: '',
+      fileSize: 0,
+      youtubeLink: ''
+    }
   });
+  const [targetInput, setTargetInput] = useState(
+    String(typeof contestData.rules.win_condition.target === "number" ? contestData.rules.win_condition.target : 0)
+  );
+  const [durationDaysInput, setDurationDaysInput] = useState(
+    String(typeof contestData.rules.duration.days === "number" ? contestData.rules.duration.days : 0)
+  );
+  const [durationMaxDaysInput, setDurationMaxDaysInput] = useState(
+    String(typeof contestData.rules.duration.max_days === "number" ? contestData.rules.duration.max_days : 0)
+  );
+  const [winnersCountInput, setWinnersCountInput] = useState(
+    String(Math.max(1, contestData.rules.payout?.split_ratio?.length || 1))
+  );
   useEffect(() => {
     const snapScriptUrl = "https://app.sandbox.midtrans.com/snap/snap.js";
     const clientKey = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY;
@@ -134,10 +152,57 @@ export default function CreateContestPage() {
 
   // Ganti seluruh fungsi handleSubmit Anda dengan ini
 
+  const validateForm = () => {
+    // Basic validation
+    if (!contestData.title.trim()) {
+      return "Contest title is required.";
+    }
+    
+    if (!contestData.description.trim()) {
+      return "Contest description is required.";
+    }
+    
+    if (!contestData.prize_pool || parseFloat(contestData.prize_pool) < 1000) {
+      return "Prize amount must be at least Rp 1,000.";
+    }
+    
+    if (contestData.rules.win_condition.target < 1) {
+      return "Target value must be at least 1.";
+    }
+    
+    if (contestData.rules.duration.type === 'fixed' && 
+        (contestData.rules.duration.days === 0 || contestData.rules.duration.days < 1 || contestData.rules.duration.days > 365)) {
+      return "Fixed duration must be between 1-365 days.";
+    }
+    
+    if (contestData.rules.duration.type === 'ends_on_winner' && 
+        (contestData.rules.duration.max_days === 0 || contestData.rules.duration.max_days < 1 || contestData.rules.duration.max_days > 365)) {
+      return "Max duration must be between 1-365 days.";
+    }
+    
+    if (contestData.platforms.length === 0) {
+      return "Please select at least one platform.";
+    }
+    
+    if (contestData.video.type === 'none') {
+      return "Please upload a video or provide a YouTube link for your contest.";
+    }
+    
+    return null; // No errors
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
+
+    // Form validation
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      setIsSubmitting(false);
+      return;
+    }
 
     const supabase = createClient();
     const {
@@ -150,19 +215,48 @@ export default function CreateContestPage() {
       return;
     }
 
-    // Validasi dasar
-    if (
-      !contestData.title ||
-      !contestData.description ||
-      !contestData.prize_pool
-    ) {
-      setError("Please fill all required fields.");
-      setIsSubmitting(false);
-      return;
-    }
-
     try {
-      // Langkah 1: Minta payment token dari backend kita
+      // Langkah 1: Simpan kontes dulu dengan status "pending_payment"
+      console.log("Saving contest with pending payment status...");
+      
+      const endDate = new Date();
+      const durationDays =
+        contestData.rules.duration.type === "fixed"
+          ? contestData.rules.duration.days
+          : contestData.rules.duration.max_days;
+      endDate.setDate(endDate.getDate() + durationDays);
+
+      const { data: contest, error: insertError } = await supabase
+        .from("contests")
+        .insert({
+          title: contestData.title,
+          description: contestData.description,
+          prize_pool: parseFloat(contestData.prize_pool),
+          creator_id: user.id,
+          end_date: endDate.toISOString(),
+          rules: contestData.rules,
+          requirements: {
+            platforms: contestData.platforms,
+            tags: contestData.tags,
+            custom: contestData.requirements,
+          },
+          video_file_path: contestData.video.type === 'file' ? contestData.video.filePath : null,
+          video_file_size: contestData.video.type === 'file' ? contestData.video.fileSize : null,
+          youtube_link: contestData.video.type === 'youtube_link' ? contestData.video.youtubeLink : null,
+          video_upload_type: contestData.video.type,
+          status: 'pending_payment', // Status baru untuk kontes yang belum dibayar
+          payment_status: 'pending'
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+        throw new Error(insertError.message);
+      }
+
+      console.log("Contest saved with pending payment status:", contest.id);
+
+      // Langkah 2: Minta payment token dari backend
       console.log("Requesting payment token...");
       const response = await fetch("/api/payments/midtrans/create-token", {
         method: "POST",
@@ -170,6 +264,7 @@ export default function CreateContestPage() {
         body: JSON.stringify({
           amount: parseFloat(contestData.prize_pool),
           contestTitle: contestData.title,
+          contestId: contest.id, // Kirim contest ID untuk tracking
           user: {
             first_name: user.user_metadata?.full_name || "User",
             email: user.email,
@@ -191,64 +286,93 @@ export default function CreateContestPage() {
 
       console.log("Payment token received. Opening Midtrans Snap...");
 
-      // Langkah 2: Tampilkan popup pembayaran Midtrans Snap
+      // Langkah 3: Tampilkan popup pembayaran Midtrans Snap
       window.snap.pay(token, {
         onSuccess: async (result: any) => {
           console.log("Payment successful!", result);
 
-          // Langkah 3: HANYA SETELAH PEMBAYARAN SUKSES, simpan kontes ke Supabase
-          const endDate = new Date();
-          const durationDays =
-            contestData.rules.duration.type === "fixed"
-              ? contestData.rules.duration.days
-              : contestData.rules.duration.max_days;
-          endDate.setDate(endDate.getDate() + durationDays);
-
-          const { error: insertError } = await supabase
+          // Langkah 4: Update status kontes jadi "active" dan "paid"
+          const { error: updateError } = await supabase
             .from("contests")
-            .insert({
-              title: contestData.title,
-              description: contestData.description,
-              prize_pool: parseFloat(contestData.prize_pool),
-              creator_id: user.id,
-              end_date: endDate.toISOString(),
-              rules: contestData.rules,
-              requirements: {
-                platforms: contestData.platforms,
-                tags: contestData.tags,
-                custom: contestData.requirements,
-              },
+            .update({
+              status: 'active',
+              payment_status: 'paid',
+              payment_details: result,
+              paid_at: new Date().toISOString()
             })
-            .select()
-            .single(); // .select().single() untuk mendapatkan data yang baru dibuat
+            .eq('id', contest.id);
 
-          if (insertError) {
-            throw new Error(insertError.message);
+          if (updateError) {
+            console.error("Failed to update contest status:", updateError);
+            // Jangan throw error karena pembayaran sudah sukses
           }
 
-          console.log("Contest successfully saved to database.");
-
-          // (Opsional) Langkah 4: Panggil API escrow kita
-          // await fetch('/api/payments/escrow', { ... });
-
+          console.log("Contest status updated to active. Redirecting to dashboard...");
           router.push("/creator/dashboard");
         },
-        onPending: (result: any) => {
+        onPending: async (result: any) => {
           console.log("Payment pending:", result);
+          
+          // Update status jadi "pending" dan simpan detail pembayaran
+          const { error: updateError } = await supabase
+            .from("contests")
+            .update({
+              payment_status: 'pending',
+              payment_details: result
+            })
+            .eq('id', contest.id);
+
+          if (updateError) {
+            console.error("Failed to update payment status:", updateError);
+          }
+
           setError(
-            "Payment is pending. Please complete your payment to create the contest.",
+            "Payment is pending. You can check the status in your dashboard.",
           );
           setIsSubmitting(false);
+          
+          // Redirect ke dashboard untuk melihat status
+          setTimeout(() => {
+            router.push("/creator/dashboard");
+          }, 2000);
         },
-        onError: (result: any) => {
+        onError: async (result: any) => {
           console.error("Payment error:", result);
-          setError("Payment failed. Please try again.");
+          
+          // Update status jadi "payment_failed"
+          const { error: updateError } = await supabase
+            .from("contests")
+            .update({
+              status: 'payment_failed',
+              payment_status: 'failed',
+              payment_details: result
+            })
+            .eq('id', contest.id);
+
+          if (updateError) {
+            console.error("Failed to update payment status:", updateError);
+          }
+
+          setError("Payment failed. You can retry from your dashboard.");
           setIsSubmitting(false);
+          
+          // Redirect ke dashboard untuk retry payment
+          setTimeout(() => {
+            router.push("/creator/dashboard");
+          }, 2000);
         },
-        onClose: () => {
+        onClose: async () => {
           console.log("Payment popup closed without finishing.");
-          // Jangan set error jika pengguna hanya menutupnya
+          
+          // Kontes sudah tersimpan dengan status "pending_payment"
+          // User bisa lanjutkan pembayaran dari dashboard
+          setError("Payment cancelled. Your contest is saved and you can continue payment from your dashboard.");
           setIsSubmitting(false);
+          
+          // Redirect ke dashboard
+          setTimeout(() => {
+            router.push("/creator/dashboard");
+          }, 2000);
         },
       });
     } catch (err: any) {
@@ -267,10 +391,9 @@ export default function CreateContestPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="border-4 border-black bg-white hover:bg-yellow-400 font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                className=" py-5 border-4 border-black bg-white hover:bg-yellow-400 font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
               >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Dashboard
+                <ArrowLeft className=" h-6 w-4" />
               </Button>
             </Link>
             <div>
@@ -333,24 +456,48 @@ export default function CreateContestPage() {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="prize_pool" className="font-black uppercase">
-                  Prize Amount (USD) *
+                  Prize Amount (IDR) *
                 </Label>
                 <div className="relative">
-                  <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-black" />
                   <Input
                     id="prize_pool"
                     type="number"
-                    placeholder="500"
+                    min="1000"
+                    step="1000"
+                    placeholder="7500000"
                     value={contestData.prize_pool}
-                    onChange={(e) =>
-                      setContestData({
-                        ...contestData,
-                        prize_pool: e.target.value,
-                      })
-                    }
-                    className="border-4 border-black bg-white pl-10 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === '' || (parseFloat(value) >= 0 && !isNaN(parseFloat(value)))) {
+                        setContestData({
+                          ...contestData,
+                          prize_pool: value,
+                        });
+                      }
+                    }}
+                    onBlur={(e) => {
+                      // Ensure minimum value on blur only if not empty
+                      const value = e.target.value;
+                      if (value !== '' && parseFloat(value) < 1000) {
+                        setContestData({
+                          ...contestData,
+                          prize_pool: "1000",
+                        });
+                      }
+                    }}
+                    className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                     required
                   />
+                  <div className="mt-2 space-y-1">
+                    <p className="text-xs text-muted-foreground font-bold">
+                      Minimum prize amount: Rp 1,000
+                    </p>
+                    {contestData.prize_pool && parseFloat(contestData.prize_pool) > 0 && (
+                      <p className="text-xs text-blue-600 font-bold">
+                        💰 Prize Pool: Rp {parseFloat(contestData.prize_pool).toLocaleString('id-ID')}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -397,17 +544,39 @@ export default function CreateContestPage() {
                   <Input
                     id="target-value"
                     type="number"
+                    min="1"
+                    step="1"
                     placeholder="e.g., 10000"
-                    value={contestData.rules.win_condition.target}
-                    onChange={(e) =>
-                      handleRulesChange(
-                        "win_condition.target",
-                        parseInt(e.target.value) || 0,
-                      )
-                    }
+                    value={targetInput}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setTargetInput(value);
+                      if (value === '') {
+                        // Keep UI empty; set numeric state to 0 for validation
+                        handleRulesChange("win_condition.target", 0);
+                        return;
+                      }
+                      const parsed = parseInt(value, 10);
+                      if (!Number.isNaN(parsed) && parsed >= 0) {
+                        handleRulesChange("win_condition.target", parsed);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const value = e.target.value;
+                      if (value !== '') {
+                        const parsed = parseInt(value, 10);
+                        if (!Number.isNaN(parsed) && parsed < 1) {
+                          setTargetInput('1');
+                          handleRulesChange("win_condition.target", 1);
+                        }
+                      }
+                    }}
                     className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                     required
                   />
+                  <p className="text-xs text-muted-foreground font-bold mt-1">
+                    Minimum target: 1
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -425,9 +594,23 @@ export default function CreateContestPage() {
                 <Label className="font-black uppercase">Payout Type</Label>
                 <Select
                   value={contestData.rules.payout.type}
-                  onValueChange={(value) =>
+                  onValueChange={(value) => {
+                    // Update payout type
                     handleRulesChange("payout.type", value)
-                  }
+                    // Initialize custom split to 1 winner by default
+                    if (value === 'custom') {
+                      setContestData({
+                        ...contestData,
+                        rules: {
+                          ...contestData.rules,
+                          payout: {
+                            ...contestData.rules.payout,
+                            split_ratio: [1],
+                          },
+                        },
+                      })
+                    }
+                  }}
                 >
                   <SelectTrigger className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                     <SelectValue />
@@ -438,6 +621,9 @@ export default function CreateContestPage() {
                     </SelectItem>
                     <SelectItem value="split_top_3">
                       Split Between Top 3
+                    </SelectItem>
+                    <SelectItem value="custom">
+                      Custom Split
                     </SelectItem>
                   </SelectContent>
                 </Select>
@@ -463,6 +649,85 @@ export default function CreateContestPage() {
                       placeholder="15%"
                       className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                     />
+                  </div>
+                </div>
+              )}
+              {contestData.rules.payout.type === "custom" && (
+                <div className="space-y-2">
+                  <Label className="font-black uppercase">Number of Winners</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      min="1"
+                      step="1"
+                      value={winnersCountInput}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        setWinnersCountInput(value);
+                        if (value === '') return; // show empty while editing
+                        let n = parseInt(value, 10);
+                        if (Number.isNaN(n) || n < 1) n = 1;
+                        const equal = Array.from({ length: n }, () => 1 / n);
+                        setContestData({
+                          ...contestData,
+                          rules: {
+                            ...contestData.rules,
+                            payout: {
+                              ...contestData.rules.payout,
+                              split_ratio: equal,
+                            },
+                          },
+                        });
+                      }}
+                      onBlur={(e) => {
+                        const value = e.target.value;
+                        if (value === '') {
+                          setWinnersCountInput('1');
+                          const equal = [1];
+                          setContestData({
+                            ...contestData,
+                            rules: {
+                              ...contestData.rules,
+                              payout: {
+                                ...contestData.rules.payout,
+                                split_ratio: equal,
+                              },
+                            },
+                          });
+                          return;
+                        }
+                        let n = parseInt(value, 10);
+                        if (Number.isNaN(n) || n < 1) n = 1;
+                        const equal = Array.from({ length: n }, () => 1 / n);
+                        setWinnersCountInput(String(n));
+                        setContestData({
+                          ...contestData,
+                          rules: {
+                            ...contestData.rules,
+                            payout: {
+                              ...contestData.rules.payout,
+                              split_ratio: equal,
+                            },
+                          },
+                        });
+                      }}
+                      className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] w-28"
+                    />
+                    <div className="text-xs font-bold text-muted-foreground">
+                      Each gets: {
+                        (() => {
+                          const n = Math.max(1, contestData.rules.payout.split_ratio?.length || 1);
+                          const amount = parseFloat(contestData.prize_pool || '0');
+                          const per = n > 0 ? amount / n : 0;
+                          return `Rp ${Number.isFinite(per) ? per.toLocaleString('id-ID') : '0'}`;
+                        })()
+                      } ({
+                        (() => {
+                          const n = Math.max(1, contestData.rules.payout.split_ratio?.length || 1);
+                          return `${(100 / n).toFixed(2)}%`;
+                        })()
+                      })
+                    </div>
                   </div>
                 </div>
               )}
@@ -494,15 +759,41 @@ export default function CreateContestPage() {
                   </Label>
                   <Input
                     type="number"
-                    value={contestData.rules.duration.days}
-                    onChange={(e) =>
-                      handleRulesChange(
-                        "duration.days",
-                        parseInt(e.target.value) || 0,
-                      )
-                    }
+                    min="1"
+                    max="365"
+                    step="1"
+                    value={durationDaysInput}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setDurationDaysInput(value);
+                      if (value === '') {
+                        handleRulesChange("duration.days", 0);
+                        return;
+                      }
+                      const parsed = parseInt(value, 10);
+                      if (!Number.isNaN(parsed)) {
+                        handleRulesChange("duration.days", parsed);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const value = e.target.value;
+                      if (value !== '') {
+                        let parsed = parseInt(value, 10);
+                        if (Number.isNaN(parsed)) {
+                          parsed = 1;
+                        }
+                        if (parsed < 1) parsed = 1;
+                        if (parsed > 365) parsed = 365;
+                        setDurationDaysInput(String(parsed));
+                        handleRulesChange("duration.days", parsed);
+                      }
+                    }}
                     className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                    required
                   />
+                  <p className="text-xs text-muted-foreground font-bold mt-1">
+                    Duration range: 1-365 days
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-2">
@@ -511,15 +802,41 @@ export default function CreateContestPage() {
                   </Label>
                   <Input
                     type="number"
-                    value={contestData.rules.duration.max_days}
-                    onChange={(e) =>
-                      handleRulesChange(
-                        "duration.max_days",
-                        parseInt(e.target.value) || 0,
-                      )
-                    }
+                    min="1"
+                    max="365"
+                    step="1"
+                    value={durationMaxDaysInput}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setDurationMaxDaysInput(value);
+                      if (value === '') {
+                        handleRulesChange("duration.max_days", 0);
+                        return;
+                      }
+                      const parsed = parseInt(value, 10);
+                      if (!Number.isNaN(parsed)) {
+                        handleRulesChange("duration.max_days", parsed);
+                      }
+                    }}
+                    onBlur={(e) => {
+                      const value = e.target.value;
+                      if (value !== '') {
+                        let parsed = parseInt(value, 10);
+                        if (Number.isNaN(parsed)) {
+                          parsed = 1;
+                        }
+                        if (parsed < 1) parsed = 1;
+                        if (parsed > 365) parsed = 365;
+                        setDurationMaxDaysInput(String(parsed));
+                        handleRulesChange("duration.max_days", parsed);
+                      }
+                    }}
                     className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                    required
                   />
+                  <p className="text-xs text-muted-foreground font-bold mt-1">
+                    Duration range: 1-365 days
+                  </p>
                   <p className="text-xs text-muted-foreground font-bold">
                     Kontes akan otomatis berakhir setelah durasi ini jika tidak
                     ada pemenang.
@@ -528,6 +845,21 @@ export default function CreateContestPage() {
               )}
             </CardContent>
           </Card>
+
+          {/* Video Upload */}
+          <VideoUpload
+            onVideoChange={(videoData) => {
+              setContestData({
+                ...contestData,
+                video: {
+                  type: videoData.type,
+                  filePath: videoData.filePath || '',
+                  fileSize: videoData.fileSize || 0,
+                  youtubeLink: videoData.youtubeLink || ''
+                }
+              });
+            }}
+          />
 
           {/* Platform & Requirements */}
           <Card className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white">
@@ -546,23 +878,41 @@ export default function CreateContestPage() {
                   Allowed Platforms *
                 </Label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {platformsOptions.map((platform) => (
-                    <Button
-                      key={platform.id}
-                      type="button"
-                      variant={
-                        contestData.platforms.includes(platform.id)
-                          ? "default"
-                          : "outline"
-                      }
-                      className={`border-4 border-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${contestData.platforms.includes(platform.id) ? "bg-yellow-400 text-black hover:bg-yellow-300" : "bg-white text-black hover:bg-cyan-400"}`}
-                      onClick={() => togglePlatform(platform.id)}
-                    >
-                      <platform.icon className="mr-2 h-4 w-4" />
-                      {platform.name}
-                    </Button>
-                  ))}
+                  {platformsOptions.map((platform) => {
+                    const isDisabled = platform.id === "twitter" || platform.id === "instagram";
+                    const isActive = contestData.platforms.includes(platform.id);
+                    return (
+                      <Button
+                        key={platform.id}
+                        type="button"
+                        disabled={isDisabled}
+                        variant={isActive ? "default" : "outline"}
+                        className={`border-4 border-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] relative ${
+                          isDisabled
+                            ? "bg-white text-black opacity-60 cursor-not-allowed"
+                            : isActive
+                            ? "bg-yellow-400 text-black hover:bg-yellow-300"
+                            : "bg-white text-black hover:bg-cyan-400"
+                        }`}
+                        onClick={() => {
+                          if (isDisabled) return;
+                          togglePlatform(platform.id);
+                        }}
+                      >
+                        <platform.icon className="mr-2 h-4 w-4" />
+                        {platform.name}
+                      </Button>
+                    );
+                  })}
                 </div>
+                {contestData.platforms.length === 0 && (
+                  <p className="text-xs text-red-500 font-bold">
+                    Please select at least one platform.
+                  </p>
+                )}
+                <p className="text-xs text-muted-foreground font-bold">
+                  Select where participants can post their clips
+                </p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="requirements" className="font-black uppercase">
@@ -628,18 +978,32 @@ export default function CreateContestPage() {
           {/* Submit */}
           <Card className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white">
             <CardContent className="p-6">
-              {error && (
-                <Alert variant="destructive" className="mb-4">
-                  <AlertDescription>{error}</AlertDescription>
+              <div className="flex flex-col gap-4">
+                {error && (
+                  <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
+
+                <Alert className="border-4 border-black bg-pink-500 text-white">
+                  <Info className="h-4 w-4" />
+                  <AlertDescription className="font-bold">
+                    Your contest will be live immediately after creation. Make
+                    sure all details are correct.
+                  </AlertDescription>
                 </Alert>
-              )}
-              <Alert className="border-4 border-black bg-pink-500 text-white">
-                <Info className="h-4 w-4" />
-                <AlertDescription className="font-bold">
-                  Your contest will be live immediately after creation. Make
-                  sure all details are correct.
-                </AlertDescription>
-              </Alert>
+
+                {contestData.prize_pool && parseFloat(contestData.prize_pool) > 0 && (
+                  <Alert className="border-4 border-black bg-blue-500 text-white">
+                    <Info className="h-4 w-4" />
+                    <AlertDescription className="font-bold">
+                      💳 Payment will be processed in Indonesian Rupiah (IDR). 
+                      Amount: Rp {parseFloat(contestData.prize_pool).toLocaleString('id-ID')}
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </div>
+
               <div className="mt-6 flex gap-4">
                 <Button
                   type="submit"
@@ -656,6 +1020,7 @@ export default function CreateContestPage() {
               </div>
             </CardContent>
           </Card>
+
         </form>
       </div>
     </div>

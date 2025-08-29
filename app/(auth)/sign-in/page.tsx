@@ -20,11 +20,6 @@ export default function SignInPage() {
           <p className="text-black font-bold mb-4">
             OR CONNECT WITH SOCIAL MEDIA
           </p>
-          <Link href="/connect-accounts">
-            <Button className="bg-black text-white border-4 border-black hover:bg-white hover:text-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              CONNECT SOCIAL ACCOUNTS
-            </Button>
-          </Link>
         </div>
       </div>
     </div>

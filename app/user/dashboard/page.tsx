@@ -17,17 +17,14 @@ import {
   Trophy,
   Clock,
   Eye,
-  Heart,
-  MessageCircle,
-  Share2,
   Upload,
   Star,
   Youtube,
-  Instagram,
+  Instagram, // Seharusnya ini ikon TikTok, bisa disesuaikan nanti
   Twitter,
   CheckCircle,
-  Users,
-  TrendingUp,
+  Repeat,
+  ArrowLeft,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
@@ -45,6 +42,12 @@ export default async function UserDashboard() {
   }
 
   // --- Mengambil semua data yang dibutuhkan secara paralel ---
+  const profileReq = supabase
+    .from("profiles")
+    .select("is_creator")
+    .eq("id", user.id)
+    .single();
+
   const winsReq = supabase
     .from("contest_winners")
     .select("prize_awarded, awarded_at")
@@ -53,7 +56,7 @@ export default async function UserDashboard() {
   const allSubmissionsReq = supabase
     .from("submissions")
     .select(
-      "view_count, like_count, comment_count, share_count, contest_id, created_at, contests(title)",
+      "id, view_count, like_count, comment_count, share_count, contest_id, created_at, contests(title)",
     )
     .eq("clipper_id", user.id)
     .order("created_at", { ascending: false });
@@ -69,11 +72,13 @@ export default async function UserDashboard() {
     .eq("user_id", user.id);
 
   const [
+    { data: profile },
     { data: wins },
     { data: allSubmissions },
     { data: savedContestsData },
     { data: socialConnections },
   ] = await Promise.all([
+    profileReq,
     winsReq,
     allSubmissionsReq,
     savedContestsReq,
@@ -111,7 +116,7 @@ export default async function UserDashboard() {
 
   const availablePlatforms = [
     { name: "YouTube", icon: Youtube },
-    { name: "TikTok", icon: Instagram },
+    { name: "TikTok", icon: Instagram }, // NOTE: Ganti dengan ikon TikTok jika ada
     { name: "Twitter", icon: Twitter },
   ];
 
@@ -124,19 +129,26 @@ export default async function UserDashboard() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
       <header className="border-b-4 border-black bg-black text-white">
         <div className="mx-auto max-w-7xl px-4 py-6">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-black uppercase text-white">
-                CLIPPER DASHBOARD
-              </h1>
-              <p className="text-white font-bold">
-                FIND CONTESTS, SUBMIT CLIPS, AND EARN REWARDS
-              </p>
+            <div className="flex items-center gap-4">
+              {/* Back Arrow to Home */}
+              <Link href="/" className="flex items-center">
+                <ArrowLeft className="h-8 w-8 text-white hover:text-yellow-400" />
+              </Link>
+
+              <div>
+                <h1 className="text-4xl font-black uppercase text-white">
+                  CLIPPER DASHBOARD
+                </h1>
+                <p className="text-white font-bold">
+                  FIND CONTESTS, SUBMIT CLIPS, AND EARN REWARDS
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
+
+            <div className="flex items-center gap-6">
               <Badge className="border-4 border-white bg-yellow-400 text-black font-black uppercase">
                 <Star className="mr-1 h-3 w-3 fill-black text-black" />
                 CLIPPER
@@ -145,6 +157,11 @@ export default async function UserDashboard() {
                 <Button className="bg-pink-500 text-white border-4 border-white hover:bg-white hover:text-black font-black uppercase shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
                   <Upload className="mr-2 h-4 w-4" />
                   SUBMIT CLIP
+                </Button>
+              </Link>
+              <Link href="/creator/dashboard">
+                <Button className="bg-cyan-400 text-black border-4 border-black hover:bg-white font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                  <Repeat className="mr-2 h-4 w-4" />
                 </Button>
               </Link>
             </div>
@@ -319,7 +336,7 @@ export default async function UserDashboard() {
                 {recentSubmissions.length > 0 ? (
                   recentSubmissions.map((submission: any) => (
                     <div
-                      key={submission.id || submission.contest_id}
+                      key={submission.id}
                       className="p-3 border border-black rounded-lg bg-white"
                     >
                       <p className="font-medium text-sm truncate">

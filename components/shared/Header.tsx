@@ -1,14 +1,22 @@
-"use client"; // Jangan lupa tambahkan ini
+"use client";
 
 import { useEffect, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { User, BarChart3, Settings, LogOut } from "lucide-react";
+import { User, BarChart3, Settings, LogOut, Repeat } from "lucide-react"; // Tambahkan 'Repeat' icon
+
+// Tipe data baru untuk menampung profil
+type Profile = {
+  full_name: string | null;
+  is_creator: boolean; // Asumsi dari skema baru kita
+};
 
 export default function Header() {
   const [user, setUser] = useState<User | null>(null);
+  // --- STATE BARU UNTUK PROFIL ---
+  const [profile, setProfile] = useState<Profile | null>(null);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
@@ -19,19 +27,31 @@ export default function Header() {
         data: { user },
       } = await supabase.auth.getUser();
       setUser(user);
+
+      // --- TAMBAHAN: Ambil data profil jika user ada ---
+      if (user) {
+        const { data: userProfile } = await supabase
+          .from("profiles")
+          .select("full_name, is_creator")
+          .eq("id", user.id)
+          .single();
+        setProfile(userProfile);
+      }
       setLoading(false);
     };
 
     checkUser();
 
-    // Dengarkan perubahan status otentikasi
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
+      // Reset profil saat logout
+      if (event === "SIGNED_OUT") {
+        setProfile(null);
+      }
     });
 
-    // Berhenti mendengarkan saat komponen di-unmount
     return () => {
       subscription.unsubscribe();
     };
@@ -40,6 +60,13 @@ export default function Header() {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setShowProfileMenu(false);
+  };
+
+  // --- LOGIKA BARU UNTUK MENGOLAH NAMA ---
+  const getFirstName = () => {
+    if (loading) return "Loading...";
+    // Ambil kata pertama, atau tampilkan "User" jika nama tidak ada
+    return profile?.full_name?.split(" ")[0] || "User";
   };
 
   return (
@@ -52,7 +79,6 @@ export default function Header() {
           CLIPS.ID
         </Link>
         <nav className="hidden md:flex items-center gap-8">
-          {/* ... link navigasi lainnya tetap sama ... */}
           <Link
             href="/work"
             className="font-bold uppercase text-sm hover:underline decoration-4"
@@ -65,25 +91,11 @@ export default function Header() {
           >
             ABOUT
           </Link>
-          <Link
-            href="/terms"
-            className="font-bold uppercase text-sm hover:underline decoration-4"
-          >
-            TERMS
-          </Link>
-          <Link
-            href="/privacy"
-            className="font-bold uppercase text-sm hover:underline decoration-4"
-          >
-            PRIVACY
-          </Link>
         </nav>
         <div className="flex items-center gap-4">
           {loading ? (
-            // Tampilkan UI skeleton saat loading
             <div className="h-10 w-48 bg-gray-300 animate-pulse rounded-md"></div>
           ) : user ? (
-            // Tampilan jika user SUDAH login
             <div className="relative">
               <Button
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
@@ -96,10 +108,12 @@ export default function Header() {
               {showProfileMenu && (
                 <div className="absolute right-0 top-full mt-2 w-64 bg-white border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] z-50">
                   <div className="p-4 border-b-4 border-black bg-pink-500">
-                    <div className="font-black uppercase text-white">
-                      JOHN DOE
+                    <div className="font-black uppercase text-white truncate">
+                      {getFirstName()}
                     </div>
-                    <div className="text-sm font-bold text-white">CREATOR</div>
+                    <div className="text-sm font-bold text-white">
+                      {profile?.is_creator ? "Creator & Clipper" : "Clipper"}
+                    </div>
                   </div>
                   <div className="p-2">
                     <Link
@@ -107,14 +121,27 @@ export default function Header() {
                       className="flex items-center gap-3 p-3 hover:bg-yellow-400 font-bold uppercase text-sm border-2 border-transparent hover:border-black"
                     >
                       <BarChart3 className="h-4 w-4" />
-                      DASHBOARD
+                      Clipper Dashboard
                     </Link>
+
+                    {/* --- TOMBOL SWITCHER BARU DI SINI --- */}
+                    {profile?.is_creator && (
+                      <Link
+                        href="/creator/dashboard"
+                        className="flex items-center gap-3 p-3 hover:bg-cyan-400 font-bold uppercase text-sm border-2 border-transparent hover:border-black"
+                      >
+                        <Repeat className="h-4 w-4" />
+                        Switch to Creator
+                      </Link>
+                    )}
+                    {/* --- AKHIR TOMBOL SWITCHER --- */}
+
                     <Link
                       href="/user/settings"
                       className="flex items-center gap-3 p-3 hover:bg-cyan-400 font-bold uppercase text-sm border-2 border-transparent hover:border-black"
                     >
                       <Settings className="h-4 w-4" />
-                      SETTING
+                      SETTINGS
                     </Link>
                     <button
                       onClick={handleSignOut}
@@ -128,7 +155,6 @@ export default function Header() {
               )}
             </div>
           ) : (
-            // Tampilan jika user BELUM login
             <>
               <Link href="/work">
                 <Button className="bg-black text-white border-4 border-black hover:bg-white hover:text-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">

@@ -53,22 +53,19 @@ export default function SignUpForm() {
     const { error } = await supabase.auth.signUp({
       email: formData.email,
       password: formData.password,
-      // Kita bisa menambahkan data tambahan di sini jika perlu
-      // options: {
-      //   data: {
-      //     full_name: formData.name,
-      //   }
-      // }
+      options: {
+        data: {
+          full_name: formData.name,
+        },
+      },
     });
 
     if (error) {
       setError(error.message);
       setIsLoading(false);
     } else {
-      // Jangan langsung redirect, tampilkan pesan sukses
       setSuccess(true);
       setIsLoading(false);
-      // Anda bisa menghapus redirect otomatis ke halaman login
     }
   };
 
@@ -88,6 +85,11 @@ export default function SignUpForm() {
             <p className="text-black font-bold">
               PLEASE CLICK THE LINK TO ACTIVATE YOUR ACCOUNT.
             </p>
+            <Link href="/">
+              <Button className="w-full bg-black text-white border-4 border-black hover:bg-white hover:text-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                BACK TO HOME
+              </Button>
+            </Link>
           </CardContent>
         </Card>
       </div>
@@ -96,6 +98,12 @@ export default function SignUpForm() {
 
   return (
     <>
+      <div className="text-center mb-8">
+        <h1 className="text-4xl font-black uppercase text-black mb-2">
+          SIGN UP
+        </h1>
+        <p className="text-black font-bold">CREATE YOUR ACCOUNT TODAY</p>
+      </div>
       <Card className="border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
         <CardHeader className="bg-yellow-400 text-black border-b-4 border-black">
           <CardTitle className="text-2xl font-black uppercase flex items-center gap-2">
@@ -287,7 +295,7 @@ export default function SignUpForm() {
             <p className="text-black font-bold">
               ALREADY HAVE AN ACCOUNT?{" "}
               <Link
-                href="/auth/sign-in"
+                href="/sign-in"
                 className="text-pink-500 hover:text-cyan-400 underline font-black uppercase"
               >
                 SIGN IN HERE

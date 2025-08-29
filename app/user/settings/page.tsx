@@ -119,7 +119,7 @@ export default function UserSettings() {
         .select("platform, username")
         .eq("user_id", user.id);
 
-      const availablePlatforms = ["YouTube", "TikTok", "Twitter", "Instagram"];
+      const availablePlatforms = ["YouTube", "TikTok"];
       const newSocialAccounts = availablePlatforms.map((platformName) => {
         const existingConnection = connectionData?.find(
           (c) => c.platform.toLowerCase() === platformName.toLowerCase(),
@@ -162,10 +162,8 @@ export default function UserSettings() {
       }
     } catch (err) {
       console.error(`Connection to ${platform} failed`, err);
-      // Di sini bisa ditambahkan notifikasi error jika perlu
       setLoadingPlatform(null);
     }
-    // Tidak perlu finally karena halaman akan redirect
   };
 
   const handleDisconnect = async (platform: string) => {

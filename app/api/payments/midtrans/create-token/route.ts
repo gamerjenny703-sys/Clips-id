@@ -2,6 +2,7 @@
 
 import { type NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+// @ts-ignore - Midtrans client doesn't have proper TypeScript definitions
 import Midtrans from "midtrans-client";
 
 export async function POST(request: NextRequest) {
@@ -28,16 +29,22 @@ export async function POST(request: NextRequest) {
     // Buat ID transaksi yang unik
     const transactionId = `CONTEST-${Date.now()}`;
 
+    // Amount sudah dalam IDR, tidak perlu konversi
+    const amountInIDR = Math.round(parseFloat(amount));
+    
+    console.log(`Prize amount in IDR: ${amountInIDR}`);
+    
     // Siapkan parameter untuk Midtrans
     const parameter = {
       transaction_details: {
         order_id: transactionId,
-        gross_amount: amount,
+        gross_amount: amountInIDR,
+        currency: "IDR",
       },
       item_details: [
         {
           id: `contest-${transactionId}`,
-          price: amount,
+          price: amountInIDR,
           quantity: 1,
           name: `Funding for: ${contestTitle}`,
         },
@@ -50,6 +57,8 @@ export async function POST(request: NextRequest) {
         finish: `${process.env.NEXT_PUBLIC_APP_URL}/creator/dashboard`,
       },
     };
+    
+    console.log("Midtrans parameter:", JSON.stringify(parameter, null, 2));
 
     // Buat transaksi dan dapatkan token-nya
     const token = await snap.createTransactionToken(parameter);
