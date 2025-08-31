@@ -34,7 +34,7 @@ export default function UserProfile() {
       if (user) {
         const { data: userProfile } = await supabase
           .from("profiles")
-          .select("full_name, is_creator")
+          .select("full_name, is_cleaper")
           .eq("id", user.id)
           .single();
         setProfile(userProfile);
