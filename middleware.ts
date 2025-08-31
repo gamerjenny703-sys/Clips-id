@@ -47,8 +47,6 @@ export function middleware(request: NextRequest) {
     },
   });
 
-  // 6. Salin header dari request ke response agar dikirim ke browser
-  // Ini penting karena middleware memodifikasi request DAN response
   requestHeaders.forEach((value, key) => {
     response.headers.set(key, value);
   });
