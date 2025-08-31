@@ -1,3 +1,5 @@
+// components/shared/UserProfile.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -22,31 +24,36 @@ export default function UserProfile() {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
-  const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
   useEffect(() => {
-    const checkUser = async () => {
+    const fetchUserProfile = async () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
       setUser(user);
+
       if (user) {
+        // PERBAIKAN: Mengganti is_cleaper menjadi is_creator agar sesuai dengan skema
         const { data: userProfile } = await supabase
           .from("profiles")
-          .select("full_name, is_cleaper")
+          .select("full_name, is_creator")
           .eq("id", user.id)
           .single();
         setProfile(userProfile);
       }
     };
-    checkUser();
+
+    fetchUserProfile();
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
+    } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
-      if (event === "SIGNED_OUT") {
+      if (session?.user) {
+        // Fetch profile lagi saat state auth berubah
+        fetchUserProfile();
+      } else {
         setProfile(null);
       }
     });
@@ -54,17 +61,28 @@ export default function UserProfile() {
     return () => {
       subscription.unsubscribe();
     };
-  }, [supabase.auth]);
+  }, []);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setShowProfileMenu(false);
+    // Redirect atau refresh mungkin diperlukan di sini jika tidak otomatis
   };
 
   const getFirstName = () => {
-    if (loading) return "Loading...";
-    return profile?.full_name?.split(" ")[0] || "User";
+    if (!profile) return "User";
+    return profile.full_name?.split(" ")[0] || "User";
   };
+
+  // Tampilkan state loading yang lebih sederhana selagi menunggu user
+  if (user === null && profile === null) {
+    return (
+      <div className="flex items-center gap-4">
+        <div className="w-24 h-10 bg-gray-300 animate-pulse rounded-md" />
+        <div className="w-24 h-10 bg-gray-300 animate-pulse rounded-md" />
+      </div>
+    );
+  }
 
   return user ? (
     <div className="relative">

@@ -1,21 +1,26 @@
-// lib/supabase/server.ts
-
+// Hanya tampilkan bagian kode yang memang berubah atau perlu ditambahkan.
+// Gunakan konteks atau cuplikan kode yang cukup agar *perubahan jelas, tapi hindari mem-paste keseluruhan file jika tidak diperlukan.
+// Jika perubahan mempengaruhi struktur file secara signifikan, jelaskan bagian mana saja yang harus diubah sebelum menampilkan kodenya.
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
 export function createClient() {
-  const cookieStore = cookies();
+  // HAPUS baris ini dari sini
+  // const cookieStore = cookies();
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        async get(name: string) {
+        // Modifikasi fungsi get, set, dan remove
+        get(name: string) {
+          const cookieStore = cookies();
           return cookieStore.get(name)?.value;
         },
         set(name: string, value: string, options: CookieOptions) {
           try {
+            const cookieStore = cookies();
             cookieStore.set({ name, value, ...options });
           } catch (error) {
             // The `set` method was called from a Server Component.
@@ -25,6 +30,7 @@ export function createClient() {
         },
         remove(name: string, options: CookieOptions) {
           try {
+            const cookieStore = cookies();
             cookieStore.set({ name, value: "", ...options });
           } catch (error) {
             // The `delete` method was called from a Server Component.
