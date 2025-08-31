@@ -73,26 +73,38 @@ export default function CreateContestPage() {
     requirements: "",
     tags: [] as string[],
     video: {
-      type: 'none' as 'none' | 'file' | 'youtube_link',
-      filePath: '',
+      type: "none" as "none" | "file" | "youtube_link",
+      filePath: "",
       fileSize: 0,
-      youtubeLink: ''
-    }
+      youtubeLink: "",
+    },
   });
   const [targetInput, setTargetInput] = useState(
-    String(typeof contestData.rules.win_condition.target === "number" ? contestData.rules.win_condition.target : 0)
+    String(
+      typeof contestData.rules.win_condition.target === "number"
+        ? contestData.rules.win_condition.target
+        : 0,
+    ),
   );
   const [durationDaysInput, setDurationDaysInput] = useState(
-    String(typeof contestData.rules.duration.days === "number" ? contestData.rules.duration.days : 0)
+    String(
+      typeof contestData.rules.duration.days === "number"
+        ? contestData.rules.duration.days
+        : 0,
+    ),
   );
   const [durationMaxDaysInput, setDurationMaxDaysInput] = useState(
-    String(typeof contestData.rules.duration.max_days === "number" ? contestData.rules.duration.max_days : 0)
+    String(
+      typeof contestData.rules.duration.max_days === "number"
+        ? contestData.rules.duration.max_days
+        : 0,
+    ),
   );
   const [winnersCountInput, setWinnersCountInput] = useState(
-    String(Math.max(1, contestData.rules.payout?.split_ratio?.length || 1))
+    String(Math.max(1, contestData.rules.payout?.split_ratio?.length || 1)),
   );
   useEffect(() => {
-    const snapScriptUrl = "https://app.sandbox.midtrans.com/snap/snap.js";
+    const snapScriptUrl = "https://app.midtrans.com/snap/snap.js";
     const clientKey = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY;
 
     const script = document.createElement("script");
@@ -157,37 +169,45 @@ export default function CreateContestPage() {
     if (!contestData.title.trim()) {
       return "Contest title is required.";
     }
-    
+
     if (!contestData.description.trim()) {
       return "Contest description is required.";
     }
-    
+
     if (!contestData.prize_pool || parseFloat(contestData.prize_pool) < 1000) {
       return "Prize amount must be at least Rp 1,000.";
     }
-    
+
     if (contestData.rules.win_condition.target < 1) {
       return "Target value must be at least 1.";
     }
-    
-    if (contestData.rules.duration.type === 'fixed' && 
-        (contestData.rules.duration.days === 0 || contestData.rules.duration.days < 1 || contestData.rules.duration.days > 365)) {
+
+    if (
+      contestData.rules.duration.type === "fixed" &&
+      (contestData.rules.duration.days === 0 ||
+        contestData.rules.duration.days < 1 ||
+        contestData.rules.duration.days > 365)
+    ) {
       return "Fixed duration must be between 1-365 days.";
     }
-    
-    if (contestData.rules.duration.type === 'ends_on_winner' && 
-        (contestData.rules.duration.max_days === 0 || contestData.rules.duration.max_days < 1 || contestData.rules.duration.max_days > 365)) {
+
+    if (
+      contestData.rules.duration.type === "ends_on_winner" &&
+      (contestData.rules.duration.max_days === 0 ||
+        contestData.rules.duration.max_days < 1 ||
+        contestData.rules.duration.max_days > 365)
+    ) {
       return "Max duration must be between 1-365 days.";
     }
-    
+
     if (contestData.platforms.length === 0) {
       return "Please select at least one platform.";
     }
-    
-    if (contestData.video.type === 'none') {
+
+    if (contestData.video.type === "none") {
       return "Please upload a video or provide a YouTube link for your contest.";
     }
-    
+
     return null; // No errors
   };
 
@@ -218,7 +238,7 @@ export default function CreateContestPage() {
     try {
       // Langkah 1: Simpan kontes dulu dengan status "pending_payment"
       console.log("Saving contest with pending payment status...");
-      
+
       const endDate = new Date();
       const durationDays =
         contestData.rules.duration.type === "fixed"
@@ -240,12 +260,21 @@ export default function CreateContestPage() {
             tags: contestData.tags,
             custom: contestData.requirements,
           },
-          video_file_path: contestData.video.type === 'file' ? contestData.video.filePath : null,
-          video_file_size: contestData.video.type === 'file' ? contestData.video.fileSize : null,
-          youtube_link: contestData.video.type === 'youtube_link' ? contestData.video.youtubeLink : null,
+          video_file_path:
+            contestData.video.type === "file"
+              ? contestData.video.filePath
+              : null,
+          video_file_size:
+            contestData.video.type === "file"
+              ? contestData.video.fileSize
+              : null,
+          youtube_link:
+            contestData.video.type === "youtube_link"
+              ? contestData.video.youtubeLink
+              : null,
           video_upload_type: contestData.video.type,
-          status: 'pending_payment', // Status baru untuk kontes yang belum dibayar
-          payment_status: 'pending'
+          status: "pending_payment", // Status baru untuk kontes yang belum dibayar
+          payment_status: "pending",
         })
         .select()
         .single();
@@ -295,32 +324,34 @@ export default function CreateContestPage() {
           const { error: updateError } = await supabase
             .from("contests")
             .update({
-              status: 'active',
-              payment_status: 'paid',
+              status: "active",
+              payment_status: "paid",
               payment_details: result,
-              paid_at: new Date().toISOString()
+              paid_at: new Date().toISOString(),
             })
-            .eq('id', contest.id);
+            .eq("id", contest.id);
 
           if (updateError) {
             console.error("Failed to update contest status:", updateError);
             // Jangan throw error karena pembayaran sudah sukses
           }
 
-          console.log("Contest status updated to active. Redirecting to dashboard...");
+          console.log(
+            "Contest status updated to active. Redirecting to dashboard...",
+          );
           router.push("/creator/dashboard");
         },
         onPending: async (result: any) => {
           console.log("Payment pending:", result);
-          
+
           // Update status jadi "pending" dan simpan detail pembayaran
           const { error: updateError } = await supabase
             .from("contests")
             .update({
-              payment_status: 'pending',
-              payment_details: result
+              payment_status: "pending",
+              payment_details: result,
             })
-            .eq('id', contest.id);
+            .eq("id", contest.id);
 
           if (updateError) {
             console.error("Failed to update payment status:", updateError);
@@ -330,7 +361,7 @@ export default function CreateContestPage() {
             "Payment is pending. You can check the status in your dashboard.",
           );
           setIsSubmitting(false);
-          
+
           // Redirect ke dashboard untuk melihat status
           setTimeout(() => {
             router.push("/creator/dashboard");
@@ -338,16 +369,16 @@ export default function CreateContestPage() {
         },
         onError: async (result: any) => {
           console.error("Payment error:", result);
-          
+
           // Update status jadi "payment_failed"
           const { error: updateError } = await supabase
             .from("contests")
             .update({
-              status: 'payment_failed',
-              payment_status: 'failed',
-              payment_details: result
+              status: "payment_failed",
+              payment_status: "failed",
+              payment_details: result,
             })
-            .eq('id', contest.id);
+            .eq("id", contest.id);
 
           if (updateError) {
             console.error("Failed to update payment status:", updateError);
@@ -355,7 +386,7 @@ export default function CreateContestPage() {
 
           setError("Payment failed. You can retry from your dashboard.");
           setIsSubmitting(false);
-          
+
           // Redirect ke dashboard untuk retry payment
           setTimeout(() => {
             router.push("/creator/dashboard");
@@ -363,12 +394,14 @@ export default function CreateContestPage() {
         },
         onClose: async () => {
           console.log("Payment popup closed without finishing.");
-          
+
           // Kontes sudah tersimpan dengan status "pending_payment"
           // User bisa lanjutkan pembayaran dari dashboard
-          setError("Payment cancelled. Your contest is saved and you can continue payment from your dashboard.");
+          setError(
+            "Payment cancelled. Your contest is saved and you can continue payment from your dashboard.",
+          );
           setIsSubmitting(false);
-          
+
           // Redirect ke dashboard
           setTimeout(() => {
             router.push("/creator/dashboard");
@@ -468,7 +501,10 @@ export default function CreateContestPage() {
                     value={contestData.prize_pool}
                     onChange={(e) => {
                       const value = e.target.value;
-                      if (value === '' || (parseFloat(value) >= 0 && !isNaN(parseFloat(value)))) {
+                      if (
+                        value === "" ||
+                        (parseFloat(value) >= 0 && !isNaN(parseFloat(value)))
+                      ) {
                         setContestData({
                           ...contestData,
                           prize_pool: value,
@@ -478,7 +514,7 @@ export default function CreateContestPage() {
                     onBlur={(e) => {
                       // Ensure minimum value on blur only if not empty
                       const value = e.target.value;
-                      if (value !== '' && parseFloat(value) < 1000) {
+                      if (value !== "" && parseFloat(value) < 1000) {
                         setContestData({
                           ...contestData,
                           prize_pool: "1000",
@@ -492,11 +528,15 @@ export default function CreateContestPage() {
                     <p className="text-xs text-muted-foreground font-bold">
                       Minimum prize amount: Rp 1,000
                     </p>
-                    {contestData.prize_pool && parseFloat(contestData.prize_pool) > 0 && (
-                      <p className="text-xs text-blue-600 font-bold">
-                        💰 Prize Pool: Rp {parseFloat(contestData.prize_pool).toLocaleString('id-ID')}
-                      </p>
-                    )}
+                    {contestData.prize_pool &&
+                      parseFloat(contestData.prize_pool) > 0 && (
+                        <p className="text-xs text-blue-600 font-bold">
+                          💰 Prize Pool: Rp{" "}
+                          {parseFloat(contestData.prize_pool).toLocaleString(
+                            "id-ID",
+                          )}
+                        </p>
+                      )}
                   </div>
                 </div>
               </div>
@@ -551,7 +591,7 @@ export default function CreateContestPage() {
                     onChange={(e) => {
                       const value = e.target.value;
                       setTargetInput(value);
-                      if (value === '') {
+                      if (value === "") {
                         // Keep UI empty; set numeric state to 0 for validation
                         handleRulesChange("win_condition.target", 0);
                         return;
@@ -563,10 +603,10 @@ export default function CreateContestPage() {
                     }}
                     onBlur={(e) => {
                       const value = e.target.value;
-                      if (value !== '') {
+                      if (value !== "") {
                         const parsed = parseInt(value, 10);
                         if (!Number.isNaN(parsed) && parsed < 1) {
-                          setTargetInput('1');
+                          setTargetInput("1");
                           handleRulesChange("win_condition.target", 1);
                         }
                       }
@@ -596,9 +636,9 @@ export default function CreateContestPage() {
                   value={contestData.rules.payout.type}
                   onValueChange={(value) => {
                     // Update payout type
-                    handleRulesChange("payout.type", value)
+                    handleRulesChange("payout.type", value);
                     // Initialize custom split to 1 winner by default
-                    if (value === 'custom') {
+                    if (value === "custom") {
                       setContestData({
                         ...contestData,
                         rules: {
@@ -608,7 +648,7 @@ export default function CreateContestPage() {
                             split_ratio: [1],
                           },
                         },
-                      })
+                      });
                     }
                   }}
                 >
@@ -622,9 +662,7 @@ export default function CreateContestPage() {
                     <SelectItem value="split_top_3">
                       Split Between Top 3
                     </SelectItem>
-                    <SelectItem value="custom">
-                      Custom Split
-                    </SelectItem>
+                    <SelectItem value="custom">Custom Split</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -654,7 +692,9 @@ export default function CreateContestPage() {
               )}
               {contestData.rules.payout.type === "custom" && (
                 <div className="space-y-2">
-                  <Label className="font-black uppercase">Number of Winners</Label>
+                  <Label className="font-black uppercase">
+                    Number of Winners
+                  </Label>
                   <div className="flex items-center gap-2">
                     <Input
                       type="number"
@@ -664,7 +704,7 @@ export default function CreateContestPage() {
                       onChange={(e) => {
                         const value = e.target.value;
                         setWinnersCountInput(value);
-                        if (value === '') return; // show empty while editing
+                        if (value === "") return; // show empty while editing
                         let n = parseInt(value, 10);
                         if (Number.isNaN(n) || n < 1) n = 1;
                         const equal = Array.from({ length: n }, () => 1 / n);
@@ -681,8 +721,8 @@ export default function CreateContestPage() {
                       }}
                       onBlur={(e) => {
                         const value = e.target.value;
-                        if (value === '') {
-                          setWinnersCountInput('1');
+                        if (value === "") {
+                          setWinnersCountInput("1");
                           const equal = [1];
                           setContestData({
                             ...contestData,
@@ -714,19 +754,27 @@ export default function CreateContestPage() {
                       className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] w-28"
                     />
                     <div className="text-xs font-bold text-muted-foreground">
-                      Each gets: {
-                        (() => {
-                          const n = Math.max(1, contestData.rules.payout.split_ratio?.length || 1);
-                          const amount = parseFloat(contestData.prize_pool || '0');
-                          const per = n > 0 ? amount / n : 0;
-                          return `Rp ${Number.isFinite(per) ? per.toLocaleString('id-ID') : '0'}`;
-                        })()
-                      } ({
-                        (() => {
-                          const n = Math.max(1, contestData.rules.payout.split_ratio?.length || 1);
-                          return `${(100 / n).toFixed(2)}%`;
-                        })()
-                      })
+                      Each gets:{" "}
+                      {(() => {
+                        const n = Math.max(
+                          1,
+                          contestData.rules.payout.split_ratio?.length || 1,
+                        );
+                        const amount = parseFloat(
+                          contestData.prize_pool || "0",
+                        );
+                        const per = n > 0 ? amount / n : 0;
+                        return `Rp ${Number.isFinite(per) ? per.toLocaleString("id-ID") : "0"}`;
+                      })()}{" "}
+                      (
+                      {(() => {
+                        const n = Math.max(
+                          1,
+                          contestData.rules.payout.split_ratio?.length || 1,
+                        );
+                        return `${(100 / n).toFixed(2)}%`;
+                      })()}
+                      )
                     </div>
                   </div>
                 </div>
@@ -766,7 +814,7 @@ export default function CreateContestPage() {
                     onChange={(e) => {
                       const value = e.target.value;
                       setDurationDaysInput(value);
-                      if (value === '') {
+                      if (value === "") {
                         handleRulesChange("duration.days", 0);
                         return;
                       }
@@ -777,7 +825,7 @@ export default function CreateContestPage() {
                     }}
                     onBlur={(e) => {
                       const value = e.target.value;
-                      if (value !== '') {
+                      if (value !== "") {
                         let parsed = parseInt(value, 10);
                         if (Number.isNaN(parsed)) {
                           parsed = 1;
@@ -809,7 +857,7 @@ export default function CreateContestPage() {
                     onChange={(e) => {
                       const value = e.target.value;
                       setDurationMaxDaysInput(value);
-                      if (value === '') {
+                      if (value === "") {
                         handleRulesChange("duration.max_days", 0);
                         return;
                       }
@@ -820,7 +868,7 @@ export default function CreateContestPage() {
                     }}
                     onBlur={(e) => {
                       const value = e.target.value;
-                      if (value !== '') {
+                      if (value !== "") {
                         let parsed = parseInt(value, 10);
                         if (Number.isNaN(parsed)) {
                           parsed = 1;
@@ -853,10 +901,10 @@ export default function CreateContestPage() {
                 ...contestData,
                 video: {
                   type: videoData.type,
-                  filePath: videoData.filePath || '',
+                  filePath: videoData.filePath || "",
                   fileSize: videoData.fileSize || 0,
-                  youtubeLink: videoData.youtubeLink || ''
-                }
+                  youtubeLink: videoData.youtubeLink || "",
+                },
               });
             }}
           />
@@ -879,8 +927,11 @@ export default function CreateContestPage() {
                 </Label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {platformsOptions.map((platform) => {
-                    const isDisabled = platform.id === "twitter" || platform.id === "instagram";
-                    const isActive = contestData.platforms.includes(platform.id);
+                    const isDisabled =
+                      platform.id === "twitter" || platform.id === "instagram";
+                    const isActive = contestData.platforms.includes(
+                      platform.id,
+                    );
                     return (
                       <Button
                         key={platform.id}
@@ -891,8 +942,8 @@ export default function CreateContestPage() {
                           isDisabled
                             ? "bg-white text-black opacity-60 cursor-not-allowed"
                             : isActive
-                            ? "bg-yellow-400 text-black hover:bg-yellow-300"
-                            : "bg-white text-black hover:bg-cyan-400"
+                              ? "bg-yellow-400 text-black hover:bg-yellow-300"
+                              : "bg-white text-black hover:bg-cyan-400"
                         }`}
                         onClick={() => {
                           if (isDisabled) return;
@@ -993,15 +1044,19 @@ export default function CreateContestPage() {
                   </AlertDescription>
                 </Alert>
 
-                {contestData.prize_pool && parseFloat(contestData.prize_pool) > 0 && (
-                  <Alert className="border-4 border-black bg-blue-500 text-white">
-                    <Info className="h-4 w-4" />
-                    <AlertDescription className="font-bold">
-                      💳 Payment will be processed in Indonesian Rupiah (IDR). 
-                      Amount: Rp {parseFloat(contestData.prize_pool).toLocaleString('id-ID')}
-                    </AlertDescription>
-                  </Alert>
-                )}
+                {contestData.prize_pool &&
+                  parseFloat(contestData.prize_pool) > 0 && (
+                    <Alert className="border-4 border-black bg-blue-500 text-white">
+                      <Info className="h-4 w-4" />
+                      <AlertDescription className="font-bold">
+                        💳 Payment will be processed in Indonesian Rupiah (IDR).
+                        Amount: Rp{" "}
+                        {parseFloat(contestData.prize_pool).toLocaleString(
+                          "id-ID",
+                        )}
+                      </AlertDescription>
+                    </Alert>
+                  )}
               </div>
 
               <div className="mt-6 flex gap-4">
@@ -1020,7 +1075,6 @@ export default function CreateContestPage() {
               </div>
             </CardContent>
           </Card>
-
         </form>
       </div>
     </div>

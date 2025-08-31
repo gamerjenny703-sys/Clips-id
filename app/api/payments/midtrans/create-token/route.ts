@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 
     // Inisialisasi Midtrans Snap
     const snap = new Midtrans.Snap({
-      isProduction: false, // Ganti ke true saat launching
+      isProduction: true, // Ganti ke true saat launching
       serverKey: process.env.MIDTRANS_SERVER_KEY!,
       clientKey: process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY!,
     });
@@ -31,9 +31,9 @@ export async function POST(request: NextRequest) {
 
     // Amount sudah dalam IDR, tidak perlu konversi
     const amountInIDR = Math.round(parseFloat(amount));
-    
+
     console.log(`Prize amount in IDR: ${amountInIDR}`);
-    
+
     // Siapkan parameter untuk Midtrans
     const parameter = {
       transaction_details: {
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
         finish: `${process.env.NEXT_PUBLIC_APP_URL}/creator/dashboard`,
       },
     };
-    
+
     console.log("Midtrans parameter:", JSON.stringify(parameter, null, 2));
 
     // Buat transaksi dan dapatkan token-nya

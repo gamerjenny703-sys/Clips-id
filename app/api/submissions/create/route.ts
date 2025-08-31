@@ -1,7 +1,6 @@
-// app/api/submissions/create/route.ts
-
 import { type NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { z } from "zod";
 
 // Helper untuk mengekstrak ID video dari URL
 function getYouTubeVideoId(url: string): string | null {
@@ -86,7 +85,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 3. Jika verifikasi berhasil, simpan submisi ke database
     console.log("Ownership verified. Inserting submission into database...");
     const { data: newSubmission, error: insertError } = await supabase
       .from("submissions")

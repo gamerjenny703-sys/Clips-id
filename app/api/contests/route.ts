@@ -1,12 +1,12 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
-    const creatorId = searchParams.get("creatorId")
-    const status = searchParams.get("status")
-    const limit = Number.parseInt(searchParams.get("limit") || "10")
-    const offset = Number.parseInt(searchParams.get("offset") || "0")
+    const { searchParams } = new URL(request.url);
+    const creatorId = searchParams.get("creatorId");
+    const status = searchParams.get("status");
+    const limit = Number.parseInt(searchParams.get("limit") || "10");
+    const offset = Number.parseInt(searchParams.get("offset") || "0");
 
     // Mock contest data - replace with actual database queries
     const contests = [
@@ -38,42 +38,51 @@ export async function GET(request: NextRequest) {
         tags: ["comedy", "viral", "entertainment"],
         creatorId: "creator1",
       },
-    ]
+    ];
 
-    // Filter by creator if specified
-    let filteredContests = contests
+    let filteredContests = contests;
     if (creatorId) {
-      filteredContests = contests.filter((contest) => contest.creatorId === creatorId)
+      filteredContests = contests.filter(
+        (contest) => contest.creatorId === creatorId,
+      );
     }
 
     // Filter by status if specified
     if (status) {
-      filteredContests = filteredContests.filter((contest) => contest.status === status)
+      filteredContests = filteredContests.filter(
+        (contest) => contest.status === status,
+      );
     }
 
     // Apply pagination
-    const paginatedContests = filteredContests.slice(offset, offset + limit)
+    const paginatedContests = filteredContests.slice(offset, offset + limit);
 
     return NextResponse.json({
       contests: paginatedContests,
       total: filteredContests.length,
       hasMore: offset + limit < filteredContests.length,
-    })
+    });
   } catch (error) {
-    console.error("[v0] Error fetching contests:", error)
-    return NextResponse.json({ error: "Failed to fetch contests" }, { status: 500 })
+    console.error("[v0] Error fetching contests:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch contests" },
+      { status: 500 },
+    );
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
-    const contestData = await request.json()
+    const contestData = await request.json();
 
     // Validate required fields
-    const requiredFields = ["title", "description", "prize", "platforms"]
+    const requiredFields = ["title", "description", "prize", "platforms"];
     for (const field of requiredFields) {
       if (!contestData[field]) {
-        return NextResponse.json({ error: `Missing required field: ${field}` }, { status: 400 })
+        return NextResponse.json(
+          { error: `Missing required field: ${field}` },
+          { status: 400 },
+        );
       }
     }
 
@@ -86,14 +95,19 @@ export async function POST(request: NextRequest) {
       submissions: 0,
       createdAt: new Date().toISOString(),
       // Calculate end date based on duration
-      endDate: new Date(Date.now() + contestData.duration * 24 * 60 * 60 * 1000).toISOString(),
-    }
+      endDate: new Date(
+        Date.now() + contestData.duration * 24 * 60 * 60 * 1000,
+      ).toISOString(),
+    };
 
-    console.log("[v0] Contest created:", newContest)
+    console.log("[v0] Contest created:", newContest);
 
-    return NextResponse.json({ contest: newContest }, { status: 201 })
+    return NextResponse.json({ contest: newContest }, { status: 201 });
   } catch (error) {
-    console.error("[v0] Error creating contest:", error)
-    return NextResponse.json({ error: "Failed to create contest" }, { status: 500 })
+    console.error("[v0] Error creating contest:", error);
+    return NextResponse.json(
+      { error: "Failed to create contest" },
+      { status: 500 },
+    );
   }
 }

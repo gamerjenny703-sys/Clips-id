@@ -11,14 +11,14 @@ export function middleware(request: NextRequest) {
     "script-src": [
       `'nonce-${nonce}'`, // Gunakan nonce
       "'strict-dynamic'", // Izinkan skrip yang sah untuk memuat skrip lain
-      "https://app.sandbox.midtrans.com", // Tetap izinkan Midtrans
+      "https://app.midtrans.com", // Tetap izinkan Midtrans
       // CATATAN: 'unsafe-eval' mungkin masih dibutuhkan oleh beberapa library.
       // Coba jalankan tanpanya. Jika ada yang rusak, tambahkan kembali.
     ],
     "style-src": ["'self'", "'unsafe-inline'"], // 'unsafe-inline' untuk style lebih sulit dihilangkan dan risikonya lebih rendah
     "img-src": ["'self'", "data:", "https://skhhodaegohhedcomccs.supabase.co"],
     "connect-src": ["'self'", "*.supabase.co"],
-    "frame-src": ["'self'", "https://app.sandbox.midtrans.com"],
+    "frame-src": ["'self'", "https://app.midtrans.com"],
     "font-src": ["'self'"],
     "object-src": ["'none'"],
     "base-uri": ["'self'"],

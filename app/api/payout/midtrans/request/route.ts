@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
 
     // 3. Inisialisasi Midtrans Iris & Buat Permintaan Payout
     const iris = new Midtrans.Iris({
-      isProduction: false, // Ganti ke true saat launching
+      isProduction: true, // Ganti ke true saat launching
       serverKey: process.env.MIDTRANS_IRIS_KEY!,
     });
 

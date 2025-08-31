@@ -1,12 +1,14 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextRequest, { params }: { params: { contestId: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { contestId: string } },
+) {
   try {
-    const { searchParams } = new URL(request.url)
-    const userId = searchParams.get("userId")
-    const timeframe = searchParams.get("timeframe") || "24h"
+    const { searchParams } = new URL(request.url);
+    const userId = searchParams.get("userId");
+    const timeframe = searchParams.get("timeframe") || "24h";
 
-    // Mock progress data - replace with actual database queries
     const progressData = {
       contestId: params.contestId,
       userId,
@@ -83,40 +85,46 @@ export async function GET(request: NextRequest, { params }: { params: { contestI
         ],
       },
       lastUpdated: new Date().toISOString(),
-    }
+    };
 
-    console.log("[v0] Progress data fetched for contest:", params.contestId)
+    console.log("[v0] Progress data fetched for contest:", params.contestId);
 
-    return NextResponse.json(progressData)
+    return NextResponse.json(progressData);
   } catch (error) {
-    console.error("[v0] Error fetching progress data:", error)
-    return NextResponse.json({ error: "Failed to fetch progress data" }, { status: 500 })
+    console.error("[v0] Error fetching progress data:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch progress data" },
+      { status: 500 },
+    );
   }
 }
 
-export async function POST(request: NextRequest, { params }: { params: { contestId: string } }) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { contestId: string } },
+) {
   try {
-    const updateData = await request.json()
-
-    // Update progress metrics in database
-    // This would typically involve:
-    // 1. Fetching latest metrics from social media APIs
-    // 2. Calculating new scores and rankings
-    // 3. Updating user progress records
-    // 4. Triggering notifications if rank changes
+    const updateData = await request.json();
 
     const updatedProgress = {
       contestId: params.contestId,
       userId: updateData.userId,
       metrics: updateData.metrics,
       updatedAt: new Date().toISOString(),
-    }
+    };
 
-    console.log("[v0] Progress updated for contest:", params.contestId, updatedProgress)
+    console.log(
+      "[v0] Progress updated for contest:",
+      params.contestId,
+      updatedProgress,
+    );
 
-    return NextResponse.json({ success: true, progress: updatedProgress })
+    return NextResponse.json({ success: true, progress: updatedProgress });
   } catch (error) {
-    console.error("[v0] Error updating progress:", error)
-    return NextResponse.json({ error: "Failed to update progress" }, { status: 500 })
+    console.error("[v0] Error updating progress:", error);
+    return NextResponse.json(
+      { error: "Failed to update progress" },
+      { status: 500 },
+    );
   }
 }
