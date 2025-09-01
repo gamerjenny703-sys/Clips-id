@@ -3,15 +3,16 @@ import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
+  const { pathname } = request.nextUrl;
+
+  const pageWithInsecureScripts = ["/creator/contest/new", "/user/earnings/"];
+  const ispageWithInsecureScripts = pageWithInsecureScripts.some((page) =>
+    pathname.starstWith(page),
+  );
 
   const cspPolicies = {
     "default-src": ["'self'"],
-    "script-src": [
-      `'nonce-${nonce}'`,
-      "'strict-dynamic'",
-      "https://app.midtrans.com",
-      "'unsafe-inline'",
-    ],
+    "script-src": [] as string[],
     "style-src": ["'self'", "'unsafe-inline'"],
     "img-src": ["'self'", "data:", "https://skhhodaegohhedcomccs.supabase.co"],
     "connect-src": ["'self'", "*.supabase.co"],
@@ -22,6 +23,15 @@ export function middleware(request: NextRequest) {
     "form-action": ["'self'"],
     "frame-ancestors": ["'none'"],
   };
+  if (ispageWithInsecureScripts) {
+    cspPolicies["script-src"] = [
+      "'self'",
+      "https://app.midtrans.com",
+      "'unsafe-inline'",
+    ];
+  } else {
+    cspPolicies["script-src"] = [`'nonce-${nonce}'`, "'strict-dynamic'"];
+  }
 
   if (process.env.NODE_ENV === "development") {
     cspPolicies["script-src"].push("'unsafe-eval'");
