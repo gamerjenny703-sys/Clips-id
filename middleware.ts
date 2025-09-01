@@ -7,6 +7,7 @@ export function middleware(request: NextRequest) {
   const cspPolicies = {
     "default-src": ["'self'"],
     "script-src": [
+      "'self'",
       `'nonce-${nonce}'`,
       "'strict-dynamic'",
       "https://app.midtrans.com",
