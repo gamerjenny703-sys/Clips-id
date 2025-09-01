@@ -32,7 +32,17 @@ export function middleware(request: NextRequest) {
       "'unsafe-inline'",
     ];
   } else {
-    cspPolicies["script-src"] = [`'nonce-${nonce}'`, "'strict-dynamic'"];
+    cspPolicies["script-src"] = [
+      `'nonce-${nonce}'`,
+      "'strict-dynamic'",
+      "sha256-OBTN3R1yCV4Bq7dFqZ5a2pAXjnCcCYETjM02I/LYKeo=",
+      "sha256-GURBUR8f8Y0f0iCvfiUBdMNU386jQI5fM6yu34e4ml+NLxI=",
+      "sha256-E5hq48e3j0n0PZLb/HV98rpLw0vJKrfd9DAa/7VRTFI=",
+      "sha256-njsrAvwPFsR0ppoG04puafQfMh2fknN1B07EXCLAZfEo=",
+      "sha256-1vxz6ivcnfQMcz4kpZ3ax2RvaiUbWkLVml2NiZ0333Jk8=",
+      "sha256-2Tu4HudpI+xAMi+dsiI8aWsEl+bAqA/yX8E5EyvS6ws=",
+      "sha256-y5Bj5y3U7jNaBzN4rLHm6iYx2+kENGlssM/774nedJg=",
+    ];
   }
 
   if (process.env.NODE_ENV === "development") {

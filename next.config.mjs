@@ -25,9 +25,6 @@ const nextConfig = {
       },
     ];
   },
-  experimental: {
-    cspCreationNonce: true,
-  },
 };
 
 export default nextConfig;
