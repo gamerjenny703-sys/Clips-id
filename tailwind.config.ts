@@ -8,7 +8,12 @@ const config: Config = {
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./components/**/*.{js,ts,jsx,tsx,mdx}",
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/**/*.{ts,tsx}",
     "*.{js,ts,jsx,tsx,mdx}",
+  ],
+  safelist: [
+    "data-[state=checked]:bg-primary",
+    "data-[state=checked]:text-primary-foreground",
   ],
   theme: {
     extend: {
