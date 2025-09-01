@@ -1,38 +1,37 @@
 // middleware.ts
 
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
-// ============= KONFIGURASI =============
-// Daftar route yang bisa diakses publik tanpa login
+// ============= 1. KONFIGURASI =============
+
+// Daftar route yang bisa diakses publik tanpa perlu login.
 const PUBLIC_ROUTES = [
   "/",
-  "/work", // Termasuk /work/[id]
+  "/work", // Mencakup /work/[id]
   "/about",
   "/contact",
   "/terms",
   "/privacy",
   "/sign-in",
   "/sign-up",
-  "/auth/callback",
-  "/api/auth", // Semua route di bawah /api/auth
+  "/auth/callback", // Route callback dari Supabase
+  "/api/auth", // Semua API route untuk otentikasi
 ];
 
-// Route yang hanya bisa diakses oleh user dengan role 'creator'
-const CREATOR_ROUTES = ["/creator"];
-
-// Route yang hanya bisa diakses oleh user dengan role 'clipper'
-const CLIPPER_ROUTES = ["/user"];
-
-// ============= HELPER FUNCTIONS =============
+// ============= 2. HELPER UTAMA (dari Supabase) =============
 
 /**
- * Membuat Supabase client di dalam middleware.
- * Diambil dari dokumentasi resmi Supabase.
+ * Fungsi ini adalah cara standar dari Supabase untuk menangani sesi
+ * di dalam server-side code seperti Middleware.
+ * Tugasnya adalah membaca, menulis, dan menghapus cookies dengan aman.
  */
-function createSupabaseMiddlewareClient(request: NextRequest) {
-  let response = NextResponse.next({ request: { headers: request.headers } });
+const updateSession = async (request: NextRequest) => {
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
+  });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -42,17 +41,21 @@ function createSupabaseMiddlewareClient(request: NextRequest) {
         get(name: string) {
           return request.cookies.get(name)?.value;
         },
-        set(name: string, value: string, options) {
+        set(name: string, value: string, options: CookieOptions) {
           request.cookies.set({ name, value, ...options });
           response = NextResponse.next({
-            request: { headers: request.headers },
+            request: {
+              headers: request.headers,
+            },
           });
           response.cookies.set({ name, value, ...options });
         },
-        remove(name: string, options) {
+        remove(name: string, options: CookieOptions) {
           request.cookies.set({ name, value: "", ...options });
           response = NextResponse.next({
-            request: { headers: request.headers },
+            request: {
+              headers: request.headers,
+            },
           });
           response.cookies.set({ name, value: "", ...options });
         },
@@ -60,131 +63,76 @@ function createSupabaseMiddlewareClient(request: NextRequest) {
     },
   );
 
-  return { supabase, response };
-}
+  // Perintah ini adalah KUNCI-nya.
+  // Ia akan me-refresh session token pengguna jika sudah mau expired.
+  await supabase.auth.getUser();
 
-/**
- * Mengecek apakah sebuah path termasuk route publik.
- */
-function isPublicRoute(pathname: string): boolean {
-  return PUBLIC_ROUTES.some((route) => pathname.startsWith(route));
-}
+  return response;
+};
 
-/**
- * Menghasilkan header keamanan standar untuk setiap request.
- */
-function getSecurityHeaders() {
-  const headers = {
-    "X-Content-Type-Options": "nosniff",
-    "X-Frame-Options": "DENY",
-    "Referrer-Policy": "strict-origin-when-cross-origin",
-    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
-  };
-  return headers;
-}
+// ============= 3. FUNGSI MIDDLEWARE UTAMA =============
 
-/**
- * Menghasilkan header Content-Security-Policy (CSP) yang aman.
- * Ini adalah versi final yang menggabungkan semua pembelajaran kita.
- */
-function getCSPHeader(): string {
-  // Daftar hash ini akan kita hapus jika nonce sudah terbukti stabil
-  const shaHashes = [
-    "'sha256-OBTN3R1yCV4Bq7dFqZ5a2pAXjnCcCYETjM02I/LYKeo='",
-    "'sha256-GURBUR8f8Y0f0iCvfiUBdMNU386jQI5fM6yu34e4ml+NLxI='",
-    "'sha256-E5hq48e3j0n0PZLb/HV98rpLw0vJKrfd9DAa/7VRTFI='",
-    "'sha256-njsrAvwPFsR0ppoG04puafQfMh2fknN1B07EXCLAZfEo='",
-    "'sha256-1vxz6ivcnfQMcz4kpZ3ax2RvaiUbWkLVml2NiZ0333Jk8='",
-    "'sha256-2Tu4HudpI+xAMi+dsiI8aWsEl+bAqA/yX8E5EyvS6ws='",
-    "'sha256-y5Bj5y3U7jNaBzN4rLHm6iYx2+kENGlssM/774nedJg='",
-    "'sha256-21U4updiMiS8awsEl+bAqA/yX8E5EyvS6wsY5uY3U7j='",
-    "'sha256-pZjljoaA0ltqmr5pv4o5dyFbkWdiqmKnqvqSbfVavmQ='",
-    "'sha256-r2hQ60hLdGNfCFN7n1mbGCcUS+eNTO5mUCB5v='",
-    "'sha256-V5Sj5y3U7jNaBzN4rLHm6iYx2+kENGlssM/774nedJg='",
-    "'sha256-Wr5S3KfoqB0vN187uWmEMgW2Uj2ohDzdGdskaCA='",
-  ];
-
-  const cspPolicies = [
-    "default-src 'self'",
-    `script-src 'self' https://app.sandbox.midtrans.com ${shaHashes.join(" ")}`,
-    "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: https://skhhodaegohhedcomccs.supabase.co",
-    "connect-src 'self' *.supabase.co wss://*.supabase.co https://app.sandbox.midtrans.com",
-    "frame-src 'self' https://app.sandbox.midtrans.com",
-    "font-src 'self'",
-    "object-src 'none'",
-    "base-uri 'self'",
-    "form-action 'self'",
-    "frame-ancestors 'none'",
-  ];
-
-  return cspPolicies.join("; ");
-}
-
-// ============= MAIN MIDDLEWARE =============
 export async function middleware(request: NextRequest) {
+  // Jalankan updateSession di setiap request untuk menjaga sesi tetap aktif.
+  const response = await updateSession(request);
+
   const { pathname, origin } = request.nextUrl;
 
-  // 1. Buat Supabase client & response object
-  const { supabase, response } = createSupabaseMiddlewareClient(request);
+  // Ambil data user dari Supabase client yang sudah diinisialisasi
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    { cookies: { get: (name) => request.cookies.get(name)?.value } },
+  );
 
-  // 2. Terapkan semua header keamanan
-  const securityHeaders = getSecurityHeaders();
-  Object.entries(securityHeaders).forEach(([key, value]) => {
-    response.headers.set(key, value);
-  });
-  response.headers.set("Content-Security-Policy", getCSPHeader());
-
-  // 3. Ambil sesi pengguna saat ini
   const {
-    data: { session },
-  } = await supabase.auth.getSession();
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  // 4. Lewati jika route publik
-  if (isPublicRoute(pathname)) {
-    return response;
+  // --- LOGIKA PROTEKSI ROUTE ---
+
+  // 1. Jika route adalah publik, biarkan saja.
+  if (PUBLIC_ROUTES.some((route) => pathname.startsWith(route))) {
+    return response; // Langsung lolos
   }
 
-  // 5. Jika tidak ada sesi (pengguna belum login)
-  if (!session) {
-    console.log(`❌ No session for protected route: ${pathname}`);
+  // 2. Jika pengguna belum login dan mencoba akses halaman privat
+  if (!user) {
+    console.log(
+      `❌ Unauthenticated access to ${pathname} redirected to /sign-in`,
+    );
     const loginUrl = new URL("/sign-in", origin);
     loginUrl.searchParams.set("returnUrl", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // 6. Ambil role pengguna dari database (jika diperlukan)
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("is_creator")
-    .eq("id", session.user.id)
-    .single();
+  // 3. Jika pengguna sudah login, cek role untuk route spesifik (contoh)
+  if (pathname.startsWith("/creator")) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("is_creator")
+      .eq("id", user.id)
+      .single();
 
-  const isCreator = profile?.is_creator || false;
-
-  // 7. Cek otorisasi berdasarkan role
-  if (pathname.startsWith("/creator") && !isCreator) {
-    console.log(`❌ Access denied - Creator role required for: ${pathname}`);
-    return NextResponse.redirect(new URL("/", origin)); // Redirect ke home jika bukan creator
+    if (!profile?.is_creator) {
+      console.log(
+        `❌ Access Denied: User ${user.id} is not a creator for ${pathname}.`,
+      );
+      return NextResponse.redirect(new URL("/", origin)); // Redirect ke homepage
+    }
   }
 
-  if (pathname.startsWith("/user") && isCreator) {
-    // Creator bisa akses halaman user, jadi tidak perlu blokir
-  }
-
-  console.log(`✅ Authorized: User ${session.user.id} accessing ${pathname}`);
+  console.log(`✅ Authorized access for user ${user.id} to ${pathname}`);
   return response;
 }
 
-// ============= MATCHER CONFIGURATION =============
+// ============= 4. KONFIGURASI MATCHER =============
+
 export const config = {
   matcher: [
     /*
-     * Match semua request kecuali:
-     * - _next/static (file statis)
-     * - _next/image (optimasi gambar)
-     * - favicon.ico (file favicon)
-     * - file di dalam folder /public
+     * Match semua request kecuali yang ada di daftar ini.
+     * Ini untuk efisiensi agar middleware tidak berjalan untuk file statis.
      */
     "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
