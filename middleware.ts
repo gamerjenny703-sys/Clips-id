@@ -36,7 +36,7 @@ export function middleware(request: NextRequest) {
   }
 
   if (process.env.NODE_ENV === "development") {
-    cspPolicies["script-src"].push("'unsafe-eval'");
+    cspPolicies["script-src"].push("'unsafe-eval'", "'unsafe-inline'");
   }
 
   const cspHeader = Object.entries(cspPolicies)
