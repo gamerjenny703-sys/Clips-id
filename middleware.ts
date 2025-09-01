@@ -4,21 +4,19 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
+  // 1. Buat nonce unik untuk setiap request
+  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
+
   const cspPolicies = {
     "default-src": ["'self'"],
-    // STRATEGI BARU: Izinkan semua skrip dari domain kita ('self')
-    // dan izinkan skrip inline secara eksplisit ('unsafe-inline').
-    // Ini akan menyelesaikan error 'Refused to execute inline script'.
-    "script-src": [
-      "'self'",
-      "https://app.sandbox.midtrans.com",
-      "'unsafe-inline'", // Ini adalah kuncinya untuk sekarang
-    ],
+    // 2. Gunakan nonce dan strict-dynamic. Ini adalah standar emas untuk CSP modern.
+    "script-src": ["'self'", `'nonce-${nonce}'`, "'strict-dynamic'"],
     "style-src": ["'self'", "'unsafe-inline'"],
     "img-src": ["'self'", "data:", "https://skhhodaegohhedcomccs.supabase.co"],
     "connect-src": [
       "'self'",
       "*.supabase.co",
+      // Izinkan koneksi ke Midtrans jika diperlukan di client-side
       "https://app.sandbox.midtrans.com",
     ],
     "frame-src": ["'self'", "https://app.sandbox.midtrans.com"],
@@ -29,7 +27,7 @@ export function middleware(request: NextRequest) {
     "frame-ancestors": ["'none'"],
   };
 
-  // Tetap berikan kelonggaran untuk mode development
+  // Tambahkan 'unsafe-eval' hanya saat development untuk HMR
   if (process.env.NODE_ENV === "development") {
     cspPolicies["script-src"].push("'unsafe-eval'");
   }
@@ -38,16 +36,18 @@ export function middleware(request: NextRequest) {
     .map(([key, value]) => `${key} ${value.join(" ")}`)
     .join("; ");
 
-  console.log(
-    "--- [RESET STRATEGY] Generated CSP Header for:",
-    request.nextUrl.pathname,
-    "---",
-  );
-  console.log(cspHeader);
-  console.log("-------------------------------------------------");
-
   const response = NextResponse.next();
+
+  // 3. Set semua header keamanan
   response.headers.set("Content-Security-Policy", cspHeader);
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  // Header lain yang juga bagus untuk ditambahkan
+  response.headers.set("X-Frame-Options", "SAMEORIGIN");
+  response.headers.set(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=()",
+  );
 
   return response;
 }
