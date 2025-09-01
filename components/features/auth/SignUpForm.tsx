@@ -250,7 +250,7 @@ export default function SignUpForm() {
                     agreeToTerms: checked as boolean,
                   })
                 }
-                className="border-2 border-black data-[state=checked]:bg-pink-500 data-[state=checked]:border-black"
+                className="border-2 border-black data-[state=checked]:bg-pink-500 data-[state=checked]:border-black data-[state=checked]:text-white"
               />
               <Label
                 htmlFor="terms"
