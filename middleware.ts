@@ -1,14 +1,11 @@
+// middleware.ts
+
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
   const { pathname } = request.nextUrl;
-
-  const pageWithInsecureScripts = ["/creator/contest/new", "/user/earnings/"];
-  const ispageWithInsecureScripts = pageWithInsecureScripts.some((page) =>
-    pathname.startsWith(page),
-  );
 
   const cspPolicies = {
     "default-src": ["'self'"],
@@ -23,6 +20,11 @@ export function middleware(request: NextRequest) {
     "form-action": ["'self'"],
     "frame-ancestors": ["'none'"],
   };
+  const pageWithInsecureScripts = ["/creator/contest/new", "/user/earnings/"];
+  const ispageWithInsecureScripts = pageWithInsecureScripts.some((page) =>
+    pathname.startsWith(page),
+  );
+
   if (ispageWithInsecureScripts) {
     cspPolicies["script-src"] = [
       "'self'",
@@ -36,28 +38,20 @@ export function middleware(request: NextRequest) {
   if (process.env.NODE_ENV === "development") {
     cspPolicies["script-src"].push("'unsafe-eval'");
   }
-  // --- AKHIR BLOK ---
 
   const cspHeader = Object.entries(cspPolicies)
     .map(([key, value]) => `${key} ${value.join(" ")}`)
     .join("; ");
 
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set("x-nonce", nonce);
-  requestHeaders.set("Content-Security-Policy", cspHeader);
-  requestHeaders.set("X-Frame-Options", "SAMEORIGIN");
-  requestHeaders.set("X-Content-Type-Options", "nosniff");
-  requestHeaders.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  // Buat response terlebih dahulu
+  const response = NextResponse.next();
 
-  const response = NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
-
-  requestHeaders.forEach((value, key) => {
-    response.headers.set(key, value);
-  });
+  // Sekarang, set semua header langsung di response
+  response.headers.set("x-nonce", nonce);
+  response.headers.set("Content-Security-Policy", cspHeader);
+  response.headers.set("X-Frame-Options", "SAMEORIGIN");
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
 
   return response;
 }
