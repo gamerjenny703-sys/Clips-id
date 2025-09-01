@@ -9,6 +9,9 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  experimental: {
+    cspCreationNonce: true,
+  },
   async rewrites() {
     return [
       {
