@@ -19,6 +19,10 @@ const nextConfig = {
         source: "/privacy/tiktokje8FevyLlAmAq2MbZX3H28psFPwbyI8k.txt",
         destination: "/tiktokje8FevyLlAmAq2MbZX3H28psFPwbyI8k.txt",
       },
+      {
+        source: "/tiktok2iwbs0NFIDuHeQx0RGxGZTA9tsdp0fsg.txt",
+        destination: "/tiktok2iwbs0NFIDuHeQx0RGxGZTA9tsdp0fsg.txt",
+      },
     ];
   },
 };
