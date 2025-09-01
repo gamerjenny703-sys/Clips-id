@@ -1,4 +1,5 @@
 // components/shared/UserProfile.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -19,45 +20,40 @@ type Profile = {
   is_creator: boolean;
 };
 
-// ✅ Supabase dibuat sekali, bukan di dalam komponen
-const supabase = createClient();
-
 export default function UserProfile() {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const supabase = createClient();
 
   useEffect(() => {
-    const fetchProfile = async (currentUser: User) => {
-      const { data } = await supabase
-        .from("profiles")
-        .select("full_name, is_creator")
-        .eq("id", currentUser.id)
-        .single();
-      setProfile(data);
-    };
-
-    const init = async () => {
+    const fetchUserProfile = async () => {
       const {
-        data: { session },
-      } = await supabase.auth.getSession();
+        data: { user },
+      } = await supabase.auth.getUser();
+      setUser(user);
 
-      if (session?.user) {
-        setUser(session.user);
-        await fetchProfile(session.user);
+      if (user) {
+        // PERBAIKAN: Mengganti is_cleaper menjadi is_creator agar sesuai dengan skema
+        const { data: userProfile } = await supabase
+          .from("profiles")
+          .select("full_name, is_creator")
+          .eq("id", user.id)
+          .single();
+        setProfile(userProfile);
       }
     };
 
-    init();
+    fetchUserProfile();
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
       if (session?.user) {
-        setUser(session.user);
-        fetchProfile(session.user);
+        // Fetch profile lagi saat state auth berubah
+        fetchUserProfile();
       } else {
-        setUser(null);
         setProfile(null);
       }
     });
@@ -70,21 +66,13 @@ export default function UserProfile() {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setShowProfileMenu(false);
+    // Redirect atau refresh mungkin diperlukan di sini jika tidak otomatis
   };
 
   const getFirstName = () => {
     if (!profile) return "User";
     return profile.full_name?.split(" ")[0] || "User";
   };
-
-  if (user === null && profile === null) {
-    return (
-      <div className="flex items-center gap-4">
-        <div className="w-24 h-10 bg-gray-300 animate-pulse rounded-md" />
-        <div className="w-24 h-10 bg-gray-300 animate-pulse rounded-md" />
-      </div>
-    );
-  }
 
   return user ? (
     <div className="relative">

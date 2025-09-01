@@ -3,9 +3,11 @@ import { redirect } from "next/navigation";
 import { Settings } from "lucide-react";
 import UserSettingsForm from "@/components/features/auth/UserSettingsForm";
 
-export default function UserSettings() {
+export default async function UserSettings() {
   const supabase = createClient();
-  const { data: { user } = await supabase.auth.getUser() };
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     redirect("/auth/sign-in");

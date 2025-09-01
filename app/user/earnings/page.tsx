@@ -2,15 +2,17 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import UserEarnings from "@/components/features/payment/UserEarnings";
 
-export default function EarningsPage() {
+export default async function EarningsPage() {
   const supabase = createClient();
-  const { data: { user } = await supabase.auth.getUser() };
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   if (!user) {
     redirect("/auth/sign-in");
   }
 
-  const { data: profile } = await.supabase
+  const { data: profile } = await supabase
     .form("profiles")
     .select("balance")
     .eq("id", user.id)

@@ -1,3 +1,4 @@
+"use client";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,10 +43,11 @@ export default function UserSettingsForm({
 }: UserSettingsFormProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [userInfo, setUserInfo] = useState(initialProfile);
+  const [loading, setLoading] = useState(false);
   const [socialAccounts, setSocialAccounts] = useState(initialSocialAccounts);
   const [isSaving, setIsSaving] = useState(false);
   const [loadingPlatform, setLoadingPlatform] = useState<string | null>(null);
-
+  const handleConnect = async (platform: string) => {
     setLoadingPlatform(platform);
     try {
       // Panggil API endpoint kita untuk mendapatkan URL otorisasi
@@ -73,29 +75,30 @@ export default function UserSettingsForm({
   };
 
   const fetchConnections = async () => {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return; // Seharusnya tidak terjadi, tapi untuk keamanan
+    const supabase = createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return; // Seharusnya tidak terjadi, tapi untuk keamanan
 
-      const { data: connections } = await supabase
-        .from("social_connections")
-        .select("platform, username")
-        .eq("user_id", user.id);
+    const { data: connections } = await supabase
+      .from("social_connections")
+      .select("platform, username")
+      .eq("user_id", user.id);
 
-      const availablePlatforms = ["YouTube", "TikTok", "Twitter", "Instagram"];
-      const newSocialAccounts = availablePlatforms.map((platformName) => {
-        const existingConnection = connections?.find(
-          (c) => c.platform.toLowerCase() === platformName.toLowerCase()
-        );
-        return {
-          platform: platformName,
-          connected: !!existingConnection,
-          username: existingConnection?.username,
-        };
-      });
-      setSocialAccounts(newSocialAccounts); // Perbarui state dengan data terbaru
-    };
-
+    const availablePlatforms = ["YouTube", "TikTok", "Twitter", "Instagram"];
+    const newSocialAccounts = availablePlatforms.map((platformName) => {
+      const existingConnection = connections?.find(
+        (c) => c.platform.toLowerCase() === platformName.toLowerCase(),
+      );
+      return {
+        platform: platformName,
+        connected: !!existingConnection,
+        username: existingConnection?.username,
+      };
+    });
+    setSocialAccounts(newSocialAccounts); // Perbarui state dengan data terbaru
+  };
 
   const handleDisconnect = async (platform: string) => {
     setLoadingPlatform(platform);
@@ -153,9 +156,7 @@ export default function UserSettingsForm({
   };
 
   return (
-    // --- PINDAHKAN SEMUA JSX-mu DARI <Card> SAMPAI AKHIR KE SINI ---
     <div className="max-w-4xl mx-auto space-y-8">
-      {/* Profile Information */}
       <Card className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white">
         <div className="bg-pink-500 border-b-4 border-black p-4">
           <div className="flex items-center justify-between">
