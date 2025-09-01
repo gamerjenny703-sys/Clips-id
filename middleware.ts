@@ -6,12 +6,7 @@ export function middleware(request: NextRequest) {
 
   const cspPolicies = {
     "default-src": ["'self'"],
-    "script-src": [
-      "'self'",
-      `'nonce-${nonce}'`,
-      "'strict-dynamic'",
-      "https://app.midtrans.com",
-    ],
+    "script-src": ["'self'", `'nonce-${nonce}'`, "https://app.midtrans.com"],
     "style-src": ["'self'", "'unsafe-inline'"],
     "img-src": ["'self'", "data:", "https://skhhodaegohhedcomccs.supabase.co"],
     "connect-src": ["'self'", "*.supabase.co"],
@@ -23,8 +18,6 @@ export function middleware(request: NextRequest) {
     "frame-ancestors": ["'none'"],
   };
 
-  // --- TAMBAHKAN BLOK KODE INI ---
-  // Izinkan 'unsafe-eval' hanya di mode development untuk Next.js Fast Refresh
   if (process.env.NODE_ENV === "development") {
     cspPolicies["script-src"].push("'unsafe-eval'");
   }
