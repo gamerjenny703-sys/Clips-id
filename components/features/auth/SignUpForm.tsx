@@ -15,7 +15,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff, ArrowRight, UserPlus } from "lucide-react";
 import Link from "next/link";
 
@@ -241,17 +240,6 @@ export default function SignUpForm() {
 
             {/* Terms Checkbox */}
             <div className="flex items-start space-x-3">
-              <Checkbox
-                id="terms"
-                checked={formData.agreeToTerms}
-                onCheckedChange={(checked) =>
-                  setFormData({
-                    ...formData,
-                    agreeToTerms: checked as boolean,
-                  })
-                }
-                className="border-2 border-black data-[state=checked]:bg-pink-500 data-[state=checked]:border-black data-[state=checked]:text-white"
-              />
               <Label
                 htmlFor="terms"
                 className="text-black font-bold text-sm leading-relaxed"
