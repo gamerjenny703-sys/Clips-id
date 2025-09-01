@@ -22,8 +22,6 @@ export function middleware(request: NextRequest) {
     "frame-ancestors": ["'none'"],
   };
 
-  // --- TAMBAHKAN BLOK KODE INI ---
-  // Izinkan 'unsafe-eval' hanya di mode development untuk Next.js Fast Refresh
   if (process.env.NODE_ENV === "development") {
     cspPolicies["script-src"].push("'unsafe-eval'");
   }
