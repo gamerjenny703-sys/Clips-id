@@ -10,6 +10,7 @@ export function middleware(request: NextRequest) {
       `'nonce-${nonce}'`,
       "'strict-dynamic'",
       "https://app.midtrans.com",
+      "'unsafe-inline'",
     ],
     "style-src": ["'self'", "'unsafe-inline'"],
     "img-src": ["'self'", "data:", "https://skhhodaegohhedcomccs.supabase.co"],
