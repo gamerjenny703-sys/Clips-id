@@ -5,6 +5,7 @@ import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   // Daftar hash TANPA tanda kutip tunggal di dalamnya.
+  // Ini adalah daftar gabungan dari semua error yang muncul.
   const shaHashes = [
     "sha256-OBTN3R1yCV4Bq7dFqZ5a2pAXjnCcCYETjM02I/LYKeo=",
     "sha256-GURBUR8f8Y0f0iCvfiUBdMNU386jQI5fM6yu34e4ml+NLxI=",
@@ -15,9 +16,13 @@ export function middleware(request: NextRequest) {
     "sha256-y5Bj5y3U7jNaBzN4rLHm6iYx2+kENGlssM/774nedJg=",
     "sha256-21U4updiMiS8awsEl+bAqA/yX8E5EyvS6wsY5uY3U7j=",
     "sha256-pZjljoaA0ltqmr5pv4o5dyFbkWdiqmKnqvqSbfVavmQ=",
+    "sha256-r2hQ60hLdGNfCFN7n1mbGCcUS+eNTO5mUCB5v=",
+    "sha256-V5Sj5y3U7jNaBzN4rLHm6iYx2+kENGlssM/774nedJg=",
+    "sha256-Wr5S3KfoqB0vN187uWmEMgW2Uj2ohDzdGdskaCA=",
   ];
 
   // Secara programatis, kita HANYA membungkus setiap hash dengan kutip tunggal.
+  // Ini memastikan formatnya SELALU BENAR.
   const scriptHashDirectives = shaHashes.map((hash) => `'${hash}'`);
 
   const cspPolicies = {
@@ -25,7 +30,7 @@ export function middleware(request: NextRequest) {
     "script-src": [
       "'self'",
       "https://app.sandbox.midtrans.com",
-      ...scriptHashDirectives,
+      ...scriptHashDirectives, // Gunakan array yang sudah diformat dengan benar
     ],
     "style-src": ["'self'", "'unsafe-inline'"],
     "img-src": ["'self'", "data:", "https://skhhodaegohhedcomccs.supabase.co"],
@@ -42,7 +47,6 @@ export function middleware(request: NextRequest) {
     "frame-ancestors": ["'none'"],
   };
 
-  // Hapus 'unsafe-eval' dari production build
   if (process.env.NODE_ENV === "development") {
     cspPolicies["script-src"].push("'unsafe-eval'");
   }
@@ -51,6 +55,7 @@ export function middleware(request: NextRequest) {
     .map(([key, value]) => `${key} ${value.join(" ")}`)
     .join("; ");
 
+  // LOGGING UNTUK VERIFIKASI (Akan muncul di log Vercel)
   console.log("--- Generated CSP Header for:", request.nextUrl.pathname, "---");
   console.log(cspHeader);
   console.log("-------------------------------------------------");
