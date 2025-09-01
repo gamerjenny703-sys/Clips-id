@@ -16,7 +16,7 @@ const nextConfig = {
         destination: "/tiktokbdyI1Xrvc0vW2NLoCKSFMfS1YS98pLEW.txt",
       },
       {
-        source: "/privacy/tiktokbdyI1Xrvc0vW2NLoCKSFMfS1YS98pLEW.txt",
+        source: "/privacy/tiktokje8FevyLlAmAq2MbZX3H28psFPwbyI8k.txt",
         destination: "/tiktokje8FevyLlAmAq2MbZX3H28psFPwbyI8k.txt",
       },
     ];
