@@ -1,48 +1,51 @@
-// middleware.ts
-
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
-  // 1. Buat nonce unik untuk setiap request
-  const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
-
-  const cspPolicies = {
-    "default-src": ["'self'"],
-    // 2. Gunakan nonce dan strict-dynamic. Ini adalah standar emas untuk CSP modern.
-    "script-src": ["'self'", `'nonce-${nonce}'`, "'strict-dynamic'"],
-    "style-src": ["'self'", "'unsafe-inline'"],
-    "img-src": ["'self'", "data:", "https://skhhodaegohhedcomccs.supabase.co"],
-    "connect-src": [
-      "'self'",
-      "*.supabase.co",
-      // Izinkan koneksi ke Midtrans jika diperlukan di client-side
-      "https://app.sandbox.midtrans.com",
-    ],
-    "frame-src": ["'self'", "https://app.sandbox.midtrans.com"],
-    "font-src": ["'self'"],
-    "object-src": ["'none'"],
-    "base-uri": ["'self'"],
-    "form-action": ["'self'"],
-    "frame-ancestors": ["'none'"],
-  };
-
-  // Tambahkan 'unsafe-eval' hanya saat development untuk HMR
-  if (process.env.NODE_ENV === "development") {
-    cspPolicies["script-src"].push("'unsafe-eval'");
-  }
-
-  const cspHeader = Object.entries(cspPolicies)
-    .map(([key, value]) => `${key} ${value.join(" ")}`)
-    .join("; ");
-
   const response = NextResponse.next();
 
-  // 3. Set semua header keamanan
-  response.headers.set("Content-Security-Policy", cspHeader);
+  // Jika development, gunakan CSP yang lebih permisif
+  if (process.env.NODE_ENV === "development") {
+    const cspHeader = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: https://skhhodaegohhedcomccs.supabase.co",
+      "connect-src 'self' *.supabase.co https://app.sandbox.midtrans.com ws://localhost:* http://localhost:*",
+      "frame-src 'self' https://app.sandbox.midtrans.com",
+      "font-src 'self' data:",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "frame-ancestors 'none'",
+    ].join("; ");
+
+    response.headers.set("Content-Security-Policy", cspHeader);
+  } else {
+    // Production CSP yang lebih ketat
+    const nonce = Buffer.from(crypto.randomUUID()).toString("base64");
+
+    const cspHeader = [
+      "default-src 'self'",
+      `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`,
+      "style-src 'self' 'unsafe-inline'",
+      "img-src 'self' data: https://skhhodaegohhedcomccs.supabase.co",
+      "connect-src 'self' *.supabase.co https://app.sandbox.midtrans.com",
+      "frame-src 'self' https://app.sandbox.midtrans.com",
+      "font-src 'self' data:",
+      "object-src 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+      "frame-ancestors 'none'",
+    ].join("; ");
+
+    response.headers.set("Content-Security-Policy", cspHeader);
+    response.headers.set("x-nonce", nonce);
+  }
+
+  // Header keamanan lainnya
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  // Header lain yang juga bagus untuk ditambahkan
   response.headers.set("X-Frame-Options", "SAMEORIGIN");
   response.headers.set(
     "Permissions-Policy",
@@ -51,4 +54,7 @@ export function middleware(request: NextRequest) {
 
   return response;
 }
-// Paksa update build v2
+
+export const config = {
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+};
