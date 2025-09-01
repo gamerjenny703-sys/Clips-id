@@ -7,7 +7,6 @@ export async function POST(request: NextRequest) {
   const supabase = createClient();
 
   try {
-    // 1. Ambil data pengguna yang sedang login dari cookie
     const {
       data: { user },
     } = await supabase.auth.getUser();
@@ -25,7 +24,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 3. Hapus baris yang sesuai dari database
     const { error: deleteError } = await supabase
       .from("social_connections")
       .delete()
