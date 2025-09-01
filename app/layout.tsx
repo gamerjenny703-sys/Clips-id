@@ -1,5 +1,6 @@
+// app/layout.tsx
+
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { DM_Sans } from "next/font/google";
 import "./globals.css";
 
@@ -19,24 +20,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const nonce = headers().get("x-nonce") ?? undefined;
   return (
     <html lang="en" className={dmSans.variable}>
-      <head>
-        <Script
-          src="https://app.midtrans.com/snap/snap.js"
-          stretegy="beforeInteractive"
-          nonce={nonce}
-        />
-        <Script
-          id=""
-          nonce={nonce}
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `console.log("Hydration jalan dengan nonce")`,
-          }}
-        />
-      </head>
       <body>{children}</body>
     </html>
   );
