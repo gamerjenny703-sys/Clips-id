@@ -7,7 +7,7 @@ export function middleware(request: NextRequest) {
 
   const pageWithInsecureScripts = ["/creator/contest/new", "/user/earnings/"];
   const ispageWithInsecureScripts = pageWithInsecureScripts.some((page) =>
-    pathname.starstWith(page),
+    pathname.startsWith(page),
   );
 
   const cspPolicies = {
