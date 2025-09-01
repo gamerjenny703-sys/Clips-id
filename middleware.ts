@@ -4,33 +4,15 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
-  // Daftar hash TANPA tanda kutip tunggal di dalamnya.
-  // Ini adalah daftar gabungan dari semua error yang muncul.
-  const shaHashes = [
-    "sha256-OBTN3R1yCV4Bq7dFqZ5a2pAXjnCcCYETjM02I/LYKeo=",
-    "sha256-GURBUR8f8Y0f0iCvfiUBdMNU386jQI5fM6yu34e4ml+NLxI=",
-    "sha256-E5hq48e3j0n0PZLb/HV98rpLw0vJKrfd9DAa/7VRTFI=",
-    "sha256-njsrAvwPFsR0ppoG04puafQfMh2fknN1B07EXCLAZfEo=",
-    "sha256-1vxz6ivcnfQMcz4kpZ3ax2RvaiUbWkLVml2NiZ0333Jk8=",
-    "sha256-2Tu4HudpI+xAMi+dsiI8aWsEl+bAqA/yX8E5EyvS6ws=",
-    "sha256-y5Bj5y3U7jNaBzN4rLHm6iYx2+kENGlssM/774nedJg=",
-    "sha256-21U4updiMiS8awsEl+bAqA/yX8E5EyvS6wsY5uY3U7j=",
-    "sha256-pZjljoaA0ltqmr5pv4o5dyFbkWdiqmKnqvqSbfVavmQ=",
-    "sha256-r2hQ60hLdGNfCFN7n1mbGCcUS+eNTO5mUCB5v=",
-    "sha256-V5Sj5y3U7jNaBzN4rLHm6iYx2+kENGlssM/774nedJg=",
-    "sha256-Wr5S3KfoqB0vN187uWmEMgW2Uj2ohDzdGdskaCA=",
-  ];
-
-  // Secara programatis, kita HANYA membungkus setiap hash dengan kutip tunggal.
-  // Ini memastikan formatnya SELALU BENAR.
-  const scriptHashDirectives = shaHashes.map((hash) => `'${hash}'`);
-
   const cspPolicies = {
     "default-src": ["'self'"],
+    // STRATEGI BARU: Izinkan semua skrip dari domain kita ('self')
+    // dan izinkan skrip inline secara eksplisit ('unsafe-inline').
+    // Ini akan menyelesaikan error 'Refused to execute inline script'.
     "script-src": [
       "'self'",
       "https://app.sandbox.midtrans.com",
-      ...scriptHashDirectives, // Gunakan array yang sudah diformat dengan benar
+      "'unsafe-inline'", // Ini adalah kuncinya untuk sekarang
     ],
     "style-src": ["'self'", "'unsafe-inline'"],
     "img-src": ["'self'", "data:", "https://skhhodaegohhedcomccs.supabase.co"],
@@ -47,6 +29,7 @@ export function middleware(request: NextRequest) {
     "frame-ancestors": ["'none'"],
   };
 
+  // Tetap berikan kelonggaran untuk mode development
   if (process.env.NODE_ENV === "development") {
     cspPolicies["script-src"].push("'unsafe-eval'");
   }
@@ -55,8 +38,11 @@ export function middleware(request: NextRequest) {
     .map(([key, value]) => `${key} ${value.join(" ")}`)
     .join("; ");
 
-  // LOGGING UNTUK VERIFIKASI (Akan muncul di log Vercel)
-  console.log("--- Generated CSP Header for:", request.nextUrl.pathname, "---");
+  console.log(
+    "--- [RESET STRATEGY] Generated CSP Header for:",
+    request.nextUrl.pathname,
+    "---",
+  );
   console.log(cspHeader);
   console.log("-------------------------------------------------");
 
