@@ -15,9 +15,12 @@ const nextConfig = {
         source: "/terms/tiktokbdyI1Xrvc0vW2NLoCKSFMfS1YS98pLEW.txt",
         destination: "/tiktokbdyI1Xrvc0vW2NLoCKSFMfS1YS98pLEW.txt",
       },
+      {
+        source: "/privacy/tiktokbdyI1Xrvc0vW2NLoCKSFMfS1YS98pLEW.txt",
+        destination: "/tiktokje8FevyLlAmAq2MbZX3H28psFPwbyI8k.txt",
+      },
     ];
   },
-  // HAPUS seluruh bagian 'async headers()' dari sini
 };
 
 export default nextConfig;
