@@ -13,7 +13,7 @@ const Checkbox = React.forwardRef<
   <CheckboxPrimitive.Root
     ref={ref}
     className={cn(
-      "peer group h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
+      "peer h-4 w-4 shrink-0 rounded-sm border border-primary ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground",
       className,
     )}
     {...props}
@@ -21,13 +21,11 @@ const Checkbox = React.forwardRef<
     <CheckboxPrimitive.Indicator
       className={cn("flex items-center justify-center text-current")}
     >
-      {/* PERUBAHAN DI SINI: Kita tambahkan class langsung ke ikon 'Check'.
-        'group-data-[state=checked]:text-white' berarti:
-        Jika parent dengan class 'group' memiliki atribut data-state="checked",
-        maka berikan warna putih pada ikon ini.
-        Ini lebih spesifik dan seharusnya tidak akan di-purge.
+      {/* PERUBAHAN DI SINI:
+        - Hapus semua className dari <Check />.
+        - Ganti dengan satu className khusus: "checkbox-indicator".
       */}
-      <Check className="h-4 w-4 text-white" />
+      <Check className="h-4 w-4 checkbox-indicator" />
     </CheckboxPrimitive.Indicator>
   </CheckboxPrimitive.Root>
 ));
