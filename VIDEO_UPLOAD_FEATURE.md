@@ -25,11 +25,11 @@ Fitur upload video telah ditambahkan ke form pembuatan kontes dengan batasan uku
 
 ### Tabel `contests` - Kolom Baru
 ```sql
-ALTER TABLE contests 
+ALTER TABLE contests
 ADD COLUMN video_file_path TEXT,
 ADD COLUMN video_file_size BIGINT,
 ADD COLUMN youtube_link TEXT,
-ADD COLUMN video_upload_type TEXT DEFAULT 'none' 
+ADD COLUMN video_upload_type TEXT DEFAULT 'none'
 CHECK (video_upload_type IN ('none', 'file', 'youtube_link'));
 ```
 
@@ -149,3 +149,4 @@ FOR UPDATE USING (
 3. Check RLS policies
 4. Verify user authentication
 5. Check file size dan format
+6. tetst md doang
