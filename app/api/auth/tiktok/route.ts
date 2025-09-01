@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
           client_secret: process.env.TIKTOK_CLIENT_SECRET!,
           code,
           grant_type: "authorization_code",
-          redirect_uri: `${process.env.APP_URL}/api/auth/tiktok`,
+          redirect_uri: `${origin}/api/auth/tiktok`,
         }),
       },
     );
@@ -95,6 +95,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const { origin } = new URL(request.url);
+  const redirectUri = `${origin}/api/auth/tiktok`;
   const supabase = createServerClient(); // Menggunakan nama alias
   const {
     data: { user },
@@ -110,10 +112,7 @@ export async function POST(request: NextRequest) {
   try {
     const authUrl = new URL("https://www.tiktok.com/v2/auth/authorize/");
     authUrl.searchParams.set("client_key", process.env.TIKTOK_CLIENT_KEY!);
-    authUrl.searchParams.set(
-      "redirect_uri",
-      `${process.env.APP_URL}/api/auth/tiktok`,
-    );
+    authUrl.searchParams.set("redirect_uri", redirectUri);
     authUrl.searchParams.set("response_type", "code");
     authUrl.searchParams.set("scope", "user.info.basic,user.info.profile");
     authUrl.searchParams.set("state", user.id);

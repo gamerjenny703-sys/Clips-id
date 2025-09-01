@@ -25,7 +25,7 @@ export async function GET(request: NextRequest) {
         client_secret: process.env.YOUTUBE_CLIENT_SECRET!,
         code,
         grant_type: "authorization_code",
-        redirect_uri: `${process.env.APP_URL}/api/auth/youtube`,
+        redirect_uri: `${origin}/api/auth/youtube`,
         code_verifier: "challenge",
       }),
     });
@@ -87,6 +87,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const { origin } = new URL(request.url);
+  const redirectUri = `${origin}/api/auth/youtube`;
   const supabase = createServerClient();
   const {
     data: { user },
@@ -102,10 +104,7 @@ export async function POST(request: NextRequest) {
   try {
     const authUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
     authUrl.searchParams.set("client_id", process.env.YOUTUBE_CLIENT_ID!);
-    authUrl.searchParams.set(
-      "redirect_uri",
-      `${process.env.APP_URL}/api/auth/youtube`,
-    );
+    authUrl.searchParams.set("redirect_uri", redirectUri);
     authUrl.searchParams.set("response_type", "code");
     authUrl.searchParams.set(
       "scope",
