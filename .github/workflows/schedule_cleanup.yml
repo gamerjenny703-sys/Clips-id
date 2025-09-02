@@ -1,0 +1,19 @@
+# .github/workflows/schedule_cleanup.yml
+
+name: Trigger Supabase Contest Cleanup
+
+on:
+  workflow_dispatch: # Memungkinkan kita menjalankan manual
+  schedule:
+    # Menjalankan setiap hari pada pukul 00:00 UTC
+    - cron: "0 0 * * *"
+
+jobs:
+  trigger-cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Supabase Cleanup Function URL
+        run: |
+          curl -X POST "${{ secrets.SUPABASE_CLEANUP_URL }}" \
+          -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+          -H "Content-Type: application/json"

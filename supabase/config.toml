@@ -13,4 +13,4 @@ entrypoint = "./functions/metric-tracker/index.ts"
 
 # Jadwalkan fungsi cleanup-contests untuk berjalan setiap hari pada tengah malam (00:00 UTC)
 [functions.cleanup-contests]
-schedule = "0 0 * * *"
+# schedule = "0 0 * * *"
