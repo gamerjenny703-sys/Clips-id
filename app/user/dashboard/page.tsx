@@ -23,7 +23,6 @@ import {
   Instagram, // Seharusnya ini ikon TikTok, bisa disesuaikan nanti
   Twitter,
   CheckCircle,
-  Repeat,
   ArrowLeft,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
@@ -157,11 +156,6 @@ export default async function UserDashboard() {
                 <Button className="bg-pink-500 text-white border-4 border-white hover:bg-white hover:text-black font-black uppercase shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
                   <Upload className="mr-2 h-4 w-4" />
                   SUBMIT CLIP
-                </Button>
-              </Link>
-              <Link href="/creator/dashboard">
-                <Button className="bg-cyan-400 text-black border-4 border-black hover:bg-white font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                  <Repeat className="mr-2 h-4 w-4" />
                 </Button>
               </Link>
             </div>

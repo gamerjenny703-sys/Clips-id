@@ -108,7 +108,7 @@ export default function UserProfile() {
               Creator Dashboard
             </Link>
             <Link
-              href="/user/settings"
+              href="/creator/settings"
               className="flex items-center gap-3 p-3 hover:bg-cyan-400 font-bold uppercase text-sm border-2 border-transparent hover:border-black"
             >
               <Settings className="h-4 w-4" />

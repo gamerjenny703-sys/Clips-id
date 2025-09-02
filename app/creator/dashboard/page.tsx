@@ -24,7 +24,6 @@ import {
   Share2,
   ArrowLeft,
   Star,
-  Repeat,
 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
@@ -57,15 +56,24 @@ export default async function CreatorDashboard() {
   }
 
   const activeContests = contests?.filter((c) => c.status === "active") || [];
-  const pendingPaymentContests = contests?.filter((c) => c.status === "pending_payment" || c.payment_status === "pending") || [];
-  const failedPaymentContests = contests?.filter((c) => c.status === "payment_failed" || c.payment_status === "failed") || [];
+  const pendingPaymentContests =
+    contests?.filter(
+      (c) => c.status === "pending_payment" || c.payment_status === "pending",
+    ) || [];
+  const failedPaymentContests =
+    contests?.filter(
+      (c) => c.status === "payment_failed" || c.payment_status === "failed",
+    ) || [];
   const totalSubmissions =
     contests?.reduce((sum, c) => sum + c.submissions.length, 0) || 0;
   const totalViews =
     contests?.reduce(
       (sum, c) =>
         sum +
-        c.submissions.reduce((subSum: number, s: any) => subSum + (s.view_count || 0), 0),
+        c.submissions.reduce(
+          (subSum: number, s: any) => subSum + (s.view_count || 0),
+          0,
+        ),
       0,
     ) || 0;
   const totalPrizePool =
@@ -94,7 +102,7 @@ export default async function CreatorDashboard() {
         data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
         strategy="beforeInteractive"
       />
-      
+
       <div className="min-h-screen bg-white">
         <header className="border-b-4 border-black bg-black text-white">
           <div className="mx-auto max-w-7xl px-4 py-6">
@@ -120,11 +128,6 @@ export default async function CreatorDashboard() {
                   <Star className="mr-1 h-3 w-3 fill-black text-black" />
                   CLIPPER
                 </Badge>
-                <Link href="/creator/dashboard">
-                  <Button className="bg-cyan-400 text-black border-4 border-black hover:bg-white font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                    <Repeat className="mr-2 h-4 w-4" />
-                  </Button>
-                </Link>
               </div>
             </div>
           </div>
@@ -144,7 +147,9 @@ export default async function CreatorDashboard() {
                 <div className="text-2xl font-black text-black">
                   {activeContests.length}
                 </div>
-                <p className="text-xs font-bold text-black">+2 from last month</p>
+                <p className="text-xs font-bold text-black">
+                  +2 from last month
+                </p>
               </CardContent>
             </Card>
 
@@ -200,7 +205,8 @@ export default async function CreatorDashboard() {
           </div>
 
           {/* Payment Issues Section */}
-          {(pendingPaymentContests.length > 0 || failedPaymentContests.length > 0) && (
+          {(pendingPaymentContests.length > 0 ||
+            failedPaymentContests.length > 0) && (
             <div className="mb-8">
               <Card className="border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
                 <CardHeader className="bg-red-500">
@@ -215,7 +221,9 @@ export default async function CreatorDashboard() {
                   {/* Pending Payment Contests */}
                   {pendingPaymentContests.length > 0 && (
                     <div className="space-y-3">
-                      <h3 className="font-bold text-lg text-yellow-600">🔄 Payment Pending</h3>
+                      <h3 className="font-bold text-lg text-yellow-600">
+                        🔄 Payment Pending
+                      </h3>
                       {pendingPaymentContests.map((contest: any) => (
                         <div
                           key={contest.id}
@@ -229,11 +237,17 @@ export default async function CreatorDashboard() {
                               <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
                                 <span className="flex items-center gap-1">
                                   <DollarSign className="h-3 w-3" />
-                                  Rp {Number(contest.prize_pool).toLocaleString('id-ID')}
+                                  Rp{" "}
+                                  {Number(contest.prize_pool).toLocaleString(
+                                    "id-ID",
+                                  )}
                                 </span>
                                 <span className="flex items-center gap-1">
                                   <Clock className="h-3 w-3" />
-                                  Created {new Date(contest.created_at).toLocaleDateString()}
+                                  Created{" "}
+                                  {new Date(
+                                    contest.created_at,
+                                  ).toLocaleDateString()}
                                 </span>
                               </div>
                             </div>
@@ -242,11 +256,12 @@ export default async function CreatorDashboard() {
                             </Badge>
                           </div>
                           <p className="text-sm text-gray-600 mb-3">
-                            Your contest is saved but waiting for payment completion. 
-                            Complete the payment to activate your contest.
+                            Your contest is saved but waiting for payment
+                            completion. Complete the payment to activate your
+                            contest.
                           </p>
                           <div className="flex gap-2">
-                            <PaymentRetryButton 
+                            <PaymentRetryButton
                               contestId={contest.id}
                               contestTitle={contest.title}
                               prizePool={contest.prize_pool}
@@ -267,7 +282,9 @@ export default async function CreatorDashboard() {
                   {/* Failed Payment Contests */}
                   {failedPaymentContests.length > 0 && (
                     <div className="space-y-3">
-                      <h3 className="font-bold text-lg text-red-600">❌ Payment Failed</h3>
+                      <h3 className="font-bold text-lg text-red-600">
+                        ❌ Payment Failed
+                      </h3>
                       {failedPaymentContests.map((contest: any) => (
                         <div
                           key={contest.id}
@@ -281,11 +298,17 @@ export default async function CreatorDashboard() {
                               <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
                                 <span className="flex items-center gap-1">
                                   <DollarSign className="h-3 w-3" />
-                                  Rp {Number(contest.prize_pool).toLocaleString('id-ID')}
+                                  Rp{" "}
+                                  {Number(contest.prize_pool).toLocaleString(
+                                    "id-ID",
+                                  )}
                                 </span>
                                 <span className="flex items-center gap-1">
                                   <Clock className="h-3 w-3" />
-                                  Created {new Date(contest.created_at).toLocaleDateString()}
+                                  Created{" "}
+                                  {new Date(
+                                    contest.created_at,
+                                  ).toLocaleDateString()}
                                 </span>
                               </div>
                             </div>
@@ -294,10 +317,11 @@ export default async function CreatorDashboard() {
                             </Badge>
                           </div>
                           <p className="text-sm text-gray-600 mb-3">
-                            Payment for this contest failed. You can retry the payment or contact support.
+                            Payment for this contest failed. You can retry the
+                            payment or contact support.
                           </p>
                           <div className="flex gap-2">
-                            <PaymentRetryButton 
+                            <PaymentRetryButton
                               contestId={contest.id}
                               contestTitle={contest.title}
                               prizePool={contest.prize_pool}
@@ -386,7 +410,9 @@ export default async function CreatorDashboard() {
                             <Progress value={progress} className="h-2" />
                           </div>
                           <div className="flex gap-2 mt-3">
-                            <Link href={`/creator/contest/${contest.id}/manage`}>
+                            <Link
+                              href={`/creator/contest/${contest.id}/manage`}
+                            >
                               <Button
                                 size="sm"
                                 className="bg-black text-white border-4 border-black hover:bg-white hover:text-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
@@ -433,8 +459,10 @@ export default async function CreatorDashboard() {
                         <Avatar className="h-8 w-8">
                           <AvatarImage src="/placeholder.svg" />
                           <AvatarFallback>
-                            {submission.profiles?.[0]?.full_name?.substring(0, 2) ||
-                              "??"}
+                            {submission.profiles?.[0]?.full_name?.substring(
+                              0,
+                              2,
+                            ) || "??"}
                           </AvatarFallback>
                         </Avatar>
                         <div className="flex-1 min-w-0">
