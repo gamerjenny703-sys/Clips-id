@@ -20,13 +20,14 @@ export interface Profile {
 
 export interface Contest {
   id?: number; // bigint
-  created_at?: Date;
+  created_at?: string;
   title?: string;
   description?: string | null;
   prize_pool?: number; // numeric
   status?: string;
   end_date?: Date;
   creator_id?: string; // UUID
+  creatorName?: string;
   requirements?: Record<string, any> | null; // jsonb
   rules?: Record<string, any> | null; // jsonb
   video_file_path?: string | null;
@@ -37,6 +38,8 @@ export interface Contest {
   payment_details?: Record<string, any> | null; // jsonb
   paid_at?: Date | null;
   updated_at?: Date | null;
+  image: string;
+  tags: string[];
 }
 
 export interface ContestWinner {
