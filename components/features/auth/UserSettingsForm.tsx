@@ -118,8 +118,6 @@ export default function UserSettingsForm({
 
       console.log(`${platform} disconnected successfully`);
 
-      // Penting: Panggil ulang fetchConnections untuk me-refresh UI
-      // agar statusnya berubah dari "CONNECTED" menjadi "CONNECT"
       await fetchConnections();
     } catch (err) {
       console.error(`Disconnection from ${platform} failed`, err);
@@ -268,17 +266,24 @@ export default function UserSettingsForm({
             <p className="font-bold text-center">Loading accounts...</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {socialAccounts.map((account) => (
+              {socialAccounts.map((account) => {
+                const isDisabled =
+                  account.platform === "Twitter" ||
+                  account.platform === "Instagram";
+                  return (
                 <div
                   key={account.platform}
                   className={`border-4 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${
                     account.connected ? "bg-green-100" : "bg-gray-100"
-                  }`}
+                  }${isDisabled ? "opacity-60" : ""}`}
                 >
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-black uppercase text-black">
                       {account.platform}
                     </h3>
+                    {/*{isDisabled && !account.connected && (
+                      <Badge variant= "secondary"> </Badge>
+                    )}*/}
                     {account.connected ? (
                       <Button
                         size="sm"
@@ -294,12 +299,14 @@ export default function UserSettingsForm({
                       <Button
                         size="sm"
                         onClick={() => handleConnect(account.platform)}
-                        disabled={!!loadingPlatform}
-                        className="bg-black text-white border-4 border-black hover:bg-gray-700 font-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                        disabled={!!loadingPlatform || isDisabled}
+                        className="bg-black text-white border-4 border-black hover:bg-gray-700 font-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] disabled:bg-gray-400 disabled:cursor-not-allowed"
                       >
                         {loadingPlatform === account.platform
                           ? "..."
-                          : "CONNECT"}
+                          : isDisabled
+                           ? "COMING SOON"
+                           : "CONNECT"}
                       </Button>
                     )}
                   </div>
@@ -311,6 +318,7 @@ export default function UserSettingsForm({
                     </div>
                   )}
                 </div>
+                );
               ))}
             </div>
           )}
@@ -318,7 +326,7 @@ export default function UserSettingsForm({
       </Card>
 
       {/* Account Preferences */}
-      <Card className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white">
+      {/*<Card className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white">
         <div className="bg-pink-500 border-b-4 border-black p-4">
           <h2 className="text-2xl font-black uppercase text-white">
             ACCOUNT PREFERENCES
@@ -355,7 +363,7 @@ export default function UserSettingsForm({
             </Button>
           </div>
         </div>
-      </Card>
+      </Card>*/}
 
       {/* Danger Zone */}
       <Card className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white">
