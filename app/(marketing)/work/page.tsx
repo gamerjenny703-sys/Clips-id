@@ -92,13 +92,6 @@ export default async function WorkPage() {
                       alt={project.title}
                       className="w-full h-48 object-cover"
                     />
-                    <div
-                      className={`absolute top-4 left-4 ${project.color} border-2 border-black px-3 py-1`}
-                    >
-                      <span className="font-black uppercase text-xs">
-                        {project.category}
-                      </span>
-                    </div>
                   </div>
                   <div className="p-6">
                     <div className="flex items-center gap-2 mb-2">
