@@ -1,3 +1,4 @@
+# supabase/config.toml
 
 [functions.metric-tracker]
 enabled = true
@@ -10,14 +11,6 @@ entrypoint = "./functions/metric-tracker/index.ts"
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/metric-tracker/*.html" ]
 
-[storage.contest-videos]
-public = true
-file_size_limit = "100MB"
-allowed_mime_types = [
-  "video/mp4",
-  "video/avi", 
-  "video/mov",
-  "video/wmv",
-  "video/flv",
-  "video/webm"
-]
+# Jadwalkan fungsi cleanup-contests untuk berjalan setiap hari pada tengah malam (00:00 UTC)
+[functions.cleanup-contests]
+schedule = "0 0 * * *"
