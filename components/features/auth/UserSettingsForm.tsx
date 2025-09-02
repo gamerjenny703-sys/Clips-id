@@ -1,22 +1,20 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   User,
   Mail,
   Phone,
   Calendar,
-  Settings,
   Shield,
   Bell,
   Trash2,
   Edit3,
   Check,
 } from "lucide-react";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 
 type ProfileData = {
@@ -44,16 +42,17 @@ export default function UserSettingsForm({
   const [isEditing, setIsEditing] = useState(false);
   const [userInfo, setUserInfo] = useState(initialProfile);
   const [loading, setLoading] = useState(false);
-  const [socialAccounts, setSocialAccounts] = useState(initialSocialAccounts);
+  const [socialAccounts, setSocialAccounts] = useState<SocialAccount[]>(
+    initialSocialAccounts,
+  );
   const [isSaving, setIsSaving] = useState(false);
   const [loadingPlatform, setLoadingPlatform] = useState<string | null>(null);
+
   const handleConnect = async (platform: string) => {
     setLoadingPlatform(platform);
     try {
-      // Panggil API endpoint kita untuk mendapatkan URL otorisasi
       const response = await fetch(`/api/auth/${platform.toLowerCase()}`, {
         method: "POST",
-        // Body bisa ditambahkan jika perlu mengirim user_id, tapi untuk GET URL tidak perlu
       });
 
       if (!response.ok) {
@@ -61,9 +60,7 @@ export default function UserSettingsForm({
       }
 
       const { authUrl } = await response.json();
-
       if (authUrl) {
-        // Arahkan pengguna ke halaman otorisasi platform
         window.location.href = authUrl;
       } else {
         throw new Error(`No authUrl received for ${platform}`);
@@ -75,11 +72,15 @@ export default function UserSettingsForm({
   };
 
   const fetchConnections = async () => {
+    setLoading(true);
     const supabase = createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    if (!user) return; // Seharusnya tidak terjadi, tapi untuk keamanan
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
     const { data: connections } = await supabase
       .from("social_connections")
@@ -97,18 +98,21 @@ export default function UserSettingsForm({
         username: existingConnection?.username,
       };
     });
-    setSocialAccounts(newSocialAccounts); // Perbarui state dengan data terbaru
+
+    setSocialAccounts(newSocialAccounts);
+    setLoading(false);
   };
+
+  useEffect(() => {
+    fetchConnections();
+  }, []);
 
   const handleDisconnect = async (platform: string) => {
     setLoadingPlatform(platform);
     try {
-      // Panggil API endpoint disconnect yang baru kita buat
       const response = await fetch(`/api/auth/disconnect`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ platform }),
       });
 
@@ -117,15 +121,14 @@ export default function UserSettingsForm({
       }
 
       console.log(`${platform} disconnected successfully`);
-
       await fetchConnections();
     } catch (err) {
       console.error(`Disconnection from ${platform} failed`, err);
-      // Di sini bisa ditambahkan notifikasi error jika perlu
     } finally {
       setLoadingPlatform(null);
     }
   };
+
   const handleSave = async () => {
     setIsSaving(true);
     const supabase = createClient();
@@ -139,15 +142,15 @@ export default function UserSettingsForm({
         .update({
           full_name: userInfo.name,
           phone_number: userInfo.phone,
+          email: userInfo.email, // kalau tabel `profiles` memang punya kolom email
         })
         .eq("id", user.id);
 
       if (error) {
         console.error("Error updating profile:", error);
-        // Di sini Anda bisa menambahkan notifikasi error
       } else {
         console.log("Profile updated successfully!");
-        setIsEditing(false); // Matikan mode edit jika berhasil
+        setIsEditing(false);
       }
     }
     setIsSaving(false);
@@ -155,7 +158,8 @@ export default function UserSettingsForm({
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      <Card className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white">
+      {/* Profile Information */}
+      <Card className="border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] bg-white">
         <div className="bg-pink-500 border-b-4 border-black p-4">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-black uppercase text-white">
@@ -163,7 +167,8 @@ export default function UserSettingsForm({
             </h2>
             <Button
               onClick={() => (isEditing ? handleSave() : setIsEditing(true))}
-              className="bg-white text-black border-4 border-black hover:bg-yellow-400 font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+              disabled={isSaving}
+              className="bg-white text-black border-4 border-black hover:bg-yellow-400 font-black uppercase shadow-[4px_4px_0px_rgba(0,0,0,1)]"
             >
               {isEditing ? (
                 <>
@@ -181,6 +186,7 @@ export default function UserSettingsForm({
         </div>
         <div className="p-6 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Name */}
             <div>
               <label className="block text-black font-black uppercase mb-2">
                 <User className="inline mr-2 h-4 w-4" />
@@ -192,14 +198,16 @@ export default function UserSettingsForm({
                   onChange={(e) =>
                     setUserInfo({ ...userInfo, name: e.target.value })
                   }
-                  className="border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-bold"
+                  className="border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold"
                 />
               ) : (
-                <div className="bg-gray-100 border-4 border-black p-3 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <div className="bg-gray-100 border-4 border-black p-3 font-bold shadow-[4px_4px_0px_rgba(0,0,0,1)]">
                   {userInfo.name}
                 </div>
               )}
             </div>
+
+            {/* Email */}
             <div>
               <label className="block text-black font-black uppercase mb-2">
                 <Mail className="inline mr-2 h-4 w-4" />
@@ -211,14 +219,16 @@ export default function UserSettingsForm({
                   onChange={(e) =>
                     setUserInfo({ ...userInfo, email: e.target.value })
                   }
-                  className="border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-bold"
+                  className="border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold"
                 />
               ) : (
-                <div className="bg-gray-100 border-4 border-black p-3 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <div className="bg-gray-100 border-4 border-black p-3 font-bold shadow-[4px_4px_0px_rgba(0,0,0,1)]">
                   {userInfo.email}
                 </div>
               )}
             </div>
+
+            {/* Phone */}
             <div>
               <label className="block text-black font-black uppercase mb-2">
                 <Phone className="inline mr-2 h-4 w-4" />
@@ -230,20 +240,22 @@ export default function UserSettingsForm({
                   onChange={(e) =>
                     setUserInfo({ ...userInfo, phone: e.target.value })
                   }
-                  className="border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] font-bold"
+                  className="border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] font-bold"
                 />
               ) : (
-                <div className="bg-gray-100 border-4 border-black p-3 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <div className="bg-gray-100 border-4 border-black p-3 font-bold shadow-[4px_4px_0px_rgba(0,0,0,1)]">
                   {userInfo.phone}
                 </div>
               )}
             </div>
+
+            {/* Join Date */}
             <div>
               <label className="block text-black font-black uppercase mb-2">
                 <Calendar className="inline mr-2 h-4 w-4" />
                 MEMBER SINCE
               </label>
-              <div className="bg-gray-100 border-4 border-black p-3 font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+              <div className="bg-gray-100 border-4 border-black p-3 font-bold shadow-[4px_4px_0px_rgba(0,0,0,1)]">
                 {userInfo.joinDate}
               </div>
             </div>
@@ -251,15 +263,12 @@ export default function UserSettingsForm({
         </div>
       </Card>
 
-      {/* Connected Social Media Accounts */}
-      <Card className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white">
+      {/* Connected Accounts */}
+      <Card className="border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] bg-white">
         <div className="bg-cyan-400 border-b-4 border-black p-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-black uppercase text-black">
-              CONNECTED ACCOUNTS
-            </h2>
-            {/* Tombol ini bisa dihapus jika semua manajemen ada di sini */}
-          </div>
+          <h2 className="text-2xl font-black uppercase text-black">
+            CONNECTED ACCOUNTS
+          </h2>
         </div>
         <div className="p-6">
           {loading ? (
@@ -270,110 +279,67 @@ export default function UserSettingsForm({
                 const isDisabled =
                   account.platform === "Twitter" ||
                   account.platform === "Instagram";
-                  return (
-                <div
-                  key={account.platform}
-                  className={`border-4 border-black p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${
-                    account.connected ? "bg-green-100" : "bg-gray-100"
-                  }${isDisabled ? "opacity-60" : ""}`}
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-black uppercase text-black">
-                      {account.platform}
-                    </h3>
-                    {/*{isDisabled && !account.connected && (
-                      <Badge variant= "secondary"> </Badge>
-                    )}*/}
-                    {account.connected ? (
-                      <Button
-                        size="sm"
-                        onClick={() => handleDisconnect(account.platform)}
-                        disabled={!!loadingPlatform}
-                        className="bg-red-500 text-white border-4 border-black hover:bg-red-600 font-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
-                      >
-                        {loadingPlatform === account.platform
-                          ? "..."
-                          : "DISCONNECT"}
-                      </Button>
-                    ) : (
-                      <Button
-                        size="sm"
-                        onClick={() => handleConnect(account.platform)}
-                        disabled={!!loadingPlatform || isDisabled}
-                        className="bg-black text-white border-4 border-black hover:bg-gray-700 font-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] disabled:bg-gray-400 disabled:cursor-not-allowed"
-                      >
-                        {loadingPlatform === account.platform
-                          ? "..."
-                          : isDisabled
-                           ? "COMING SOON"
-                           : "CONNECT"}
-                      </Button>
+
+                return (
+                  <div
+                    key={account.platform}
+                    className={`border-4 border-black p-4 shadow-[4px_4px_0px_rgba(0,0,0,1)] ${
+                      account.connected ? "bg-green-100" : "bg-gray-100"
+                    } ${isDisabled ? "opacity-60" : ""}`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-black uppercase text-black">
+                        {account.platform}
+                      </h3>
+                      {account.connected ? (
+                        <Button
+                          size="sm"
+                          onClick={() => handleDisconnect(account.platform)}
+                          disabled={!!loadingPlatform}
+                          className="bg-red-500 text-white border-4 border-black hover:bg-red-600 font-black uppercase shadow-[2px_2px_0px_rgba(0,0,0,1)]"
+                        >
+                          {loadingPlatform === account.platform
+                            ? "..."
+                            : "DISCONNECT"}
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          onClick={() => handleConnect(account.platform)}
+                          disabled={!!loadingPlatform || isDisabled}
+                          className="bg-black text-white border-4 border-black hover:bg-gray-700 font-black uppercase shadow-[2px_2px_0px_rgba(0,0,0,1)] disabled:bg-gray-400 disabled:cursor-not-allowed"
+                        >
+                          {loadingPlatform === account.platform
+                            ? "..."
+                            : isDisabled
+                              ? "COMING SOON"
+                              : "CONNECT"}
+                        </Button>
+                      )}
+                    </div>
+                    {account.connected && (
+                      <div className="space-y-2">
+                        <p className="font-bold text-black">
+                          Username: {account.username}
+                        </p>
+                      </div>
                     )}
                   </div>
-                  {account.connected && (
-                    <div className="space-y-2">
-                      <p className="font-bold text-black">
-                        Username: {account.username}
-                      </p>
-                    </div>
-                  )}
-                </div>
                 );
-              ))}
+              })}
             </div>
           )}
         </div>
       </Card>
 
-      {/* Account Preferences */}
-      {/*<Card className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white">
-        <div className="bg-pink-500 border-b-4 border-black p-4">
-          <h2 className="text-2xl font-black uppercase text-white">
-            ACCOUNT PREFERENCES
-          </h2>
-        </div>
-        <div className="p-6 space-y-4">
-          <div className="flex items-center justify-between p-4 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-gray-50">
-            <div>
-              <h3 className="font-black uppercase text-black">
-                EMAIL NOTIFICATIONS
-              </h3>
-              <p className="text-black font-bold">
-                Receive updates about contests and earnings
-              </p>
-            </div>
-            <Button className="bg-green-500 text-white border-4 border-black hover:bg-white hover:text-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              <Bell className="mr-2 h-4 w-4" />
-              ENABLED
-            </Button>
-          </div>
-
-          <div className="flex items-center justify-between p-4 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-gray-50">
-            <div>
-              <h3 className="font-black uppercase text-black">
-                TWO-FACTOR AUTHENTICATION
-              </h3>
-              <p className="text-black font-bold">
-                Add extra security to your account
-              </p>
-            </div>
-            <Button className="bg-yellow-400 text-black border-4 border-black hover:bg-white hover:text-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              <Shield className="mr-2 h-4 w-4" />
-              SETUP
-            </Button>
-          </div>
-        </div>
-      </Card>*/}
-
-      {/* Danger Zone */}
-      <Card className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white">
+      <Card className="border-4 border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] bg-white">
         <div className="bg-red-500 border-b-4 border-black p-4">
           <h2 className="text-2xl font-black uppercase text-white">
             DANGER ZONE
           </h2>
         </div>
         <div className="p-6">
-          <div className="flex items-center justify-between p-4 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-red-50">
+          <div className="flex items-center justify-between p-4 border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] bg-red-50">
             <div>
               <h3 className="font-black uppercase text-black">
                 DELETE ACCOUNT
@@ -382,7 +348,7 @@ export default function UserSettingsForm({
                 Permanently delete your account and all data
               </p>
             </div>
-            <Button className="bg-red-500 text-white border-4 border-black hover:bg-white hover:text-red-500 font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <Button className="bg-red-500 text-white border-4 border-black hover:bg-white hover:text-red-500 font-black uppercase shadow-[4px_4px_0px_rgba(0,0,0,1)]">
               <Trash2 className="mr-2 h-4 w-4" />
               DELETE
             </Button>
