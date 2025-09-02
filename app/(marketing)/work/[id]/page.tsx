@@ -149,7 +149,6 @@ export default async function ContestDetails({
               <Link href="/work">
                 <Button className="bg-white text-black border-4 border-white hover:bg-pink-500 hover:text-white font-black uppercase shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
                   <ArrowLeft className="mr-2 h-4 w-4" />
-                  BACK
                 </Button>
               </Link>
               <div>
@@ -302,7 +301,7 @@ export default async function ContestDetails({
                     </div>
                   ))
                 ) : (
-                  <p className="font-bold text-center p-4">
+                  <p className="font-bold text-black text-center p-4">
                     No submissions yet. Be the first!
                   </p>
                 )}
@@ -368,21 +367,23 @@ export default async function ContestDetails({
                   </Avatar>
                   <div>
                     <p className="font-black text-black">{creatorName}</p>
-                    <p className="text-sm font-bold text-black">
-                      Content Creator
-                    </p>
+                    <p className="text-sm font-bold text-black">Creator</p>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold">Contests Created</span>
-                    <span className="font-black">
+                    <span className="text-sm font-bold  text-black">
+                      Contests Created
+                    </span>
+                    <span className="font-black  text-black">
                       {creatorStats.contestsCreated}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold">Total Prize Pool</span>
-                    <span className="font-black">
+                    <span className="text-sm font-bold  text-black">
+                      Total Prize Pool
+                    </span>
+                    <span className="font-black  text-black">
                       ${creatorStats.totalPrizePool.toLocaleString()}
                     </span>
                   </div>
