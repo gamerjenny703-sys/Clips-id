@@ -13,6 +13,8 @@ import {
   Settings,
   LogOut,
   Repeat,
+  Scissors,
+  Trophy,
 } from "lucide-react";
 
 type Profile = {
@@ -89,27 +91,22 @@ export default function UserProfile() {
             <div className="font-black uppercase text-white truncate">
               {getFirstName()}
             </div>
-            <div className="text-sm font-bold text-white">
-              {profile?.is_creator ? "Creator & Clipper" : "Clipper"}
-            </div>
           </div>
           <div className="p-2">
             <Link
               href="/user/dashboard"
               className="flex items-center gap-3 p-3 hover:bg-yellow-400 font-bold uppercase text-sm border-2 border-transparent hover:border-black"
             >
-              <BarChart3 className="h-4 w-4" />
+              <Scissors className="h-4 w-4" />
               Clipper Dashboard
             </Link>
-            {profile?.is_creator && (
-              <Link
-                href="/creator/dashboard"
-                className="flex items-center gap-3 p-3 hover:bg-cyan-400 font-bold uppercase text-sm border-2 border-transparent hover:border-black"
-              >
-                <Repeat className="h-4 w-4" />
-                Switch to Creator
-              </Link>
-            )}
+            <Link
+              href="/user/dashboard"
+              className="flex items-center gap-3 p-3 hover:bg-yellow-400 font-bold uppercase text-sm border-2 border-transparent hover:border-black"
+            >
+              <Trophy className="h-4 w-4" />
+              Creator Dashboard
+            </Link>
             <Link
               href="/user/settings"
               className="flex items-center gap-3 p-3 hover:bg-cyan-400 font-bold uppercase text-sm border-2 border-transparent hover:border-black"
