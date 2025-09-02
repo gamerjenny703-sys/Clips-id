@@ -46,8 +46,7 @@ export default function CreateContestPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [newTag, setNewTag] = useState("");
-
+  const [tagsInput, setTagsInput] = useState("");
   const [paymentToken, setPaymentToken] = useState<string | null>(null);
 
   const [contestData, setContestData] = useState({
@@ -141,6 +140,21 @@ export default function CreateContestPage() {
       ...contestData,
       tags: contestData.tags.filter((tag) => tag !== tagToRemove),
     });
+  };
+  const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value } = e.target;
+    setTagsInput(value);
+
+    const parsedTags = value
+      .split("#")
+      .slice(1)
+      .map((tag) => tag, trim())
+      .filter((tag) => tag);
+
+    setContestData((prave) => ({
+      ...prev,
+      tags: parsedTags,
+    }));
   };
 
   const togglePlatform = (platformId: string) => {
@@ -984,24 +998,12 @@ export default function CreateContestPage() {
               </div>
               <div className="space-y-3">
                 <Label className="font-black uppercase">Tags</Label>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Add a tag"
-                    value={newTag}
-                    onChange={(e) => setNewTag(e.target.value)}
-                    onKeyPress={(e) =>
-                      e.key === "Enter" && (e.preventDefault(), addTag())
-                    }
-                    className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-                  />
-                  <Button
-                    type="button"
-                    onClick={addTag}
-                    className="bg-accent text-accent-foreground font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] border-4 border-black"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
+                <Input
+                  placeholder="Gunakan # untuk setiap tag, contoh: #gaming #funny"
+                  value={tagsInput}
+                  onChange={handleTagsChange}
+                  className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                />
                 <div className="flex flex-wrap gap-2">
                   {contestData.tags.map((tag, index) => (
                     <Badge
@@ -1010,18 +1012,12 @@ export default function CreateContestPage() {
                       className="text-sm font-black uppercase bg-pink-500 text-white"
                     >
                       {tag}
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="ml-1 h-auto p-0 text-muted-foreground hover:text-foreground"
-                        onClick={() => removeTag(tag)}
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
                     </Badge>
                   ))}
                 </div>
+                <p className="text-xs text-muted-foreground font-bold">
+                  Setiap Kata tanda # akan di hitung sebagai tags
+                </p>
               </div>
             </CardContent>
           </Card>
