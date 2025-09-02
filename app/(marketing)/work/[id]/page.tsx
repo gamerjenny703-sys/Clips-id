@@ -256,11 +256,6 @@ export default async function ContestDetails({
               </CardContent>
             </Card>
 
-            {/* Requirements Card */}
-            <Card className="border-4 border-black bg-yellow-400 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-              {/* ... konten statis ... */}
-            </Card>
-
             {/* Leaderboard Card */}
             <Card className="border-4 border-black bg-cyan-400 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
               <CardHeader>
