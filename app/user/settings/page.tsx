@@ -21,13 +21,12 @@ export default async function UserSettings() {
   const { data: connections } = await supabase
     .from("social_connections")
     .select("platform, username")
-    .eq("user_id", user.id)
-    .single();
+    .eq("user_id", user.id);
 
   const availablePlatforms = ["Youtube", "TikTok", "Twitter", "Instagram"];
   const socialAccounts = availablePlatforms.map((platformName) => {
     const existingConnection = connections?.find(
-      (c) => c.platform.toLoweCase() === platformName.toLowerCase(),
+      (c) => c.platform.toLowerCase() === platformName.toLowerCase(),
     );
     return {
       platform: platformName,

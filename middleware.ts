@@ -39,7 +39,6 @@ const setSecurityHeaders = (response: NextResponse) => {
     "connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co wss://*.supabase.in https://api.midtrans.com https://api.sandbox.midtrans.com",
     // Media sources: untuk audio/video dari Supabase storage
     "media-src 'self' https://*.supabase.co https://*.supabase.in",
-    // Frame sources: Midtrans payment popup/iframe
     "frame-src 'self' https://app.midtrans.com https://app.sandbox.midtrans.com",
     "frame-ancestors 'none'", // Mencegah clickjacking
     "base-uri 'self'",
