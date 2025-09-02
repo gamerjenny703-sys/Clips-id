@@ -26,6 +26,7 @@ export default function ContestList() {
           description,
           created_at,
           requirements,
+          thumbnail_url,
           profiles!contests_creator_id_fkey (
             username,
             full_name
@@ -48,7 +49,8 @@ export default function ContestList() {
             contest.profiles?.full_name ||
             contest.profiles?.username ||
             "Anonymous",
-          image: "/placeholder.svg?height=400&width=600",
+          thumbnail_url:
+            contest.thumbnail_url || "/placeholder.svg?height=400&width=600",
           tags: contest.requirements?.tags || [],
         })) || [];
 
@@ -120,7 +122,7 @@ export default function ContestList() {
                   {/* ... Konten Card tetap sama ... */}
                   <div className="relative overflow-hidden">
                     <img
-                      src={project.image}
+                      src={project.thumbnail_url}
                       alt={project.title}
                       className="w-full h-48 object-cover"
                     />

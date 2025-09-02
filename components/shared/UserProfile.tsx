@@ -101,7 +101,7 @@ export default function UserProfile() {
               Clipper Dashboard
             </Link>
             <Link
-              href="/user/dashboard"
+              href="/creator/dashboard"
               className="flex items-center gap-3 p-3 hover:bg-yellow-400 font-bold uppercase text-sm border-2 border-transparent hover:border-black"
             >
               <Trophy className="h-4 w-4" />

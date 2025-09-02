@@ -249,12 +249,16 @@ export default async function UserDashboard() {
                       key={contest.id}
                       className="border-4 border-black rounded-lg p-4 bg-cyan-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                     >
-                      <h3 className="font-bold text-lg">{contest.title}</h3>
-                      <p className="text-sm text-black">
+                      <h3 className="font-bold text-lg text-black">
+                        {contest.title}
+                      </h3>
+                      <p className="text-sm">
                         by {contest.profiles?.full_name || "Creator"}
                       </p>
                       <div className="flex items-center justify-between mt-2">
-                        <span className="font-bold">${contest.prize_pool}</span>
+                        <span className="font-bold text-black">
+                          ${contest.prize_pool}
+                        </span>
                         <Link href={`/work/${contest.id}`}>
                           <Button
                             size="sm"
@@ -267,7 +271,7 @@ export default async function UserDashboard() {
                     </div>
                   ))
                 ) : (
-                  <p className="font-bold text-center">
+                  <p className="font-bold text-center text-black">
                     You have no saved contests.
                   </p>
                 )}
@@ -278,7 +282,7 @@ export default async function UserDashboard() {
           {/* Sidebar */}
           <div className="space-y-6">
             {/* SOCIAL ACCOUNTS */}
-            <Card className="border-4 border-black bg-yellow-400 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            {/*<Card className="border-4 border-black bg-yellow-400 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
               <CardHeader>
                 <CardTitle className="text-lg font-black uppercase text-black">
                   SOCIAL ACCOUNTS
@@ -317,7 +321,7 @@ export default async function UserDashboard() {
                   </div>
                 ))}
               </CardContent>
-            </Card>
+            </Card>*/}
 
             {/* RECENT SUBMISSIONS */}
             <Card className="border-4 border-black bg-pink-500 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">

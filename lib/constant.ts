@@ -38,8 +38,9 @@ export interface Contest {
   payment_details?: Record<string, any> | null; // jsonb
   paid_at?: Date | null;
   updated_at?: Date | null;
-  image: string;
-  tags: string[];
+  image?: string;
+  tags?: string[];
+  thumbnail_url?: string[];
 }
 
 export interface ContestWinner {
