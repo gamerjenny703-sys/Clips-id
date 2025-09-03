@@ -20,7 +20,10 @@ export default function ContestList() {
   useEffect(() => {
     const fetchContests = async () => {
       const supabase = createClient();
-      const { data: contests, error } = await supabase.from("contests").select(`
+      const { data: contests, error } = await supabase
+        .from("contests")
+        .select(
+          `
           id,
           title,
           description,
@@ -31,7 +34,9 @@ export default function ContestList() {
             username,
             full_name
           )
-        `);
+        `,
+        )
+        .eq("status", "active");
 
       if (error) {
         console.error("Error fetching contests:", error);

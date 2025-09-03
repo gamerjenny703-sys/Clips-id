@@ -33,7 +33,7 @@ export default function PaymentRetryButton({
       }
 
       // Alihkan ke halaman pembayaran Midtrans
-      window.location.href = data.payment_details.redirect_url;
+      window.open = data.payment_details.redirect_url;
     } catch (error: any) {
       console.error("Retry payment error:", error);
       alert(`Failed to retry payment: ${error.message}`);
