@@ -11,17 +11,17 @@ interface PaymentRetryButtonProps {
   prizePool: number;
 }
 
-export default function PaymentRetryButton({ 
-  contestId, 
-  contestTitle, 
-  prizePool 
+export default function PaymentRetryButton({
+  contestId,
+  contestTitle,
+  prizePool,
 }: PaymentRetryButtonProps) {
   const [isRetrying, setIsRetrying] = useState(false);
   const router = useRouter();
 
   const handleRetryPayment = async () => {
     setIsRetrying(true);
-    
+
     try {
       // Request new payment token
       const response = await fetch("/api/payments/midtrans/retry-payment", {
@@ -31,28 +31,28 @@ export default function PaymentRetryButton({
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.error || "Failed to retry payment");
       }
 
       // Open Midtrans Snap with new token
-      if (window.snap && data.payment_token) {
-        window.snap.pay(data.payment_token, {
+      if (window.snap && data.token) {
+        window.snap.pay(data.token, {
           onSuccess: async (result: any) => {
             console.log("Payment successful!", result);
-            
+
             // Update contest status
             const supabase = createClient();
             const { error: updateError } = await supabase
               .from("contests")
               .update({
-                status: 'active',
-                payment_status: 'paid',
+                status: "active",
+                payment_status: "paid",
                 payment_details: result,
-                paid_at: new Date().toISOString()
+                paid_at: new Date().toISOString(),
               })
-              .eq('id', contestId);
+              .eq("id", contestId);
 
             if (updateError) {
               console.error("Failed to update contest status:", updateError);
