@@ -3,8 +3,10 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
+
+// Hapus useRouter karena tidak digunakan lagi di sini
+// import { useRouter } from "next/navigation";
 
 interface PaymentRetryButtonProps {
   contestId: string;
@@ -14,7 +16,7 @@ export default function PaymentRetryButton({
   contestId,
 }: PaymentRetryButtonProps) {
   const [isRetrying, setIsRetrying] = useState(false);
-  const router = useRouter();
+  // const router = useRouter(); // Tidak perlu lagi
 
   const handleRetryPayment = async () => {
     setIsRetrying(true);
@@ -32,8 +34,12 @@ export default function PaymentRetryButton({
         throw new Error(data.error || "Failed to get payment redirection URL.");
       }
 
-      // Alihkan ke halaman pembayaran Midtrans
-      window.open = data.payment_details.redirect_url;
+      // Buka URL di tab baru
+      window.open(data.payment_details.redirect_url, "_blank");
+
+      // ==> PENTING: Kembalikan state loading ke false DI SINI <==
+      // Ini akan membuat tombol kembali normal setelah tab baru terbuka.
+      setIsRetrying(false);
     } catch (error: any) {
       console.error("Retry payment error:", error);
       alert(`Failed to retry payment: ${error.message}`);
@@ -48,7 +54,7 @@ export default function PaymentRetryButton({
       onClick={handleRetryPayment}
       disabled={isRetrying}
     >
-      {isRetrying ? "REDIRECTING..." : "COMPLETE PAYMENT"}
+      {isRetrying ? "OPENING..." : "COMPLETE PAYMENT"}
     </Button>
   );
 }
