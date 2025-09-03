@@ -1,6 +1,7 @@
 import SignInForm from "@/components/features/auth/SignInForm";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Suspense } from "react"; // <-- TAMBAHKAN INI
 
 export default function SignInPage() {
   return (
@@ -13,7 +14,11 @@ export default function SignInPage() {
           </h1>
           <p className="text-black font-bold">WELCOME BACK TO THE PLATFORM</p>
         </div>
-        <SignInForm />
+
+        {/* BUNGKUS SignInForm DENGAN SUSPENSE */}
+        <Suspense fallback={<div>Loading...</div>}>
+          <SignInForm />
+        </Suspense>
 
         {/* Social Login Alternative */}
         <div className="mt-6 text-center">

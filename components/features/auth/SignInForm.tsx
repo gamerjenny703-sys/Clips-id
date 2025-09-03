@@ -54,7 +54,7 @@ export default function SignInForm() {
       // Redirect ke halaman yang dituju setelah login, atau ke dashboard
       const returnUrl = searchParams.get("returnUrl") || "/user/dashboard";
       router.push(returnUrl);
-      router.refresh(); // Penting untuk me-refresh state di server
+      router.refresh();
     }
   };
 
@@ -80,7 +80,6 @@ export default function SignInForm() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Email Field */}
           <div className="space-y-2">
             <Label
               htmlFor="email"
