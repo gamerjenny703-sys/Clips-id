@@ -1,5 +1,3 @@
-// components/features/contest/UnsaveButtonClient.tsx
-
 "use client";
 
 import { useState } from "react";

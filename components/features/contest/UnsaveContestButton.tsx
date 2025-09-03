@@ -1,5 +1,3 @@
-// components/features/contest/UnsaveContestButton.tsx
-
 "use server"; // Menandakan bahwa fungsi di file ini bisa jadi Server Actions
 
 import { revalidatePath } from "next/cache";
@@ -7,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import UnsaveButtonClient from "./UnsaveButtonClient"; // Komponen client terpisah
 
 async function unsaveContestAction(contestId: number) {
-  "use server"; // Ini adalah Server Action
+  "use server";
   const supabase = createClient();
   const {
     data: { user },
@@ -32,7 +30,7 @@ async function unsaveContestAction(contestId: number) {
   revalidatePath("/user/dashboard");
 }
 
-export default function UnsaveContestButton({
+export default async function UnsaveContestButton({
   contestId,
 }: {
   contestId: number;
