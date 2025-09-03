@@ -152,7 +152,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      payment_token: snapData.token,
+      token: snapData.token,
       payment_details: snapData,
     });
   } catch (error) {
