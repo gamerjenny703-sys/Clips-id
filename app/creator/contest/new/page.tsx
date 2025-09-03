@@ -106,7 +106,8 @@ export default function CreateContestPage() {
     String(Math.max(1, contestData.rules.payout?.split_ratio?.length || 1)),
   );
   useEffect(() => {
-    const snapScriptUrl = "https://app.sandbox.midtrans.com/snap/snap.js";
+    const snapScriptUrl =
+      "https://app.sandbox.midtrans.com/snap/v1/transactions";
     const clientKey = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY;
 
     const script = document.createElement("script");
