@@ -25,6 +25,7 @@ import {
   CheckCircle,
   ArrowLeft,
 } from "lucide-react";
+import UnsaveContestButton from "@/components/features/contest/UnsaveContestButton";
 import { formatDistanceToNow } from "date-fns";
 
 export const dynamic = "force-dynamic";
@@ -259,14 +260,17 @@ export default async function UserDashboard() {
                         <span className="font-bold text-black">
                           ${contest.prize_pool}
                         </span>
-                        <Link href={`/work/${contest.id}`}>
-                          <Button
-                            size="sm"
-                            className="bg-pink-500 text-white border-4 border-black hover:bg-black font-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
-                          >
-                            VIEW
-                          </Button>
-                        </Link>
+                        <div className="flex items-center gap-2">
+                          <Link href={`/work/${contest.id}`}>
+                            <Button
+                              size="sm"
+                              className="bg-pink-500 text-white border-4 border-black hover:bg-black font-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                            >
+                              VIEW
+                            </Button>
+                          </Link>
+                          <UnsaveContestButton contestId={contest.id} />
+                        </div>
                       </div>
                     </div>
                   ))
