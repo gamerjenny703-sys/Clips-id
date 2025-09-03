@@ -23,6 +23,7 @@ interface ThumbnailUploadProps {
   onUploadStart: () => void;
   onUploadError: () => void;
   className?: string;
+  onFileSelect: (file: File | null) => void;
 }
 
 export default function ThumbnailUpload({
@@ -30,6 +31,7 @@ export default function ThumbnailUpload({
   onUploadStart,
   onUploadError,
   className,
+  onFileSelect,
 }: ThumbnailUploadProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -43,15 +45,21 @@ export default function ThumbnailUpload({
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file) {
+      // Jika tidak ada file, panggil juga untuk me-reset state induk
+      onFileSelect(null);
+      return;
+    }
 
     if (!ALLOWED_TYPES.includes(file.type)) {
       setError("Invalid file type. Please select a JPG, PNG, WebP, or GIF.");
+      onFileSelect(null); // Reset state induk jika file tidak valid
       return;
     }
 
     if (file.size > MAX_FILE_SIZE) {
       setError("File size exceeds 5MB. Please choose a smaller image.");
+      onFileSelect(null); // Reset state induk jika file tidak valid
       return;
     }
 
@@ -59,6 +67,7 @@ export default function ThumbnailUpload({
     setUploadSuccess(false);
     setSelectedFile(file);
     setPreviewUrl(URL.createObjectURL(file));
+    onFileSelect(file);
   };
 
   const handleUpload = async () => {
@@ -105,6 +114,7 @@ export default function ThumbnailUpload({
     setError(null);
     setUploadSuccess(false);
     onUploadComplete(""); // Hapus URL jika file dihapus
+    onFileSelect(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
