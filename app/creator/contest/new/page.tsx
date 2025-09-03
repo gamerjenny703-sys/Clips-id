@@ -151,10 +151,10 @@ export default function CreateContestPage() {
     const parsedTags = value
       .split("#")
       .slice(1)
-      .map((tag) => tag, trim())
+      .map((tag) => tag.trim())
       .filter((tag) => tag);
 
-    setContestData((prave) => ({
+    setContestData((preve) => ({
       ...prev,
       tags: parsedTags,
     }));
