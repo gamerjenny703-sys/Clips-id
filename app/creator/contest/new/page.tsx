@@ -154,7 +154,7 @@ export default function CreateContestPage() {
       .map((tag) => tag.trim())
       .filter((tag) => tag);
 
-    setContestData((preve) => ({
+    setContestData((prev) => ({
       ...prev,
       tags: parsedTags,
     }));
