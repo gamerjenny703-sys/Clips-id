@@ -98,7 +98,7 @@ export default async function CreatorDashboard() {
     <>
       {/* Load Midtrans Snap Script */}
       <Script
-        src="https://app.sandbox.midtrans.com/snap/v1/transactions"
+        src="https://app.sandbox.midtrans.com/snap/snap.js"
         data-client-key={process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY}
         strategy="beforeInteractive"
       />

@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
 
     // Create Snap token using Midtrans Snap API
     const snapResponse = await fetch(
-      "https://app.sandbox.midtrans.com/snap/v1/transactions",
+      "https://app.sandbox.midtrans.com/snap/snap.js",
       {
         method: "POST",
         headers: {
