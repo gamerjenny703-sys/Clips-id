@@ -45,8 +45,9 @@ export default function SignInForm() {
     } else {
       // Redirect ke dashboard setelah berhasil login.
       // onAuthStateChange di Header akan mengurus update UI.
-      router.push("/user/dashboard");
-      router.refresh(); // Opsional: untuk memastikan data server-side baru di-fetch
+      // router.push("/user/dashboard");
+      // router.refresh(); // Opsional: untuk memastikan data server-side baru di-fetch
+      window.location.href = "/user/dashboard";
     }
   };
 
