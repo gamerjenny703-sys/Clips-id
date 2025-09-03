@@ -1,20 +1,17 @@
+// components/PaymentRetryButton.tsx
+
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 interface PaymentRetryButtonProps {
   contestId: string;
-  contestTitle: string;
-  prizePool: number;
 }
 
 export default function PaymentRetryButton({
   contestId,
-  contestTitle,
-  prizePool,
 }: PaymentRetryButtonProps) {
   const [isRetrying, setIsRetrying] = useState(false);
   const router = useRouter();
@@ -23,7 +20,6 @@ export default function PaymentRetryButton({
     setIsRetrying(true);
 
     try {
-      // Request new payment token
       const response = await fetch("/api/payments/midtrans/retry-payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -31,61 +27,18 @@ export default function PaymentRetryButton({
       });
 
       const data = await response.json();
-      console.log("DATA DITERIMA DARI API:", data);
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to retry payment");
+
+      if (!response.ok || !data.payment_details?.redirect_url) {
+        throw new Error(data.error || "Failed to get payment redirection URL.");
       }
 
-      // Open Midtrans Snap with new token
-      if (window.snap && data.token) {
-        window.snap.pay(data.token, {
-          onSuccess: async (result: any) => {
-            console.log("Payment successful!", result);
-
-            // Update contest status
-            const supabase = createClient();
-            const { error: updateError } = await supabase
-              .from("contests")
-              .update({
-                status: "active",
-                payment_status: "paid",
-                payment_details: result,
-                paid_at: new Date().toISOString(),
-              })
-              .eq("id", contestId);
-
-            if (updateError) {
-              console.error("Failed to update contest status:", updateError);
-            }
-
-            // Refresh page to show updated status
-            router.refresh();
-          },
-          onPending: (result: any) => {
-            console.log("Payment pending:", result);
-            alert("Payment is pending. Check your dashboard for updates.");
-            router.refresh();
-          },
-          onError: (result: any) => {
-            console.error("Payment error:", result);
-            alert("Payment failed. Please try again.");
-            setIsRetrying(false);
-          },
-          onClose: () => {
-            console.log("Payment popup closed");
-            setIsRetrying(false);
-          },
-        });
-      } else {
-        throw new Error("Payment token not available");
-      }
+      // Alihkan ke halaman pembayaran Midtrans
+      window.location.href = data.payment_details.redirect_url;
     } catch (error: any) {
       console.error("Retry payment error:", error);
       alert(`Failed to retry payment: ${error.message}`);
+      setIsRetrying(false);
     }
-    // finally {
-    //   setIsRetrying(false);
-    // }
   };
 
   return (
@@ -95,7 +48,7 @@ export default function PaymentRetryButton({
       onClick={handleRetryPayment}
       disabled={isRetrying}
     >
-      {isRetrying ? "PROCESSING..." : "COMPLETE PAYMENT"}
+      {isRetrying ? "REDIRECTING..." : "COMPLETE PAYMENT"}
     </Button>
   );
 }
