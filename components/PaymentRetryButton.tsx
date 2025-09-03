@@ -69,7 +69,7 @@ export default function PaymentRetryButton({
           onError: (result: any) => {
             console.error("Payment error:", result);
             alert("Payment failed. Please try again.");
-            router.refresh();
+            setIsRetrying(false);
           },
           onClose: () => {
             console.log("Payment popup closed");
@@ -82,9 +82,10 @@ export default function PaymentRetryButton({
     } catch (error: any) {
       console.error("Retry payment error:", error);
       alert(`Failed to retry payment: ${error.message}`);
-    } finally {
-      setIsRetrying(false);
     }
+    // finally {
+    //   setIsRetrying(false);
+    // }
   };
 
   return (
