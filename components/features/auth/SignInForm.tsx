@@ -130,7 +130,7 @@ export default function SignInForm() {
             {/* Forgot Password Link */}
             <div className="text-right">
               <Link
-                href="/auth/forgot-password"
+                href="/forgot-password"
                 className="text-black font-bold hover:text-pink-500 underline uppercase text-sm"
               >
                 FORGOT PASSWORD?
