@@ -79,7 +79,7 @@ const setSecurityHeaders = (response: NextResponse) => {
   }
 
   // Cross-Origin-Embedder-Policy dan Cross-Origin-Opener-Policy
-  response.headers.set("Cross-Origin-Embedder-Policy", "require-corp");
+  response.headers.set("Cross-Origin-Embedder-Policy", "credentialless");
   response.headers.set("Cross-Origin-Opener-Policy", "same-origin");
 
   return response;
