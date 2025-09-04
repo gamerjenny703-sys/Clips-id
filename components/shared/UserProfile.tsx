@@ -1,5 +1,4 @@
 // components/shared/UserProfile.tsx
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -22,53 +21,47 @@ type Profile = {
   is_creator: boolean;
 };
 
-export default function UserProfile() {
-  const [user, setUser] = useState<User | null>(null);
+// TERIMA initialUser SEBAGAI PROP
+export default function UserProfile({ initialUser }: { initialUser: User | null }) {
+  const [user, setUser] = useState<User | null>(initialUser);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      setUser(user);
-
-      if (user) {
-        // PERBAIKAN: Mengganti is_cleaper menjadi is_creator agar sesuai dengan skema
+    // KITA SUDAH PUNYA DATA AWAL, TAPI KITA MASIH PERLU FETCH PROFILE
+    // DAN MENDENGARKAN PERUBAHAN AUTH UNTUK DINAMISITAS
+    const fetchUserProfile = async (currentUser: User | null) => {
+      if (currentUser) {
         const { data: userProfile } = await supabase
           .from("profiles")
           .select("full_name, is_creator")
-          .eq("id", user.id)
+          .eq("id", currentUser.id)
           .single();
         setProfile(userProfile);
+      } else {
+        setProfile(null);
       }
     };
 
-    fetchUserProfile();
+    fetchUserProfile(user);
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        // Fetch profile lagi saat state auth berubah
-        fetchUserProfile();
-      } else {
-        setProfile(null);
-      }
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+      fetchUserProfile(currentUser);
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, []);
+  }, [user]);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setShowProfileMenu(false);
-    // Redirect atau refresh mungkin diperlukan di sini jika tidak otomatis
   };
 
   const getFirstName = () => {
