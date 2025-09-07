@@ -1,5 +1,3 @@
-// middleware.ts
-
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
@@ -35,8 +33,8 @@ const setSecurityHeaders = (response: NextResponse) => {
     "font-src 'self' data: https://app.midtrans.com https://app.sandbox.midtrans.com",
     // Image sources: Next.js optimized images + Supabase storage + Midtrans assets
     "img-src 'self' data: blob: https://*.supabase.co https://*.supabase.in https://app.midtrans.com https://app.sandbox.midtrans.com https://*.midtrans.com",
-    // Connect sources: API calls ke Supabase + Midtrans API
-    "connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co wss://*.supabase.in https://api.midtrans.com https://api.sandbox.midtrans.com",
+    // Connect sources: API calls ke Supabase + Midtrans API + Source maps
+    "connect-src 'self' https://*.supabase.co https://*.supabase.in wss://*.supabase.co wss://*.supabase.in https://api.midtrans.com https://api.sandbox.midtrans.com https://app.midtrans.com https://app.sandbox.midtrans.com",
     // Media sources: untuk audio/video dari Supabase storage
     "media-src 'self' https://*.supabase.co https://*.supabase.in",
     "frame-src 'self' https://app.midtrans.com https://app.sandbox.midtrans.com",
@@ -85,7 +83,36 @@ const setSecurityHeaders = (response: NextResponse) => {
   return response;
 };
 
-// ============= 3. HELPER UTAMA (dari Supabase) =============
+// ============= 3. HELPER UNTUK IP ADDRESS =============
+
+/**
+ * Fungsi untuk mendapatkan IP address yang benar di berbagai environment
+ * Khusus untuk Vercel dan deployment lainnya
+ */
+const getClientIP = (request: NextRequest): string => {
+  // Coba berbagai header untuk mendapatkan real IP
+  const forwarded = request.headers.get("x-forwarded-for");
+  const realIp = request.headers.get("x-real-ip");
+  const vercelForwarded = request.headers.get("x-vercel-forwarded-for");
+  
+  if (forwarded) {
+    // x-forwarded-for bisa berisi multiple IPs, ambil yang pertama
+    return forwarded.split(",")[0].trim();
+  }
+  
+  if (vercelForwarded) {
+    return vercelForwarded.split(",")[0].trim();
+  }
+  
+  if (realIp) {
+    return realIp;
+  }
+
+  // Fallback jika tidak ada header IP yang ditemukan
+  return "unknown";
+};
+
+// ============= 4. HELPER UTAMA (dari Supabase) =============
 
 /**
  * Fungsi ini adalah cara standar dari Supabase untuk menangani sesi
@@ -151,7 +178,7 @@ const updateSession = async (request: NextRequest) => {
   return response;
 };
 
-// ============= 4. FUNGSI MIDDLEWARE UTAMA =============
+// ============= 5. FUNGSI MIDDLEWARE UTAMA =============
 
 export async function middleware(request: NextRequest) {
   // Jalankan updateSession di setiap request untuk menjaga sesi tetap aktif.
@@ -162,14 +189,9 @@ export async function middleware(request: NextRequest) {
 
   const { pathname, origin } = request.nextUrl;
 
-  // Rate limiting sederhana berdasarkan IP untuk development
-  const ip =
-    request.ip ||
-    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
-    request.headers.get("x-real-ip") ||
-    "unknown";
+  // Gunakan helper function untuk mendapatkan IP
+  const ip = getClientIP(request);
 
-  // Vercel-specific: ambil IP dari header yang benar
   const userAgent = request.headers.get("user-agent") || "";
 
   // Blokir request yang mencurigakan (lebih spesifik untuk production)
@@ -279,7 +301,7 @@ export async function middleware(request: NextRequest) {
   return response;
 }
 
-// ============= 5. KONFIGURASI MATCHER =============
+// ============= 6. KONFIGURASI MATCHER =============
 
 export const config = {
   matcher: [

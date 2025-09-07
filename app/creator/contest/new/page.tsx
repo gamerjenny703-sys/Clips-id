@@ -26,8 +26,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   ArrowLeft,
   Info,
-  Plus,
-  X,
   Youtube,
   Instagram,
   Twitter,
@@ -36,8 +34,6 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import VideoUpload from "@/components/features/contest/VideoUpload";
 import ThumbnailUpload from "@/components/features/contest/ThumbnailUpload";
-import { title } from "process";
-import { Description } from "@radix-ui/react-toast";
 
 declare global {
   interface Window {
@@ -50,7 +46,6 @@ export default function CreateContestPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tagsInput, setTagsInput] = useState("");
-  const [paymentToken, setPaymentToken] = useState<string | null>(null);
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
 
   const [contestData, setContestData] = useState({
@@ -130,22 +125,6 @@ export default function CreateContestPage() {
     { id: "instagram", name: "Instagram", icon: Instagram },
   ];
 
-  const addTag = () => {
-    if (newTag.trim() && !contestData.tags.includes(newTag.trim())) {
-      setContestData({
-        ...contestData,
-        tags: [...contestData.tags, newTag.trim()],
-      });
-      setNewTag("");
-    }
-  };
-
-  const removeTag = (tagToRemove: string) => {
-    setContestData({
-      ...contestData,
-      tags: contestData.tags.filter((tag) => tag !== tagToRemove),
-    });
-  };
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     setTagsInput(value);
