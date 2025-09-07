@@ -268,7 +268,7 @@ export default function CreateContestPage() {
           description:contestData.description,
           prize_pool: parseFloat(contestData.prize_pool),
           creator_id: user.id,
-          endDate: endDate.toISOString(),
+          end_date: endDate.toISOString(),
           thumbnail_url: publicUrl,
           rules: contestData.rules,
           requirements:{
@@ -348,7 +348,7 @@ export default function CreateContestPage() {
 
     } catch (err: any){
       console.log("Handlesubmit Error", err);
-      setError(err.massage);
+      setError(err.message);
       setIsSubmitting(false);
     }
   };
