@@ -320,7 +320,7 @@ export default function CreateContestPage() {
 
       if (window.snap){
         window.snap.pay(paymentData.token,{
-          onSucces: function (result:any) {
+          onSuccess: function (result:any) {
             console.log ("Payment Succes", result);
             alert("Payment Succesfull! Your Content is now Active. ");
             router.push(`/creator/contest/${contest.id}/manage`);
