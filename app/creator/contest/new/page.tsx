@@ -304,7 +304,7 @@ export default function CreateContestPage() {
         headers:{"Content-Type" : "application/json"},
         body: JSON.stringify({
           amount: parseFloat(contestData.prize_pool),
-          contestTittle: contestData.title,
+          contestTitle: contestData.title,
           contestId: contest.id,
           user: {
             first_name: user.user_metadata?.full_name || "Users",
