@@ -242,15 +242,15 @@ export default function CreateContestPage() {
     try {
       console.log("uploading thumbnail...");
       const fileExtension = thumbnailFile.name.split(".").pop();
-      const fileName = `${user.id}/${Date.now()}.${fileExtension}`;
+      const fileName = `${user.id}/${contestData.title.replace(/\s+/g, '_').toLowerCase()}-${Date.now()}.${fileExtension}`;
       
       const {error:uploadError} = await supabase.storage
-        .from("contests-thumbnails")
+        .from("contest-thumbnails")
         .upload(fileName, thumbnailFile);
 
       if (uploadError) throw uploadError;
 
-      const {data:{ publicUrl}} = supabase.storage.from("contests-thumbnails").getPublicUrl(fileName);
+      const {data:{ publicUrl}} = supabase.storage.from("contest-thumbnails").getPublicUrl(fileName);
       console.log("Thumbnail uploaded successfully", publicUrl);
 
       console.log ("Saving Contest with pending payment status....");
