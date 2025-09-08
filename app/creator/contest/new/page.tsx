@@ -3,7 +3,6 @@
 import type React from "react";
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { revalidatePath } from "next/cache"; 
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -35,6 +34,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import VideoUpload from "@/components/features/contest/VideoUpload";
 import ThumbnailUpload from "@/components/features/contest/ThumbnailUpload";
+import { updateContestPaymentStatus } from "@/lib/action/contest";
 
 
 declare global {
@@ -325,23 +325,12 @@ export default function CreateContestPage() {
           onSuccess: async function (result:any) {
             console.log ("Payment Succes", result);
             try {
-              const {error: updateError} = await supabase
-              .from("contests")
-              .update({
-                status: "active",
-                payment_status: "paid",
-                paid_at: new Date().toISOString(),
-              })
-              .eq("id", contest.id)
-            if (updateError){
-              console.error("Error updating contest status:", updateError);
-              throw new Error("gagal nge updat e contest status");
-            }
+
+            await updateContestPaymentStatus(contest.id);
 
             alert ("payment successful! Your contest is active now");
             router.push(`/creator/contest/${contest.id}/manage`);
             router.refresh();
-            revalidatePath('/creator/dashboard');
             } catch (err:any){
               console.error("pembayaran berhasil hanlde error:", err);
               setError(err.message);
@@ -359,7 +348,7 @@ export default function CreateContestPage() {
             setIsSubmitting(false);
           },
           onClose: function (result:any){
-            console.log ("You closed the popup without finishing the payment, You can complete from your dashboard");
+            console.log ("You closed the popup without finishing the payment, You can complete from your dashboard", result);
             router.push(`/creator/dashboard`);
             setIsSubmitting(false);
           },
