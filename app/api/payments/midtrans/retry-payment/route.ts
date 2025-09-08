@@ -51,8 +51,7 @@ export async function POST(request: NextRequest) {
     // Check if contest is eligible for retry
     if (
       contest.status !== "pending_payment" &&
-      contest.payment_status !== "pending" &&
-      contest.payment_status !== "failed"
+      contest.payment_status !== "pending"
     ) {
       console.log(
         "Contest not eligible for retry. Status:",
