@@ -1,7 +1,6 @@
 // app/api/payments/midtrans/create-token/route.ts
 
 import { type NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 // @ts-ignore - Midtrans client doesn't have proper TypeScript definitions
 import Midtrans from "midtrans-client";
 

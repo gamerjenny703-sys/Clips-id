@@ -211,9 +211,7 @@ export default function CreateContestPage() {
     return null; // No errors
   };
 
-  // app/creator/contest/new/page.tsx
 
-  // ... (setelah semua state)
   const handleSubmit = async (e:React.FormEvent) =>{
     e.preventDefault();
     setIsSubmitting(true);
@@ -242,7 +240,6 @@ export default function CreateContestPage() {
     } 
 
     try {
-      console.log("uploading thumbnail...");
       const fileExtension = thumbnailFile.name.split(".").pop();
       const fileName = `${user.id}/${contestData.title.replace(/\s+/g, '_').toLowerCase()}-${Date.now()}.${fileExtension}`;
       
@@ -300,7 +297,6 @@ export default function CreateContestPage() {
       if (insertError) throw Error(insertError.message);
       console.log("contest saved with ID:", contest.id);
 
-      console.log("Requesting payment token");
       const response = await fetch ("/api/payments/midtrans/create-token", {
         method:"POST",
         headers:{"Content-Type" : "application/json"},

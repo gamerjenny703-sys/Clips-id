@@ -5,18 +5,17 @@
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 
-// Hapus useRouter karena tidak digunakan lagi di sini
-// import { useRouter } from "next/navigation";
 
 interface PaymentRetryButtonProps {
   contestId: string;
+  contestTitle:string;
+  prizePool:string
 }
 
 export default function PaymentRetryButton({
   contestId,
 }: PaymentRetryButtonProps) {
   const [isRetrying, setIsRetrying] = useState(false);
-  // const router = useRouter(); // Tidak perlu lagi
 
   const handleRetryPayment = async () => {
     setIsRetrying(true);
@@ -37,8 +36,7 @@ export default function PaymentRetryButton({
       // Buka URL di tab baru
       window.open(data.payment_details.redirect_url, "_blank");
 
-      // ==> PENTING: Kembalikan state loading ke false DI SINI <==
-      // Ini akan membuat tombol kembali normal setelah tab baru terbuka.
+
       setIsRetrying(false);
     } catch (error: any) {
       console.error("Retry payment error:", error);

@@ -171,8 +171,6 @@ const updateSession = async (request: NextRequest) => {
     },
   );
 
-  // Perintah ini adalah KUNCI-nya.
-  // Ia akan me-refresh session token pengguna jika sudah mau expired.
   await supabase.auth.getUser();
 
   return response;
