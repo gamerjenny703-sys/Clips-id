@@ -420,13 +420,14 @@ export default async function CreatorDashboard() {
                                 VIEW SUBMISSIONS
                               </Button>
                             </Link>
-                            {/* Tombol Edit Contest belum ada fungsionalitasnya */}
-                            <Button
-                              size="sm"
-                              className="bg-yellow-400 text-black border-4 border-black hover:bg-black hover:text-white font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-                            >
-                              EDIT CONTEST
-                            </Button>
+                            <Link href={`/creator/contest/edit/${contest.id}`}>
+                              <Button
+                                size="sm"
+                                className="bg-yellow-400 text-black border-4 border-black hover:bg-black hover:text-white font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                              >
+                                EDIT CONTEST
+                              </Button>
+                            </Link>
                           </div>
                         </div>
                       );
