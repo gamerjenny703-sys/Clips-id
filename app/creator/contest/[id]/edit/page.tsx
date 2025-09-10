@@ -25,13 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  ArrowLeft,
-  Info,
-  Youtube,
-  Instagram,
-  Twitter,
-} from "lucide-react";
+import { ArrowLeft, Info, Youtube, Instagram, Twitter } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import VideoUpload from "@/components/features/contest/VideoUpload";
@@ -81,10 +75,10 @@ export default function EditContestPage() {
   const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
 
   const [contestData, setContestData] = useState<ContestData | null>(null);
-  const [targetInput, setTargetInput] = useState('');
-  const [durationDaysInput, setDurationDaysInput] = useState('');
-  const [durationMaxDaysInput, setDurationMaxDaysInput] = useState('');
-  const [winnersCountInput, setWinnersCountInput] = useState('');
+  const [targetInput, setTargetInput] = useState("");
+  const [durationDaysInput, setDurationDaysInput] = useState("");
+  const [durationMaxDaysInput, setDurationMaxDaysInput] = useState("");
+  const [winnersCountInput, setWinnersCountInput] = useState("");
 
   // Fetch existing contest data on component mount
   useEffect(() => {
@@ -100,7 +94,9 @@ export default function EditContestPage() {
         .single();
 
       if (error || !data) {
-        setError("Failed to fetch contest data. It might not exist or you don't have permission.");
+        setError(
+          "Failed to fetch contest data. It might not exist or you don't have permission.",
+        );
         console.error(error);
         setIsLoading(false);
         return;
@@ -117,18 +113,22 @@ export default function EditContestPage() {
         requirements: data.requirements?.custom || "",
         tags: data.requirements?.tags || [],
         video: {
-            type: data.video_upload_type || "none",
-            filePath: data.video_file_path || "",
-            fileSize: data.video_file_size || 0,
-            youtubeLink: data.youtube_link || "",
+          type: data.video_upload_type || "none",
+          filePath: data.video_file_path || "",
+          fileSize: data.video_file_size || 0,
+          youtubeLink: data.youtube_link || "",
         },
       });
 
-      setTagsInput((data.requirements?.tags || []).map((t: string) => `#${t}`).join(' '));
-      setTargetInput(String(data.rules?.win_condition?.target || ''));
-      setDurationDaysInput(String(data.rules?.duration?.days || ''));
-      setDurationMaxDaysInput(String(data.rules?.duration?.max_days || ''));
-      setWinnersCountInput(String(data.rules?.payout?.split_ratio?.length || '1'));
+      setTagsInput(
+        (data.requirements?.tags || []).map((t: string) => `#${t}`).join(" "),
+      );
+      setTargetInput(String(data.rules?.win_condition?.target || ""));
+      setDurationDaysInput(String(data.rules?.duration?.days || ""));
+      setDurationMaxDaysInput(String(data.rules?.duration?.max_days || ""));
+      setWinnersCountInput(
+        String(data.rules?.payout?.split_ratio?.length || "1"),
+      );
       setIsLoading(false);
     };
 
@@ -138,7 +138,7 @@ export default function EditContestPage() {
   const handleContestDataChange = (field: keyof ContestData, value: any) => {
     setContestData((prev) => (prev ? { ...prev, [field]: value } : null));
   };
-  
+
   const handleRulesChange = (path: string, value: any) => {
     setContestData((prev) => {
       if (!prev) return null;
@@ -158,16 +158,19 @@ export default function EditContestPage() {
     const platforms = contestData.platforms.includes(platformId)
       ? contestData.platforms.filter((p) => p !== platformId)
       : [...contestData.platforms, platformId];
-    handleContestDataChange('platforms', platforms);
+    handleContestDataChange("platforms", platforms);
   };
-  
+
   const handleTagsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
     setTagsInput(value);
-    const parsedTags = value.split("#").slice(1).map((tag) => tag.trim()).filter(Boolean);
-    handleContestDataChange('tags', parsedTags);
+    const parsedTags = value
+      .split("#")
+      .slice(1)
+      .map((tag) => tag.trim())
+      .filter(Boolean);
+    handleContestDataChange("tags", parsedTags);
   };
-
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -179,7 +182,9 @@ export default function EditContestPage() {
     setError(null);
 
     const supabase = createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     if (!user) {
       setError("You must be logged in to update a contest.");
       setIsSubmitting(false);
@@ -191,19 +196,22 @@ export default function EditContestPage() {
 
       if (thumbnailFile) {
         const fileExtension = thumbnailFile.name.split(".").pop();
-        const fileName = `${user.id}/${contestData.title.replace(/\s+/g, '_').toLowerCase()}-${Date.now()}.${fileExtension}`;
-        
+        const fileName = `${user.id}/${contestData.title.replace(/\s+/g, "_").toLowerCase()}-${Date.now()}.${fileExtension}`;
+
         const { error: uploadError } = await supabase.storage
           .from("contest-thumbnails")
           .upload(fileName, thumbnailFile, { upsert: true });
 
         if (uploadError) throw uploadError;
 
-        publicUrl = supabase.storage.from("contest-thumbnails").getPublicUrl(fileName).data.publicUrl;
+        publicUrl = supabase.storage
+          .from("contest-thumbnails")
+          .getPublicUrl(fileName).data.publicUrl;
       }
 
       const endDate = new Date();
-      const durationDays = contestData.rules.duration.type === "fixed"
+      const durationDays =
+        contestData.rules.duration.type === "fixed"
           ? contestData.rules.duration.days
           : contestData.rules.duration.max_days;
       endDate.setDate(endDate.getDate() + durationDays);
@@ -222,9 +230,18 @@ export default function EditContestPage() {
             tags: contestData.tags,
             custom: contestData.requirements,
           },
-          video_file_path: contestData.video.type === "file" ? contestData.video.filePath : null,
-          video_file_size: contestData.video.type === "file" ? contestData.video.fileSize : null,
-          youtube_link: contestData.video.type === "youtube_link" ? contestData.video.youtubeLink : null,
+          video_file_path:
+            contestData.video.type === "file"
+              ? contestData.video.filePath
+              : null,
+          video_file_size:
+            contestData.video.type === "file"
+              ? contestData.video.fileSize
+              : null,
+          youtube_link:
+            contestData.video.type === "youtube_link"
+              ? contestData.video.youtubeLink
+              : null,
           video_upload_type: contestData.video.type,
           updated_at: new Date().toISOString(),
         })
@@ -235,7 +252,6 @@ export default function EditContestPage() {
       alert("Contest updated successfully!");
       router.push("/creator/dashboard");
       router.refresh();
-
     } catch (err: any) {
       console.error("HandleSubmit Error:", err);
       setError(err.message || "An unexpected error occurred.");
@@ -247,23 +263,27 @@ export default function EditContestPage() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <h1 className="text-3xl font-black text-black uppercase">Loading Contest Data...</h1>
+        <h1 className="text-3xl font-black text-black uppercase">
+          Loading Contest Data...
+        </h1>
       </div>
     );
   }
 
   if (error && !contestData) {
-     return (
-        <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4">
-            <h1 className="text-3xl font-black text-red-500 uppercase mb-4">Error</h1>
-            <p className="font-bold text-center mb-6">{error}</p>
-            <Link href="/creator/dashboard">
-                <Button className="bg-black text-white border-4 border-black hover:bg-white hover:text-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                    <ArrowLeft className="mr-2 h-4 w-4" />
-                    Back to Dashboard
-                </Button>
-            </Link>
-        </div>
+    return (
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center p-4">
+        <h1 className="text-3xl font-black text-red-500 uppercase mb-4">
+          Error
+        </h1>
+        <p className="font-bold text-center mb-6">{error}</p>
+        <Link href="/creator/dashboard">
+          <Button className="bg-black text-white border-4 border-black hover:bg-white hover:text-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Dashboard
+          </Button>
+        </Link>
+      </div>
     );
   }
 
@@ -306,34 +326,46 @@ export default function EditContestPage() {
             </CardHeader>
             <CardContent className="space-y-6 p-6">
               <div className="space-y-2">
-                <Label htmlFor="title" className="font-black uppercase">Contest Title *</Label>
+                <Label htmlFor="title" className="font-black uppercase">
+                  Contest Title *
+                </Label>
                 <Input
                   id="title"
                   value={contestData.title}
-                  onChange={(e) => handleContestDataChange('title', e.target.value)}
+                  onChange={(e) =>
+                    handleContestDataChange("title", e.target.value)
+                  }
                   className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="description" className="font-black uppercase">Description *</Label>
+                <Label htmlFor="description" className="font-black uppercase">
+                  Description *
+                </Label>
                 <Textarea
                   id="description"
                   value={contestData.description}
-                  onChange={(e) => handleContestDataChange('description', e.target.value)}
+                  onChange={(e) =>
+                    handleContestDataChange("description", e.target.value)
+                  }
                   className="border-4 border-black bg-white min-h-[120px] font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="prize_pool" className="font-black uppercase">Prize Amount (IDR) *</Label>
+                <Label htmlFor="prize_pool" className="font-black uppercase">
+                  Prize Amount (IDR) *
+                </Label>
                 <Input
                   id="prize_pool"
                   type="number"
                   min="1000"
                   step="1000"
                   value={contestData.prize_pool}
-                  onChange={(e) => handleContestDataChange('prize_pool', e.target.value)}
+                  onChange={(e) =>
+                    handleContestDataChange("prize_pool", e.target.value)
+                  }
                   className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                   required
                 />
@@ -341,128 +373,170 @@ export default function EditContestPage() {
             </CardContent>
           </Card>
           <Card className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white">
-                <CardHeader className="bg-cyan-400">
-                <CardTitle className="text-xl font-black uppercase">
-                    Winning Condition
-                </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6 p-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                    <Label className="font-black uppercase">Target Metric</Label>
-                    <Select
-                        value={contestData.rules.win_condition.metric}
-                        onValueChange={(value) => handleRulesChange("win_condition.metric", value)}
-                    >
-                        <SelectTrigger className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                        <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="border-4 border-black bg-white">
-                        <SelectItem value="view_count">Views</SelectItem>
-                        <SelectItem value="like_count">Likes</SelectItem>
-                        <SelectItem value="comment_count">Comments</SelectItem>
-                        <SelectItem value="share_count">Shares</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    </div>
-                    <div className="space-y-2">
-                    <Label htmlFor="target-value" className="font-black uppercase">Target Value</Label>
-                    <Input
-                        id="target-value"
-                        type="number"
-                        min="1"
-                        value={targetInput}
-                        onChange={(e) => setTargetInput(e.target.value)}
-                        onBlur={(e) => handleRulesChange("win_condition.target", Math.max(1, parseInt(e.target.value, 10) || 1))}
-                        className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-                        required
-                    />
-                    </div>
+            <CardHeader className="bg-cyan-400">
+              <CardTitle className="text-xl font-black uppercase">
+                Winning Condition
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6 p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label className="font-black uppercase">Target Metric</Label>
+                  <Select
+                    value={contestData.rules.win_condition.metric}
+                    onValueChange={(value) =>
+                      handleRulesChange("win_condition.metric", value)
+                    }
+                  >
+                    <SelectTrigger className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="border-4 border-black bg-white">
+                      <SelectItem value="view_count">Views</SelectItem>
+                      <SelectItem value="like_count">Likes</SelectItem>
+                      <SelectItem value="comment_count">Comments</SelectItem>
+                      <SelectItem value="share_count">Shares</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                </CardContent>
-            </Card>
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="target-value"
+                    className="font-black uppercase"
+                  >
+                    Target Value
+                  </Label>
+                  <Input
+                    id="target-value"
+                    type="number"
+                    min="1"
+                    value={targetInput}
+                    onChange={(e) => setTargetInput(e.target.value)}
+                    onBlur={(e) =>
+                      handleRulesChange(
+                        "win_condition.target",
+                        Math.max(1, parseInt(e.target.value, 10) || 1),
+                      )
+                    }
+                    className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                    required
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
-            {/* Duration & Payout Card */}
-            <Card className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white">
-                <CardHeader className="bg-yellow-400">
-                <CardTitle className="text-xl font-black uppercase">
-                    Payout & Duration
-                </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6 p-6">
-                    {/* Payout Type Logic */}
-                    <div className="space-y-2">
-                        <Label className="font-black uppercase">Payout Type</Label>
-                        <Select
-                            value={contestData.rules.payout.type}
-                            onValueChange={(value) => handleRulesChange("payout.type", value)}
-                        >
-                            <SelectTrigger className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="border-4 border-black bg-white">
-                                <SelectItem value="winner_takes_all">Winner Takes All</SelectItem>
-                                <SelectItem value="split_top_3">Split Between Top 3</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    
-                    {/* Duration Logic */}
-                    <div className="space-y-2">
-                        <Label className="font-black uppercase">Contest Duration Type</Label>
-                        <Select
-                            value={contestData.rules.duration.type}
-                            onValueChange={(value) => handleRulesChange("duration.type", value)}
-                        >
-                            <SelectTrigger className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="border-4 border-black bg-white">
-                                <SelectItem value="fixed">Fixed Duration</SelectItem>
-                                <SelectItem value="ends_on_winner">Ends When Winner is Found</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    {contestData.rules.duration.type === "fixed" ? (
-                        <div className="space-y-2">
-                        <Label className="font-black uppercase">Set Duration (Days)</Label>
-                        <Input
-                            type="number" min="1" max="365"
-                            value={durationDaysInput}
-                            onChange={(e) => setDurationDaysInput(e.target.value)}
-                            onBlur={(e) => handleRulesChange("duration.days", Math.max(1, parseInt(e.target.value, 10) || 1))}
-                            className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-                            required
-                        />
-                        </div>
-                    ) : (
-                        <div className="space-y-2">
-                        <Label className="font-black uppercase">Max Duration Failsafe (Days)</Label>
-                        <Input
-                            type="number" min="1" max="365"
-                            value={durationMaxDaysInput}
-                            onChange={(e) => setDurationMaxDaysInput(e.target.value)}
-                            onBlur={(e) => handleRulesChange("duration.max_days", Math.max(1, parseInt(e.target.value, 10) || 1))}
-                            className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-                            required
-                        />
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
+          {/* Duration & Payout Card */}
+          <Card className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white">
+            <CardHeader className="bg-yellow-400">
+              <CardTitle className="text-xl font-black uppercase">
+                Payout & Duration
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6 p-6">
+              {/* Payout Type Logic */}
+              <div className="space-y-2">
+                <Label className="font-black uppercase">Payout Type</Label>
+                <Select
+                  value={contestData.rules.payout.type}
+                  onValueChange={(value) =>
+                    handleRulesChange("payout.type", value)
+                  }
+                >
+                  <SelectTrigger className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="border-4 border-black bg-white">
+                    <SelectItem value="winner_takes_all">
+                      Winner Takes All
+                    </SelectItem>
+                    <SelectItem value="split_top_3">
+                      Split Between Top 3
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-            {/* Video Upload - (Logikanya sudah ada di komponennya, tidak perlu diubah) */}
-        <VideoUpload
+              {/* Duration Logic */}
+              <div className="space-y-2">
+                <Label className="font-black uppercase">
+                  Contest Duration Type
+                </Label>
+                <Select
+                  value={contestData.rules.duration.type}
+                  onValueChange={(value) =>
+                    handleRulesChange("duration.type", value)
+                  }
+                >
+                  <SelectTrigger className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="border-4 border-black bg-white">
+                    <SelectItem value="fixed">Fixed Duration</SelectItem>
+                    <SelectItem value="ends_on_winner">
+                      Ends When Winner is Found
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              {contestData.rules.duration.type === "fixed" ? (
+                <div className="space-y-2">
+                  <Label className="font-black uppercase">
+                    Set Duration (Days)
+                  </Label>
+                  <Input
+                    type="number"
+                    min="1"
+                    max="365"
+                    value={durationDaysInput}
+                    onChange={(e) => setDurationDaysInput(e.target.value)}
+                    onBlur={(e) =>
+                      handleRulesChange(
+                        "duration.days",
+                        Math.max(1, parseInt(e.target.value, 10) || 1),
+                      )
+                    }
+                    className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                    required
+                  />
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label className="font-black uppercase">
+                    Max Duration Failsafe (Days)
+                  </Label>
+                  <Input
+                    type="number"
+                    min="1"
+                    max="365"
+                    value={durationMaxDaysInput}
+                    onChange={(e) => setDurationMaxDaysInput(e.target.value)}
+                    onBlur={(e) =>
+                      handleRulesChange(
+                        "duration.max_days",
+                        Math.max(1, parseInt(e.target.value, 10) || 1),
+                      )
+                    }
+                    className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                    required
+                  />
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Video Upload - (Logikanya sudah ada di komponennya, tidak perlu diubah) */}
+          <VideoUpload
             onVideoChange={(videoData) => {
-                handleContestDataChange('video', {
-                    type: videoData.type,
-                    filePath: videoData.filePath || "",
-                    fileSize: videoData.fileSize || 0,
-                    youtubeLink: videoData.youtubeLink || "",
-                });
+              handleContestDataChange("video", {
+                type: videoData.type,
+                filePath: videoData.filePath || "",
+                fileSize: videoData.fileSize || 0,
+                youtubeLink: videoData.youtubeLink || "",
+              });
             }}
-        />
-          
+          />
+
           {/* winning condition, payout, duration, etc. cards go here */}
           {/* ... Salin semua JSX Card dari halaman `new` ... */}
 
@@ -476,62 +550,77 @@ export default function EditContestPage() {
           {/* ... Salin Card "Platform & Requirements" ... */}
           <Card className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white">
             <CardHeader className="bg-pink-500">
-                <CardTitle className="text-xl font-black uppercase text-white">Platform & Requirements</CardTitle>
+              <CardTitle className="text-xl font-black uppercase text-white">
+                Platform & Requirements
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6 p-6">
-                <div className="space-y-3">
-                <Label className="font-black uppercase">Allowed Platforms *</Label>
+              <div className="space-y-3">
+                <Label className="font-black uppercase">
+                  Allowed Platforms *
+                </Label>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                    {[
-                        { id: "youtube", name: "YouTube", icon: Youtube },
-                        { id: "tiktok", name: "TikTok", icon: Instagram },
-                    ].map((platform) => (
-                        <Button
-                        key={platform.id}
-                        type="button"
-                        variant={contestData.platforms.includes(platform.id) ? "default" : "outline"}
-                        className={`border-4 border-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${
-                            contestData.platforms.includes(platform.id)
-                            ? "bg-yellow-400 text-black hover:bg-yellow-300"
-                            : "bg-white text-black hover:bg-cyan-400"
-                        }`}
-                        onClick={() => togglePlatform(platform.id)}
-                        >
-                        <platform.icon className="mr-2 h-4 w-4" />
-                        {platform.name}
-                        </Button>
-                    ))}
+                  {[
+                    { id: "youtube", name: "YouTube", icon: Youtube },
+                    { id: "tiktok", name: "TikTok", icon: Instagram },
+                  ].map((platform) => (
+                    <Button
+                      key={platform.id}
+                      type="button"
+                      variant={
+                        contestData.platforms.includes(platform.id)
+                          ? "default"
+                          : "outline"
+                      }
+                      className={`border-4 border-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${
+                        contestData.platforms.includes(platform.id)
+                          ? "bg-yellow-400 text-black hover:bg-yellow-300"
+                          : "bg-white text-black hover:bg-cyan-400"
+                      }`}
+                      onClick={() => togglePlatform(platform.id)}
+                    >
+                      <platform.icon className="mr-2 h-4 w-4" />
+                      {platform.name}
+                    </Button>
+                  ))}
                 </div>
-                </div>
-                <div className="space-y-2">
-                <Label htmlFor="requirements" className="font-black uppercase">Specific Requirements</Label>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="requirements" className="font-black uppercase">
+                  Specific Requirements
+                </Label>
                 <Textarea
-                    id="requirements"
-                    value={contestData.requirements}
-                    onChange={(e) => handleContestDataChange('requirements', e.target.value)}
-                    className="border-4 border-black bg-white min-h-[120px] font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                  id="requirements"
+                  value={contestData.requirements}
+                  onChange={(e) =>
+                    handleContestDataChange("requirements", e.target.value)
+                  }
+                  className="border-4 border-black bg-white min-h-[120px] font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                 />
-                </div>
-                <div className="space-y-3">
+              </div>
+              <div className="space-y-3">
                 <Label className="font-black uppercase">Tags</Label>
                 <Input
-                    placeholder="Gunakan # untuk setiap tag, contoh: #gaming #funny"
-                    value={tagsInput}
-                    onChange={handleTagsChange}
-                    className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                  placeholder="Gunakan # untuk setiap tag, contoh: #gaming #funny"
+                  value={tagsInput}
+                  onChange={handleTagsChange}
+                  className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
                 />
                 <div className="flex flex-wrap gap-2">
-                    {contestData.tags.map((tag, index) => (
-                    <Badge key={index} variant="secondary" className="text-sm font-black uppercase bg-pink-500 text-white">
-                        {tag}
+                  {contestData.tags.map((tag, index) => (
+                    <Badge
+                      key={index}
+                      variant="secondary"
+                      className="text-sm font-black uppercase bg-pink-500 text-white"
+                    >
+                      {tag}
                     </Badge>
-                    ))}
+                  ))}
                 </div>
-                </div>
+              </div>
             </CardContent>
-        </Card>
+          </Card>
 
-        
           <Card className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white">
             <CardContent className="p-6">
               <div className="flex flex-col gap-4">
@@ -543,7 +632,8 @@ export default function EditContestPage() {
                 <Alert className="border-4 border-black bg-pink-500 text-white">
                   <Info className="h-4 w-4" />
                   <AlertDescription className="font-bold">
-                    Changes will be saved immediately. Make sure all details are correct.
+                    Changes will be saved immediately. Make sure all details are
+                    correct.
                   </AlertDescription>
                 </Alert>
               </div>

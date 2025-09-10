@@ -1,15 +1,27 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Badge } from "@/components/ui/badge"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Switch } from "@/components/ui/switch"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Switch } from "@/components/ui/switch";
 import {
   CreditCard,
   DollarSign,
@@ -23,40 +35,43 @@ import {
   Wallet,
   ArrowUpRight,
   ArrowDownLeft,
-} from "lucide-react"
+} from "lucide-react";
 
 interface PaymentMethod {
-  id: string
-  type: "card" | "paypal" | "bank" | "crypto"
-  name: string
-  details: string
-  isDefault: boolean
-  isVerified: boolean
+  id: string;
+  type: "card" | "paypal" | "bank" | "crypto";
+  name: string;
+  details: string;
+  isDefault: boolean;
+  isVerified: boolean;
 }
 
 interface Transaction {
-  id: string
-  type: "deposit" | "payout" | "fee" | "refund"
-  amount: number
-  currency: string
-  status: "pending" | "completed" | "failed" | "cancelled"
-  description: string
-  contestId?: string
-  contestTitle?: string
-  createdAt: string
-  completedAt?: string
-  method: string
+  id: string;
+  type: "deposit" | "payout" | "fee" | "refund";
+  amount: number;
+  currency: string;
+  status: "pending" | "completed" | "failed" | "cancelled";
+  description: string;
+  contestId?: string;
+  contestTitle?: string;
+  createdAt: string;
+  completedAt?: string;
+  method: string;
 }
 
 interface PaymentSystemProps {
-  userType: "creator" | "user"
-  onPaymentComplete?: (transaction: Transaction) => void
+  userType: "creator" | "user";
+  onPaymentComplete?: (transaction: Transaction) => void;
 }
 
-export default function PaymentSystem({ userType, onPaymentComplete }: PaymentSystemProps) {
-  const [activeTab, setActiveTab] = useState("overview")
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [selectedMethod, setSelectedMethod] = useState<string>("")
+export default function PaymentSystem({
+  userType,
+  onPaymentComplete,
+}: PaymentSystemProps) {
+  const [activeTab, setActiveTab] = useState("overview");
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [selectedMethod, setSelectedMethod] = useState<string>("");
 
   const paymentMethods: PaymentMethod[] = [
     {
@@ -83,7 +98,7 @@ export default function PaymentSystem({ userType, onPaymentComplete }: PaymentSy
       isDefault: false,
       isVerified: false,
     },
-  ]
+  ];
 
   const transactions: Transaction[] = [
     {
@@ -122,19 +137,19 @@ export default function PaymentSystem({ userType, onPaymentComplete }: PaymentSy
       completedAt: "2024-01-18T12:15:00Z",
       method: "Visa ****4242",
     },
-  ]
+  ];
 
   const balance = {
     available: 1247.5,
     pending: 300.0,
     total: 1547.5,
-  }
+  };
 
   const handlePayment = async (amount: number, contestId?: string) => {
-    setIsProcessing(true)
+    setIsProcessing(true);
     try {
       // Simulate payment processing
-      await new Promise((resolve) => setTimeout(resolve, 3000))
+      await new Promise((resolve) => setTimeout(resolve, 3000));
 
       const newTransaction: Transaction = {
         id: `txn_${Date.now()}`,
@@ -142,49 +157,50 @@ export default function PaymentSystem({ userType, onPaymentComplete }: PaymentSy
         amount,
         currency: "USD",
         status: "completed",
-        description: userType === "creator" ? "Contest deposit" : "Contest winnings",
+        description:
+          userType === "creator" ? "Contest deposit" : "Contest winnings",
         contestId,
         createdAt: new Date().toISOString(),
         completedAt: new Date().toISOString(),
         method: selectedMethod || "Visa ****4242",
-      }
+      };
 
-      onPaymentComplete?.(newTransaction)
-      console.log("[v0] Payment processed:", newTransaction)
+      onPaymentComplete?.(newTransaction);
+      console.log("[v0] Payment processed:", newTransaction);
     } catch (error) {
-      console.error("[v0] Payment failed:", error)
+      console.error("[v0] Payment failed:", error);
     } finally {
-      setIsProcessing(false)
+      setIsProcessing(false);
     }
-  }
+  };
 
   const PaymentMethodIcon = ({ type }: { type: string }) => {
     switch (type) {
       case "card":
-        return <CreditCard className="h-4 w-4" />
+        return <CreditCard className="h-4 w-4" />;
       case "paypal":
-        return <Wallet className="h-4 w-4" />
+        return <Wallet className="h-4 w-4" />;
       case "bank":
-        return <DollarSign className="h-4 w-4" />
+        return <DollarSign className="h-4 w-4" />;
       case "crypto":
-        return <Lock className="h-4 w-4" />
+        return <Lock className="h-4 w-4" />;
       default:
-        return <CreditCard className="h-4 w-4" />
+        return <CreditCard className="h-4 w-4" />;
     }
-  }
+  };
 
   const StatusIcon = ({ status }: { status: string }) => {
     switch (status) {
       case "completed":
-        return <CheckCircle className="h-4 w-4 text-primary" />
+        return <CheckCircle className="h-4 w-4 text-primary" />;
       case "pending":
-        return <Clock className="h-4 w-4 text-accent" />
+        return <Clock className="h-4 w-4 text-accent" />;
       case "failed":
-        return <AlertCircle className="h-4 w-4 text-destructive" />
+        return <AlertCircle className="h-4 w-4 text-destructive" />;
       default:
-        return <Clock className="h-4 w-4 text-muted-foreground" />
+        return <Clock className="h-4 w-4 text-muted-foreground" />;
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -193,32 +209,48 @@ export default function PaymentSystem({ userType, onPaymentComplete }: PaymentSy
         <Card className="border-2 border-border shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-muted-foreground">Available Balance</span>
+              <span className="text-sm font-medium text-muted-foreground">
+                Available Balance
+              </span>
               <DollarSign className="h-4 w-4 text-primary" />
             </div>
-            <div className="text-3xl font-bold">${balance.available.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground mt-1">Ready for withdrawal</p>
+            <div className="text-3xl font-bold">
+              ${balance.available.toFixed(2)}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Ready for withdrawal
+            </p>
           </CardContent>
         </Card>
 
         <Card className="border-2 border-border shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-muted-foreground">Pending</span>
+              <span className="text-sm font-medium text-muted-foreground">
+                Pending
+              </span>
               <Clock className="h-4 w-4 text-accent" />
             </div>
-            <div className="text-3xl font-bold">${balance.pending.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground mt-1">Processing payouts</p>
+            <div className="text-3xl font-bold">
+              ${balance.pending.toFixed(2)}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Processing payouts
+            </p>
           </CardContent>
         </Card>
 
         <Card className="border-2 border-border shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-muted-foreground">Total Earnings</span>
+              <span className="text-sm font-medium text-muted-foreground">
+                Total Earnings
+              </span>
               <ArrowUpRight className="h-4 w-4 text-primary" />
             </div>
-            <div className="text-3xl font-bold">${balance.total.toFixed(2)}</div>
+            <div className="text-3xl font-bold">
+              ${balance.total.toFixed(2)}
+            </div>
             <p className="text-xs text-muted-foreground mt-1">All time</p>
           </CardContent>
         </Card>
@@ -227,11 +259,19 @@ export default function PaymentSystem({ userType, onPaymentComplete }: PaymentSy
       {/* Payment Tabs */}
       <Card className="border-2 border-border shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
         <CardHeader>
-          <CardTitle className="text-xl font-bold">Payment Management</CardTitle>
-          <CardDescription>Manage your payments, methods, and transaction history</CardDescription>
+          <CardTitle className="text-xl font-bold">
+            Payment Management
+          </CardTitle>
+          <CardDescription>
+            Manage your payments, methods, and transaction history
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="space-y-6"
+          >
             <TabsList className="grid w-full grid-cols-4 bg-muted border-2 border-border">
               <TabsTrigger value="overview" className="font-bold">
                 Overview
@@ -251,8 +291,12 @@ export default function PaymentSystem({ userType, onPaymentComplete }: PaymentSy
               {userType === "creator" ? (
                 <Card className="border-2 border-border">
                   <CardHeader>
-                    <CardTitle className="text-lg font-bold">Deposit Funds</CardTitle>
-                    <CardDescription>Add funds to create contests and pay winners</CardDescription>
+                    <CardTitle className="text-lg font-bold">
+                      Deposit Funds
+                    </CardTitle>
+                    <CardDescription>
+                      Add funds to create contests and pay winners
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -270,7 +314,10 @@ export default function PaymentSystem({ userType, onPaymentComplete }: PaymentSy
                       </div>
                       <div className="space-y-2">
                         <Label>Payment Method</Label>
-                        <Select value={selectedMethod} onValueChange={setSelectedMethod}>
+                        <Select
+                          value={selectedMethod}
+                          onValueChange={setSelectedMethod}
+                        >
                           <SelectTrigger className="border-2 bg-background">
                             <SelectValue placeholder="Select method" />
                           </SelectTrigger>
@@ -290,7 +337,8 @@ export default function PaymentSystem({ userType, onPaymentComplete }: PaymentSy
                     <Alert className="border-2 border-primary bg-primary/10">
                       <Shield className="h-4 w-4" />
                       <AlertDescription>
-                        Funds are held in escrow until contest completion. A 5% platform fee applies.
+                        Funds are held in escrow until contest completion. A 5%
+                        platform fee applies.
                       </AlertDescription>
                     </Alert>
                     <Button
@@ -305,8 +353,12 @@ export default function PaymentSystem({ userType, onPaymentComplete }: PaymentSy
               ) : (
                 <Card className="border-2 border-border">
                   <CardHeader>
-                    <CardTitle className="text-lg font-bold">Withdraw Earnings</CardTitle>
-                    <CardDescription>Transfer your contest winnings to your account</CardDescription>
+                    <CardTitle className="text-lg font-bold">
+                      Withdraw Earnings
+                    </CardTitle>
+                    <CardDescription>
+                      Transfer your contest winnings to your account
+                    </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -325,7 +377,10 @@ export default function PaymentSystem({ userType, onPaymentComplete }: PaymentSy
                       </div>
                       <div className="space-y-2">
                         <Label>Withdrawal Method</Label>
-                        <Select value={selectedMethod} onValueChange={setSelectedMethod}>
+                        <Select
+                          value={selectedMethod}
+                          onValueChange={setSelectedMethod}
+                        >
                           <SelectTrigger className="border-2 bg-background">
                             <SelectValue placeholder="Select method" />
                           </SelectTrigger>
@@ -347,7 +402,8 @@ export default function PaymentSystem({ userType, onPaymentComplete }: PaymentSy
                     <Alert className="border-2 border-accent bg-accent/10">
                       <Clock className="h-4 w-4" />
                       <AlertDescription>
-                        Withdrawals typically process within 1-3 business days. Minimum withdrawal: $10.
+                        Withdrawals typically process within 1-3 business days.
+                        Minimum withdrawal: $10.
                       </AlertDescription>
                     </Alert>
                     <Button
@@ -388,21 +444,33 @@ export default function PaymentSystem({ userType, onPaymentComplete }: PaymentSy
                                 </Badge>
                               )}
                               {method.isVerified ? (
-                                <Badge className="text-xs bg-primary text-primary-foreground">Verified</Badge>
+                                <Badge className="text-xs bg-primary text-primary-foreground">
+                                  Verified
+                                </Badge>
                               ) : (
                                 <Badge variant="outline" className="text-xs">
                                   Pending
                                 </Badge>
                               )}
                             </div>
-                            <p className="text-sm text-muted-foreground">{method.details}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {method.details}
+                            </p>
                           </div>
                         </div>
                         <div className="flex gap-2">
-                          <Button variant="outline" size="sm" className="border-2 bg-transparent">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-2 bg-transparent"
+                          >
                             Edit
                           </Button>
-                          <Button variant="outline" size="sm" className="border-2 bg-transparent text-destructive">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-2 bg-transparent text-destructive"
+                          >
                             Remove
                           </Button>
                         </div>
@@ -429,7 +497,8 @@ export default function PaymentSystem({ userType, onPaymentComplete }: PaymentSy
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <div className="p-2 bg-muted rounded-lg">
-                            {transaction.type === "deposit" || transaction.type === "fee" ? (
+                            {transaction.type === "deposit" ||
+                            transaction.type === "fee" ? (
                               <ArrowDownLeft className="h-4 w-4 text-destructive" />
                             ) : (
                               <ArrowUpRight className="h-4 w-4 text-primary" />
@@ -437,14 +506,22 @@ export default function PaymentSystem({ userType, onPaymentComplete }: PaymentSy
                           </div>
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="font-medium">{transaction.description}</span>
+                              <span className="font-medium">
+                                {transaction.description}
+                              </span>
                               <StatusIcon status={transaction.status} />
                             </div>
                             <div className="flex items-center gap-4 text-sm text-muted-foreground">
                               <span>{transaction.method}</span>
-                              <span>{new Date(transaction.createdAt).toLocaleDateString()}</span>
+                              <span>
+                                {new Date(
+                                  transaction.createdAt,
+                                ).toLocaleDateString()}
+                              </span>
                               {transaction.contestTitle && (
-                                <span className="text-primary">{transaction.contestTitle}</span>
+                                <span className="text-primary">
+                                  {transaction.contestTitle}
+                                </span>
                               )}
                             </div>
                           </div>
@@ -452,16 +529,24 @@ export default function PaymentSystem({ userType, onPaymentComplete }: PaymentSy
                         <div className="text-right">
                           <div
                             className={`text-lg font-bold ${
-                              transaction.type === "deposit" || transaction.type === "fee"
+                              transaction.type === "deposit" ||
+                              transaction.type === "fee"
                                 ? "text-destructive"
                                 : "text-primary"
                             }`}
                           >
-                            {transaction.type === "deposit" || transaction.type === "fee" ? "-" : "+"}$
-                            {transaction.amount.toFixed(2)}
+                            {transaction.type === "deposit" ||
+                            transaction.type === "fee"
+                              ? "-"
+                              : "+"}
+                            ${transaction.amount.toFixed(2)}
                           </div>
                           <Badge
-                            variant={transaction.status === "completed" ? "default" : "secondary"}
+                            variant={
+                              transaction.status === "completed"
+                                ? "default"
+                                : "secondary"
+                            }
                             className="text-xs"
                           >
                             {transaction.status}
@@ -477,12 +562,16 @@ export default function PaymentSystem({ userType, onPaymentComplete }: PaymentSy
             <TabsContent value="settings" className="space-y-6">
               <Card className="border-2 border-border">
                 <CardHeader>
-                  <CardTitle className="text-lg font-bold">Payment Preferences</CardTitle>
+                  <CardTitle className="text-lg font-bold">
+                    Payment Preferences
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="flex items-center justify-between">
                     <div className="space-y-1">
-                      <Label className="font-bold">Auto-withdraw earnings</Label>
+                      <Label className="font-bold">
+                        Auto-withdraw earnings
+                      </Label>
                       <p className="text-sm text-muted-foreground">
                         Automatically withdraw earnings when they reach $100
                       </p>
@@ -493,15 +582,21 @@ export default function PaymentSystem({ userType, onPaymentComplete }: PaymentSy
                   <div className="flex items-center justify-between">
                     <div className="space-y-1">
                       <Label className="font-bold">Email notifications</Label>
-                      <p className="text-sm text-muted-foreground">Get notified about payments and transactions</p>
+                      <p className="text-sm text-muted-foreground">
+                        Get notified about payments and transactions
+                      </p>
                     </div>
                     <Switch defaultChecked />
                   </div>
 
                   <div className="flex items-center justify-between">
                     <div className="space-y-1">
-                      <Label className="font-bold">Two-factor authentication</Label>
-                      <p className="text-sm text-muted-foreground">Require 2FA for withdrawals over $500</p>
+                      <Label className="font-bold">
+                        Two-factor authentication
+                      </Label>
+                      <p className="text-sm text-muted-foreground">
+                        Require 2FA for withdrawals over $500
+                      </p>
                     </div>
                     <Switch defaultChecked />
                   </div>
@@ -516,16 +611,23 @@ export default function PaymentSystem({ userType, onPaymentComplete }: PaymentSy
                   <Alert className="border-2 border-primary bg-primary/10">
                     <Shield className="h-4 w-4" />
                     <AlertDescription>
-                      Your payment information is encrypted and secure. We never store your full card details.
+                      Your payment information is encrypted and secure. We never
+                      store your full card details.
                     </AlertDescription>
                   </Alert>
 
                   <div className="space-y-2">
-                    <Button variant="outline" className="w-full border-2 bg-transparent">
+                    <Button
+                      variant="outline"
+                      className="w-full border-2 bg-transparent"
+                    >
                       <Eye className="mr-2 h-4 w-4" />
                       View Security Log
                     </Button>
-                    <Button variant="outline" className="w-full border-2 bg-transparent">
+                    <Button
+                      variant="outline"
+                      className="w-full border-2 bg-transparent"
+                    >
                       <Lock className="mr-2 h-4 w-4" />
                       Change Payment PIN
                     </Button>
@@ -537,5 +639,5 @@ export default function PaymentSystem({ userType, onPaymentComplete }: PaymentSy
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

@@ -1,8 +1,8 @@
-import { type NextRequest, NextResponse } from "next/server"
+import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const { contestId, amount, creatorId } = await request.json()
+    const { contestId, amount, creatorId } = await request.json();
 
     // Create escrow account for contest
     const escrow = {
@@ -18,20 +18,23 @@ export async function POST(request: NextRequest) {
         winnersSelected: true,
         disputeResolved: true,
       },
-    }
+    };
 
-    console.log("[v0] Escrow created:", escrow)
+    console.log("[v0] Escrow created:", escrow);
 
-    return NextResponse.json({ escrow })
+    return NextResponse.json({ escrow });
   } catch (error) {
-    console.error("[v0] Escrow creation error:", error)
-    return NextResponse.json({ error: "Failed to create escrow" }, { status: 500 })
+    console.error("[v0] Escrow creation error:", error);
+    return NextResponse.json(
+      { error: "Failed to create escrow" },
+      { status: 500 },
+    );
   }
 }
 
 export async function PUT(request: NextRequest) {
   try {
-    const { escrowId, action, winnerId, amount } = await request.json()
+    const { escrowId, action, winnerId, amount } = await request.json();
 
     if (action === "release") {
       // Release funds to winner
@@ -41,15 +44,15 @@ export async function PUT(request: NextRequest) {
         amount,
         status: "released",
         releasedAt: new Date().toISOString(),
-      }
+      };
 
-      console.log("[v0] Escrow funds released:", release)
+      console.log("[v0] Escrow funds released:", release);
 
       return NextResponse.json({
         success: true,
         message: "Funds released to winner",
         release,
-      })
+      });
     } else if (action === "refund") {
       // Refund to creator
       const refund = {
@@ -57,20 +60,23 @@ export async function PUT(request: NextRequest) {
         amount,
         status: "refunded",
         refundedAt: new Date().toISOString(),
-      }
+      };
 
-      console.log("[v0] Escrow funds refunded:", refund)
+      console.log("[v0] Escrow funds refunded:", refund);
 
       return NextResponse.json({
         success: true,
         message: "Funds refunded to creator",
         refund,
-      })
+      });
     }
 
-    return NextResponse.json({ error: "Invalid action" }, { status: 400 })
+    return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   } catch (error) {
-    console.error("[v0] Escrow action error:", error)
-    return NextResponse.json({ error: "Escrow action failed" }, { status: 500 })
+    console.error("[v0] Escrow action error:", error);
+    return NextResponse.json(
+      { error: "Escrow action failed" },
+      { status: 500 },
+    );
   }
 }

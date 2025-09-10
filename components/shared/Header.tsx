@@ -1,11 +1,13 @@
 import Link from "next/link";
 import UserProfile from "./UserProfile"; // Impor komponen baru
-import { createClient } from "@/lib/supabase/server"; 
+import { createClient } from "@/lib/supabase/server";
 
 // Hapus 'use client' dan semua hooks (useState, useEffect)
 export default async function Header() {
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   return (
     <header className="border-b-4 border-black bg-yellow-400 p-4 sticky top-0 z-50">

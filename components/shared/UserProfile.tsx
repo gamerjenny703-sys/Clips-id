@@ -21,7 +21,11 @@ type Profile = {
 };
 
 // Menerima initialUser dari Server Component
-export default function UserProfile({ initialUser }: { initialUser: User | null }) {
+export default function UserProfile({
+  initialUser,
+}: {
+  initialUser: User | null;
+}) {
   const [user, setUser] = useState<User | null>(initialUser);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [showProfileMenu, setShowProfileMenu] = useState(false);

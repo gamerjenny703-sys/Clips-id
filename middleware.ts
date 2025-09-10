@@ -94,16 +94,16 @@ const getClientIP = (request: NextRequest): string => {
   const forwarded = request.headers.get("x-forwarded-for");
   const realIp = request.headers.get("x-real-ip");
   const vercelForwarded = request.headers.get("x-vercel-forwarded-for");
-  
+
   if (forwarded) {
     // x-forwarded-for bisa berisi multiple IPs, ambil yang pertama
     return forwarded.split(",")[0].trim();
   }
-  
+
   if (vercelForwarded) {
     return vercelForwarded.split(",")[0].trim();
   }
-  
+
   if (realIp) {
     return realIp;
   }

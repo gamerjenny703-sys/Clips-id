@@ -23,19 +23,12 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  ArrowLeft,
-  Info,
-  Youtube,
-  Instagram,
-  Twitter,
-} from "lucide-react";
+import { ArrowLeft, Info, Youtube, Instagram, Twitter } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import VideoUpload from "@/components/features/contest/VideoUpload";
 import ThumbnailUpload from "@/components/features/contest/ThumbnailUpload";
 import { updateContestPaymentStatus } from "@/lib/action/contest";
-
 
 declare global {
   interface Window {
@@ -211,66 +204,69 @@ export default function CreateContestPage() {
     return null; // No errors
   };
 
-
-  const handleSubmit = async (e:React.FormEvent) =>{
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
 
     const validationError = validateForm();
 
-    if (validationError){
+    if (validationError) {
       setError(validationError);
       setIsSubmitting(false);
       return;
     }
 
-    if (!thumbnailFile){
+    if (!thumbnailFile) {
       setError("Contest thumbnail is required");
       setIsSubmitting(false);
       return;
     }
 
     const supabase = createClient();
-    const {data : {user}} = await supabase.auth.getUser();
-    if (!user){
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) {
       setError("u must be logged in.");
       setIsSubmitting(false);
       return;
-    } 
+    }
 
     try {
       const fileExtension = thumbnailFile.name.split(".").pop();
-      const fileName = `${user.id}/${contestData.title.replace(/\s+/g, '_').toLowerCase()}-${Date.now()}.${fileExtension}`;
-      
-      const {error:uploadError} = await supabase.storage
+      const fileName = `${user.id}/${contestData.title.replace(/\s+/g, "_").toLowerCase()}-${Date.now()}.${fileExtension}`;
+
+      const { error: uploadError } = await supabase.storage
         .from("contest-thumbnails")
         .upload(fileName, thumbnailFile);
 
       if (uploadError) throw uploadError;
 
-      const {data:{ publicUrl}} = supabase.storage.from("contest-thumbnails").getPublicUrl(fileName);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("contest-thumbnails").getPublicUrl(fileName);
       console.log("Thumbnail uploaded successfully", publicUrl);
 
-      console.log ("Saving Contest with pending payment status....");
+      console.log("Saving Contest with pending payment status....");
       const endDate = new Date();
       const durationDays =
         contestData.rules.duration.type === "fixed"
           ? contestData.rules.duration.days
           : contestData.rules.duration.max_days;
-        endDate.setDate(endDate.getDate() + durationDays);
-      
-      const {data: contest, error: insertError} = await supabase
+      endDate.setDate(endDate.getDate() + durationDays);
+
+      const { data: contest, error: insertError } = await supabase
         .from("contests")
         .insert({
           title: contestData.title,
-          description:contestData.description,
+          description: contestData.description,
           prize_pool: parseFloat(contestData.prize_pool),
           creator_id: user.id,
           end_date: endDate.toISOString(),
           thumbnail_url: publicUrl,
           rules: contestData.rules,
-          requirements:{
+          requirements: {
             platforms: contestData.platforms,
             tags: contestData.tags,
             custom: contestData.requirements,
@@ -289,17 +285,17 @@ export default function CreateContestPage() {
               : null,
           video_upload_type: contestData.video.type,
           status: "pending_payment",
-          payment_status:"pending",
+          payment_status: "pending",
         })
         .select()
         .single();
-      
+
       if (insertError) throw Error(insertError.message);
       console.log("contest saved with ID:", contest.id);
 
-      const response = await fetch ("/api/payments/midtrans/create-token", {
-        method:"POST",
-        headers:{"Content-Type" : "application/json"},
+      const response = await fetch("/api/payments/midtrans/create-token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           amount: parseFloat(contestData.prize_pool),
           contestTitle: contestData.title,
@@ -312,55 +308,57 @@ export default function CreateContestPage() {
       });
 
       const paymentData = await response.json();
-      if (!response.ok || !paymentData.token){
-        throw new Error (paymentData.error || "Failed to create payment token. ");
+      if (!response.ok || !paymentData.token) {
+        throw new Error(
+          paymentData.error || "Failed to create payment token. ",
+        );
       }
 
-      if (window.snap){
-        window.snap.pay(paymentData.token,{
-          onSuccess: async function (result:any) {
-            console.log ("Payment Succes", result);
+      if (window.snap) {
+        window.snap.pay(paymentData.token, {
+          onSuccess: async function (result: any) {
+            console.log("Payment Succes", result);
             try {
+              await updateContestPaymentStatus(contest.id);
 
-            await updateContestPaymentStatus(contest.id);
-
-            alert ("payment successful! Your contest is active now");
-            router.push(`/creator/contest/${contest.id}/manage`);
-            router.refresh();
-            } catch (err:any){
+              alert("payment successful! Your contest is active now");
+              router.push(`/creator/contest/${contest.id}/manage`);
+              router.refresh();
+            } catch (err: any) {
               console.error("pembayaran berhasil hanlde error:", err);
               setError(err.message);
               setIsSubmitting(false);
             }
           },
-          onPending: function (result:any){
-            console.log ("Payment Pending", result);
+          onPending: function (result: any) {
+            console.log("Payment Pending", result);
             alert("waiting for your payment");
-            router.push('/creator/dashboard');
+            router.push("/creator/dashboard");
           },
-          onError: function (result:any){
-            console.log ("Payment Error", result);
+          onError: function (result: any) {
+            console.log("Payment Error", result);
             setError("payment failed. please try again from the dashboard. ");
             setIsSubmitting(false);
           },
-          onClose: function (result:any){
-            console.log ("You closed the popup without finishing the payment, You can complete from your dashboard", result);
+          onClose: function (result: any) {
+            console.log(
+              "You closed the popup without finishing the payment, You can complete from your dashboard",
+              result,
+            );
             router.push(`/creator/dashboard`);
             setIsSubmitting(false);
           },
         });
       } else {
-        throw new Error ("midtrans Snap.js is not loaded yet ." );
+        throw new Error("midtrans Snap.js is not loaded yet .");
       }
-      
-
-    } catch (err: any){
+    } catch (err: any) {
       console.log("Handlesubmit Error", err);
       setError(err.message);
       setIsSubmitting(false);
     }
   };
- 
+
   return (
     <div className="min-h-screen bg-white">
       <header className="border-b-4 border-black bg-pink-500">

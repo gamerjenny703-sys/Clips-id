@@ -70,26 +70,32 @@ export default function PaymentRetryButton({
             router.refresh();
           } catch (err: any) {
             console.error("Error handling successful payment:", err);
-            alert(`Payment successful, but failed to update status: ${err.message}`);
+            alert(
+              `Payment successful, but failed to update status: ${err.message}`,
+            );
             router.push(`/creator/dashboard`);
             router.refresh();
           }
         },
         onPending: function (result: any) {
           console.log("Payment Pending", result);
-          alert("Waiting for your payment. You can complete it from your dashboard.");
-          router.push('/creator/dashboard');
+          alert(
+            "Waiting for your payment. You can complete it from your dashboard.",
+          );
+          router.push("/creator/dashboard");
         },
         onError: function (result: any) {
           console.log("Payment Error", result);
           alert("Payment failed. Please try again.");
-          router.push('/creator/dashboard');
+          router.push("/creator/dashboard");
           router.refresh();
         },
         onClose: function () {
           console.log("Payment popup closed without completing payment.");
-          alert("You closed the payment window. You can retry payment from the dashboard.");
-          router.push('/creator/dashboard');
+          alert(
+            "You closed the payment window. You can retry payment from the dashboard.",
+          );
+          router.push("/creator/dashboard");
           router.refresh();
         },
       });
@@ -108,7 +114,11 @@ export default function PaymentRetryButton({
       onClick={handleRetryPayment}
       disabled={isRetrying || !isSnapLoaded}
     >
-      {isRetrying ? "OPENING PAYMENT..." : isSnapLoaded ? "COMPLETE PAYMENT" : "LOADING..."}
+      {isRetrying
+        ? "OPENING PAYMENT..."
+        : isSnapLoaded
+          ? "COMPLETE PAYMENT"
+          : "LOADING..."}
     </Button>
   );
 }
