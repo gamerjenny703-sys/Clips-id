@@ -278,7 +278,8 @@ export default function UserSettingsForm({
               {socialAccounts.map((account) => {
                 const isDisabled =
                   account.platform === "Twitter" ||
-                  account.platform === "Instagram";
+                  account.platform === "Instagram" ||
+                  account.platform === "Tiktok";
 
                 return (
                   <div

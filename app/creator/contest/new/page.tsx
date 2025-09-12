@@ -882,7 +882,9 @@ export default function CreateContestPage() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   {platformsOptions.map((platform) => {
                     const isDisabled =
-                      platform.id === "twitter" || platform.id === "instagram";
+                      platform.id === "twitter" ||
+                      platform.id === "instagram" ||
+                      platform.id === "tiktok";
                     const isActive = contestData.platforms.includes(
                       platform.id,
                     );
