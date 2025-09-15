@@ -97,35 +97,35 @@ export default function SignUpForm() {
 
   return (
     <>
-      <div className="text-center mb-8">
-        <h1 className="text-4xl font-black uppercase text-black mb-2">
-          SIGN UP
-        </h1>
-        <p className="text-black font-bold">CREATE YOUR ACCOUNT TODAY</p>
-      </div>
-      <Card className="border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-        <CardHeader className="bg-yellow-400 text-black border-b-4 border-black">
-          <CardTitle className="text-2xl font-black uppercase flex items-center gap-2">
+      <Card className="border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 transform hover:-translate-x-1 hover:-translate-y-1">
+        <CardHeader className=" text-black border-b-4 border-black relative overflow-hidden">
+          <CardTitle className="text-3xl font-black uppercase flex items-center gap-3 relative z-10">
             <UserPlus className="h-6 w-6" />
             CREATE NEW ACCOUNT
           </CardTitle>
-          <CardDescription className="text-black font-bold">
+          <CardDescription className="text-black font-bold relative z-10">
             Join the platform and start participating in contests
           </CardDescription>
         </CardHeader>
         <CardContent className="p-6">
           {error && (
-            <Alert className="mb-6 border-4 border-black bg-pink-500 text-white">
-              <AlertDescription className="font-bold">{error}</AlertDescription>
+            <Alert
+              variant="destructive"
+              className="mb-6 border-4 border-black bg-pink-500 text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-pulse"
+            >
+              <AlertDescription className="font-bold flex items-center gap-2">
+                <div className="w-2 h-2 bg-white rounded-full"></div>
+                {error}
+              </AlertDescription>
             </Alert>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Name Field */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <Label
                 htmlFor="name"
-                className="text-black font-black uppercase text-sm"
+                className="text-black font-black uppercase text-sm flex items-center gap-2"
               >
                 FULL NAME
               </Label>
@@ -137,16 +137,16 @@ export default function SignUpForm() {
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-12 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] focus:border-cyan-400 transition-all duration-200 pl-4"
                 required
               />
             </div>
 
             {/* Email Field */}
-            <div className="space-y-2">
+            <div className="space-y-3">
               <Label
                 htmlFor="email"
-                className="text-black font-black uppercase text-sm"
+                className="text-black font-black uppercase text-sm flex items-center gap-2"
               >
                 EMAIL ADDRESS
               </Label>
@@ -158,7 +158,7 @@ export default function SignUpForm() {
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
-                className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-12 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] focus:border-cyan-400 transition-all duration-200 pl-4"
                 required
               />
             </div>
@@ -180,14 +180,16 @@ export default function SignUpForm() {
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
                   }
-                  className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-12 pr-12 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                  className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] focus:border-cyan-400 transition-all duration-200 pl-4"
                   required
                 />
+                <div className="absolute inset-0 bg-cyan-400 opacity-0 group-focus-within:opacity-10 transition-opacity duration-200 pointer-events-none rounded-sm"></div>
+
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-gray-100"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-gray-100 border-2 border-black hover:border-pink-500 transition-colors duration-200"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
@@ -219,14 +221,14 @@ export default function SignUpForm() {
                       confirmPassword: e.target.value,
                     })
                   }
-                  className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-12 pr-12 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                  className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-14 pr-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] focus:border-cyan-400 transition-all duration-200 pl-4"
                   required
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-gray-100"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 h-8 w-8 p-0 hover:bg-gray-100 border-2 border-black hover:border-pink-500 transition-colors duration-200"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 >
                   {showConfirmPassword ? (
@@ -265,7 +267,7 @@ export default function SignUpForm() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-pink-500 text-white border-4 border-black hover:bg-cyan-400 hover:text-black font-black uppercase h-12 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all"
+              className="w-full bg-pink-500 text-white border-4 border-black hover:bg-black hover:text-cyan-400 font-black uppercase h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 transform hover:-translate-x-1 hover:-translate-y-1 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-lg tracking-wide"
             >
               {isLoading ? (
                 "CREATING ACCOUNT..."
@@ -284,7 +286,7 @@ export default function SignUpForm() {
               ALREADY HAVE AN ACCOUNT?{" "}
               <Link
                 href="/sign-in"
-                className="text-pink-500 hover:text-cyan-400 underline font-black uppercase"
+                className="text-pink-500 hover:text-cyan-400 underline font-black uppercase transition-colors duration-200 hover:bg-black hover:text-white px-2 py-1 rounded"
               >
                 SIGN IN HERE
               </Link>
