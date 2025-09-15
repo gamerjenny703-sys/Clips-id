@@ -4,46 +4,82 @@ import { Zap, Shield, Target } from "lucide-react";
 export default function FeaturesSection() {
   const features = [
     {
-      icon: Zap,
-      title: "BAYARAN BERBASIS PERFORMA",
+      title: "Kompetisi Berhadiah Besar",
       description:
-        "Clippers dibayar berdasarkan views, likes, dan engagement. Semakin viral, semakin besar pendapatanmu.",
+        "Setiap bulan ada kompetisi dengan total hadiah puluhan juta rupiah. Semakin viral clip kamu, semakin besar peluang menang!",
+      icon: "🏆",
+      color: "bg-pink-400",
+    },
+    {
+      title: "Clipper Profesional",
+      description:
+        "Tim clipper berpengalaman yang tahu cara bikin konten kamu jadi viral di semua platform media sosial.",
+      icon: "✂️",
       color: "bg-yellow-400",
     },
     {
-      icon: Shield,
-      title: "DANA AMAN (ESCROW)",
+      title: "Pembayaran Cepat",
       description:
-        "Prize pool disimpan dengan aman oleh Clips.ID dan dicairkan secara otomatis saat pemenang ditentukan oleh sistem.",
-      color: "bg-pink-500",
+        "Hadiah langsung ditransfer ke rekening kamu maksimal 7 hari setelah pengumuman pemenang. No ribet!",
+      icon: "💰",
+      color: "bg-cyan-400",
     },
     {
-      icon: Target,
-      title: "PELACAKAN OTOMATIS",
+      title: "Multi Platform",
       description:
-        "Sistem kami melacak metrik video dari YouTube & TikTok secara real-time. Tidak perlu lagi laporan manual.",
-      color: "bg-cyan-400",
+        "Clip kamu akan disebarkan ke TikTok, Instagram, YouTube Shorts, dan platform lainnya untuk maksimal exposure.",
+      icon: "📱",
+      color: "bg-green-400",
+    },
+    {
+      title: "Analytics Lengkap",
+      description:
+        "Pantau performa clip kamu dengan dashboard analytics yang detail. Lihat views, engagement, dan potensi hadiah.",
+      icon: "📊",
+      color: "bg-purple-400",
+    },
+    {
+      title: "Community Support",
+      description:
+        "Bergabung dengan komunitas creator gaming terbesar Indonesia. Sharing tips, kolaborasi, dan saling support!",
+      icon: "👥",
+      color: "bg-orange-400",
     },
   ];
 
   return (
-    <section className="bg-black text-white py-20">
-      <div className="mx-auto max-w-6xl px-4">
-        <h2 className="text-5xl font-black uppercase text-center mb-16">
-          KENAPA MEMILIH <span className="text-yellow-400">CLIPS.ID?</span>
-        </h2>
-        <div className="grid md:grid-cols-3 gap-8">
+    <section className="py-20 px-4 bg-white">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-black text-black mb-4 text-balance">
+            Kenapa Creator Pilih Clips.ID?
+          </h2>
+          <p className="text-xl text-gray-700 max-w-2xl mx-auto text-pretty">
+            Platform terlengkap untuk creator gaming yang ingin kontennya viral
+            dan menang kompetisi berhadiah besar
+          </p>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
-            <Card
+            <div
               key={index}
-              className={`${feature.color} border-4 border-white p-8 shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] transform hover:translate-x-2 hover:translate-y-2 hover:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transition-all`}
+              className="group hover:scale-105 transition-transform duration-300"
             >
-              <feature.icon className="h-12 w-12 mb-4 text-black" />
-              <h3 className="text-2xl font-black uppercase mb-4 text-black">
-                {feature.title}
-              </h3>
-              <p className="font-bold text-black">{feature.description}</p>
-            </Card>
+              <div className="bg-white border-4 border-black shadow-[8px_8px_0px_0px_#000] p-8 h-full group-hover:shadow-[12px_12px_0px_0px_#000] transition-shadow duration-300">
+                <div
+                  className={`${feature.color} w-16 h-16 rounded-full border-4 border-black flex items-center justify-center mb-6 group-hover:rotate-12 transition-transform duration-300`}
+                >
+                  <span className="text-2xl">{feature.icon}</span>
+                </div>
+                <h3 className="text-2xl font-black text-black mb-4">
+                  {feature.title}
+                </h3>
+                <p className="text-gray-700 text-lg leading-relaxed">
+                  {feature.description}
+                </p>
+              </div>
+            </div>
           ))}
         </div>
       </div>

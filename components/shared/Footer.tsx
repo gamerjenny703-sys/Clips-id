@@ -6,59 +6,86 @@ export default function Footer() {
       <div className="mx-auto max-w-6xl px-4">
         <div className="grid md:grid-cols-3 gap-8">
           <div>
-            <div className="text-3xl font-black uppercase mb-4">BRUTAL.CO</div>
+            <div className="text-3xl font-black uppercase mb-4 text-pink-400">
+              CLIPS.ID
+            </div>
             <p className="font-bold">
-              MAKING THE WEB MORE INTERESTING, ONE BRUTAL DESIGN AT A TIME.
+              MENGHUBUNGKAN CREATOR DENGAN CLIPPER TERBAIK, SATU KONTEN VIRAL
+              PADA SATU WAKTU.
             </p>
           </div>
           <div>
-            <h3 className="text-xl font-black uppercase mb-4">SERVICES</h3>
+            <h3 className="text-xl font-black uppercase mb-4 text-yellow-400">
+              FITUR
+            </h3>
             <ul className="space-y-2 font-bold">
               <li>
                 <Link
-                  href="/services/web-design"
-                  className="hover:text-yellow-400"
+                  href="/dashboard"
+                  className="hover:text-cyan-400 transition-colors"
                 >
-                  WEB DESIGN
+                  DASHBOARD CREATOR
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/services/development"
-                  className="hover:text-yellow-400"
+                  href="/marketplace"
+                  className="hover:text-cyan-400 transition-colors"
                 >
-                  DEVELOPMENT
+                  MARKETPLACE CLIPPER
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/services/branding"
-                  className="hover:text-yellow-400"
+                  href="/contests"
+                  className="hover:text-cyan-400 transition-colors"
                 >
-                  BRANDING
+                  KOMPETISI BERHADIAH
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/services/consulting"
-                  className="hover:text-yellow-400"
+                  href="/analytics"
+                  className="hover:text-cyan-400 transition-colors"
                 >
-                  CONSULTING
+                  ANALYTICS
                 </Link>
               </li>
             </ul>
           </div>
           <div>
-            <h3 className="text-xl font-black uppercase mb-4">CONTACT</h3>
+            <h3 className="text-xl font-black uppercase mb-4 text-cyan-400">
+              KONTAK
+            </h3>
             <div className="space-y-2 font-bold">
-              <div>HELLO@BRUTAL.CO</div>
-              <div>+1 (555) BRUTAL-1</div>
-              <div>NEW YORK, NY</div>
+              <div>HELLO@CLIPS.ID</div>
+              <div>+62 812-3456-7890</div>
+              <div>JAKARTA, INDONESIA</div>
+              <div className="flex gap-4 mt-4">
+                <Link
+                  href="#"
+                  className="hover:text-pink-400 transition-colors"
+                >
+                  INSTAGRAM
+                </Link>
+                <Link
+                  href="#"
+                  className="hover:text-yellow-400 transition-colors"
+                >
+                  TIKTOK
+                </Link>
+                <Link
+                  href="#"
+                  className="hover:text-cyan-400 transition-colors"
+                >
+                  YOUTUBE
+                </Link>
+              </div>
             </div>
           </div>
         </div>
         <div className="border-t-4 border-white mt-12 pt-8 text-center font-bold uppercase">
-          © 2024 BRUTAL.CO - ALL RIGHTS RESERVED
+          © 2024 CLIPS.ID - SEMUA HAK DILINDUNGI
         </div>
       </div>
     </footer>
