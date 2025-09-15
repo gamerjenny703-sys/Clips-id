@@ -29,7 +29,7 @@ export default function SaveContestButton({
     } = await supabase.auth.getUser();
 
     if (!user) {
-      router.push("/auth/sign-in");
+      router.push("/sign-in");
       return;
     }
 

@@ -9,7 +9,7 @@ export default async function EarningsPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth/sign-in");
+    redirect("/sign-in");
   }
 
   const { data: profile } = await supabase

@@ -147,7 +147,7 @@ export default async function ContestDetails({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Link href="/" className="flex items-center">
-                <ArrowLeft className="h-8 w-8 text-white hover:text-yellow-400" />
+                <ArrowLeft className="h-8 w-8 text-white hover:text-yellow-400 transition-colors" />
               </Link>
               <div>
                 <h1 className="text-4xl font-black uppercase text-white">
@@ -158,7 +158,7 @@ export default async function ContestDetails({
                 </p>
               </div>
             </div>
-            <Button className="bg-pink-500 text-white border-4 border-white hover:bg-white hover:text-black font-black uppercase shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
+            <Button className="bg-pink-500 text-white border-4 border-white hover:bg-white hover:text-black font-black uppercase shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] transition-all">
               JOIN CONTEST
             </Button>
           </div>
@@ -169,6 +169,7 @@ export default async function ContestDetails({
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Contest Info Card */}
             <Card className="border-4 border-black bg-pink-500 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
               <CardHeader>
                 <div className="flex items-start justify-between">
@@ -181,7 +182,7 @@ export default async function ContestDetails({
                     </CardDescription>
                     <div className="flex items-center gap-2 mt-3">
                       <Avatar className="h-8 w-8 border-2 border-white">
-                        <AvatarImage src="/placeholder-user.jpg" />
+                        <AvatarImage src="/gaming-creator-avatar.png" />
                         <AvatarFallback className="bg-white text-black font-bold">
                           {getInitials(creatorName)}
                         </AvatarFallback>
@@ -236,7 +237,7 @@ export default async function ContestDetails({
                   <div className="text-center">
                     <Users className="h-6 w-6 mx-auto text-black mb-1" />
                     <div className="font-black text-xl text-black">
-                      {participantCount ?? 0}
+                      {participantCount}
                     </div>
                     <div className="text-xs font-bold text-black">
                       PARTICIPANTS
@@ -309,6 +310,7 @@ export default async function ContestDetails({
 
           {/* Sidebar */}
           <div className="space-y-6">
+            {/* Contest Timeline */}
             <Card className="border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
               <CardHeader>
                 <CardTitle className="text-lg font-black uppercase text-black">
@@ -358,7 +360,7 @@ export default async function ContestDetails({
               <CardContent className="space-y-4">
                 <div className="flex items-center gap-3">
                   <Avatar className="h-12 w-12 border-2 border-black">
-                    <AvatarImage src="/placeholder-user.jpg" />
+                    <AvatarImage src="/gaming-creator-profile.jpg" />
                     <AvatarFallback className="bg-white text-black font-bold">
                       {getInitials(creatorName)}
                     </AvatarFallback>
@@ -370,18 +372,18 @@ export default async function ContestDetails({
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold  text-black">
+                    <span className="text-sm font-bold text-black">
                       Contests Created
                     </span>
-                    <span className="font-black  text-black">
+                    <span className="font-black text-black">
                       {creatorStats.contestsCreated}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold  text-black">
+                    <span className="text-sm font-bold text-black">
                       Total Prize Pool
                     </span>
-                    <span className="font-black  text-black">
+                    <span className="font-black text-black">
                       ${creatorStats.totalPrizePool.toLocaleString()}
                     </span>
                   </div>
@@ -391,15 +393,15 @@ export default async function ContestDetails({
 
             {/* Action Buttons */}
             <div className="space-y-3">
-              <Link href={`/user/submit-clip/${contest.id}`}>
-                <Button className="w-full bg-pink-500 text-white border-4 border-black hover:bg-black hover:text-white font-black uppercase shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] h-16 text-lg">
-                  JOIN CONTEST
-                </Button>
-              </Link>
-              <SaveContestButton
-                contestId={contest.id}
-                isInitiallySaved={isSaved}
-              />
+              <Button className="w-full bg-pink-500 text-white border-4 border-black hover:bg-black hover:text-white font-black uppercase shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] h-16 text-lg transition-all">
+                JOIN CONTEST
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full border-4 border-black bg-white text-black hover:bg-black hover:text-white font-black uppercase shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] h-12 transition-all"
+              >
+                {isSaved ? "SAVED ✓" : "SAVE CONTEST"}
+              </Button>
             </div>
           </div>
         </div>

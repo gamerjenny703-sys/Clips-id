@@ -37,7 +37,7 @@ export default async function SubmitClipPage({
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    redirect("/auth/sign-in");
+    redirect("/sign-in");
   }
 
   const { data: contest } = await supabase

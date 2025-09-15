@@ -6,7 +6,6 @@ import ContestList from "@/components/features/contest/ContestList";
 export default async function WorkPage() {
   return (
     <>
-      {/* Projects Grid */}
       <ContestList />
     </>
   );

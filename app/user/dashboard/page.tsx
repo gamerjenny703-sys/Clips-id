@@ -37,7 +37,7 @@ export default async function UserDashboard() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect("/auth/sign-in");
+    redirect("/sign-in");
   }
 
   // --- Mengambil semua data yang dibutuhkan secara paralel ---
