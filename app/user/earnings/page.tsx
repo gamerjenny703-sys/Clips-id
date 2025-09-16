@@ -8,12 +8,8 @@ export default async function EarningsPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) {
-    redirect("/sign-in");
-  }
-
   const { data: profile } = await supabase
-    .form("profiles")
+    .from("profiles")
     .select("balance")
     .eq("id", user.id)
     .single();
