@@ -44,30 +44,16 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Link href="/sign-in">
-            <Button variant="ghost" className="mb-4 font-bold uppercase">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back to Sign In
-            </Button>
-          </Link>
-          <h1 className="text-4xl font-black uppercase text-black mb-2">
-            Forgot Password
-          </h1>
-          <p className="text-black font-bold">
-            WE'LL SEND A PASSWORD RESET LINK TO YOUR EMAIL
-          </p>
-        </div>
-
-        <Card className="border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-          <CardHeader className="bg-cyan-400 text-black border-b-4 border-black">
-            <CardTitle className="text-2xl font-black uppercase flex items-center gap-2">
+        <Card className="border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 transform hover:-translate-x-1 hover:-translate-y-1">
+          <CardHeader className=" text-black border-b-4 border-black relative overflow-hidden">
+            <CardTitle className="text-3xl font-black uppercase flex items-center gap-3 relative z-10">
               <Mail className="h-6 w-6" />
               RESET YOUR PASSWORD
             </CardTitle>
           </CardHeader>
           <CardContent className="p-6">
             {success ? (
-              <Alert className="border-4 border-black bg-yellow-400 text-black">
+              <Alert className="mb-6 border-4 border-black bg-pink-500 text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-pulse">
                 <AlertDescription className="font-bold">
                   Check your email! We've sent a link to reset your password.
                 </AlertDescription>
@@ -77,9 +63,10 @@ export default function ForgotPasswordPage() {
                 {error && (
                   <Alert
                     variant="destructive"
-                    className="border-4 border-black"
+                    className="mb-6 border-4 border-black bg-pink-500 text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] animate-pulse"
                   >
-                    <AlertDescription className="font-bold">
+                    <AlertDescription className="font-bold flex items-center gap-2">
+                      <div className="w-2 h-2 bg-white rounded-full"></div>
                       {error}
                     </AlertDescription>
                   </Alert>
@@ -87,7 +74,7 @@ export default function ForgotPasswordPage() {
                 <div className="space-y-2">
                   <Label
                     htmlFor="email"
-                    className="text-black font-black uppercase text-sm"
+                    className="text-black font-black uppercase text-sm flex items-center gap-2"
                   >
                     EMAIL ADDRESS
                   </Label>
@@ -97,14 +84,14 @@ export default function ForgotPasswordPage() {
                     placeholder="your@email.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-12 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                    className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] focus:border-cyan-400 transition-all duration-200 pl-4"
                     required
                   />
                 </div>
                 <Button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full bg-pink-500 text-white border-4 border-black hover:bg-black font-black uppercase h-12 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                  className="w-full bg-pink-500 text-white border-4 border-black hover:bg-black hover:text-cyan-400 font-black uppercase h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 transform hover:-translate-x-1 hover:-translate-y-1 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-lg tracking-wide"
                 >
                   {isLoading ? "SENDING..." : "SEND RESET LINK"}
                 </Button>
@@ -112,6 +99,15 @@ export default function ForgotPasswordPage() {
             )}
           </CardContent>
         </Card>
+        <Link href="/sign-in" className="mt-6 flex justify-center mt-6 block">
+          <Button
+            variant="outline"
+            className="border-4 border-black bg-white text-black hover:bg-black hover:text-white font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] transition-all duration-200 transform hover:-translate-x-1 hover:-translate-y-1"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Sign In
+          </Button>
+        </Link>
       </div>
     </div>
   );
