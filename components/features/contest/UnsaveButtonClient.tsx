@@ -30,7 +30,7 @@ export default function UnsaveButtonClient({
       variant="destructive"
       onClick={handleClick}
       disabled={isPending}
-      className="border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+      className="text-black border-4 border-black hover:bg-black hover:text-white font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all"
     >
       <Trash2 className="h-4 w-4" />
       <span className="sr-only">Unsave</span>

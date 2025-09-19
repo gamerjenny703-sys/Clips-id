@@ -133,8 +133,11 @@ export default async function UserDashboard() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               {/* Back Arrow to Home */}
-              <Link href="/" className="flex items-center">
-                <ArrowLeft className="h-8 w-8 text-white hover:text-yellow-400" />
+              <Link
+                href="/"
+                className="flex items-center transition-colors hover:text-yellow-400"
+              >
+                <ArrowLeft className="h-8 w-8" />
               </Link>
 
               <div>
@@ -152,12 +155,6 @@ export default async function UserDashboard() {
                 <Star className="mr-1 h-3 w-3 fill-black text-black" />
                 CLIPPER
               </Badge>
-              <Link href="/user/submit-clip/1">
-                <Button className="bg-pink-500 text-white border-4 border-white hover:bg-white hover:text-black font-black uppercase shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
-                  <Upload className="mr-2 h-4 w-4" />
-                  SUBMIT CLIP
-                </Button>
-              </Link>
             </div>
           </div>
         </div>
@@ -166,23 +163,23 @@ export default async function UserDashboard() {
       <div className="mx-auto max-w-7xl px-4 py-8">
         {/* STATS CARDS */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card className="border-4 border-black bg-pink-500 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <Card className="border-4 border-black bg-cyan-400 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-black uppercase text-white">
+              <CardTitle className="text-sm font-black uppercase text-black">
                 Total Earnings
               </CardTitle>
-              <DollarSign className="h-4 w-4 text-white" />
+              <DollarSign className="h-4 w-4 text-black" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-black text-white">
+              <div className="text-2xl font-black text-black">
                 ${totalEarnings.toLocaleString()}
               </div>
-              <p className="text-xs font-bold text-white">
+              <p className="text-xs font-bold text-black">
                 +${monthlyEarnings.toLocaleString()} this month
               </p>
             </CardContent>
           </Card>
-          <Card className="border-4 border-black bg-yellow-400 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <Card className="border-4 border-black bg-yellow-400 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-black uppercase text-black">
                 Contests Won
@@ -198,23 +195,23 @@ export default async function UserDashboard() {
               </p>
             </CardContent>
           </Card>
-          <Card className="border-4 border-black bg-cyan-400 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <Card className="border-4 border-black bg-pink-500 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-black uppercase text-black">
+              <CardTitle className="text-sm font-black uppercase text-white">
                 Active Submissions
               </CardTitle>
-              <Clock className="h-4 w-4 text-black" />
+              <Clock className="h-4 w-4 text-white" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-black text-black">
+              <div className="text-2xl font-black text-white">
                 {activeSubmissionsCount}
               </div>
-              <p className="text-xs font-bold text-black">
+              <p className="text-xs font-bold text-white">
                 in {activeContestsCount} contests
               </p>
             </CardContent>
           </Card>
-          <Card className="border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <Card className="border-4 border-black bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-black uppercase text-black">
                 Total Views
@@ -247,7 +244,7 @@ export default async function UserDashboard() {
                   savedContests.map((contest: any) => (
                     <div
                       key={contest.id}
-                      className="border-4 border-black rounded-lg p-4 bg-cyan-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                      className="border-4 border-black rounded-lg p-4 bg-cyan-400 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform hover:translate-x-1 hover:translate-y-1 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
                     >
                       <h3 className="font-bold text-lg text-black">
                         {contest.title}
@@ -263,7 +260,7 @@ export default async function UserDashboard() {
                           <Link href={`/work/${contest.id}`}>
                             <Button
                               size="sm"
-                              className="bg-pink-500 text-white border-4 border-black hover:bg-black font-black uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]"
+                              className="bg-black text-white border-4 border-black hover:bg-white hover:text-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(255,255,255,1)] transition-all"
                             >
                               VIEW
                             </Button>
@@ -327,9 +324,9 @@ export default async function UserDashboard() {
             </Card>*/}
 
             {/* RECENT SUBMISSIONS */}
-            <Card className="border-4 border-black bg-pink-500 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+            <Card className="border-4 border-black bg-yellow-400 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
               <CardHeader>
-                <CardTitle className="text-lg font-black uppercase text-white">
+                <CardTitle className="text-lg font-black uppercase text-black">
                   RECENT SUBMISSIONS
                 </CardTitle>
               </CardHeader>
@@ -338,7 +335,7 @@ export default async function UserDashboard() {
                   recentSubmissions.map((submission: any) => (
                     <div
                       key={submission.id}
-                      className="p-3 border border-black rounded-lg bg-white"
+                      className="flex items-start gap-3 p-3 border-2 border-black rounded-lg bg-white/80 transition-transform hover:translate-x-1 hover:translate-y-1"
                     >
                       <p className="font-medium text-sm truncate">
                         {submission.contests?.title || "Contest"}
@@ -358,7 +355,7 @@ export default async function UserDashboard() {
                     </div>
                   ))
                 ) : (
-                  <p className="font-bold text-center text-white">
+                  <p className="text-center font-bold p-4 text-black">
                     You haven't submitted any clips yet.
                   </p>
                 )}

@@ -361,23 +361,21 @@ export default function CreateContestPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <header className="border-b-4 border-black bg-pink-500">
-        <div className="mx-auto max-w-4xl px-4 py-4">
+      <header className="border-b-4 border-black bg-black text-white">
+        <div className="mx-auto max-w-7xl px-4 py-6">
           <div className="flex items-center gap-4">
-            <Link href="/creator/dashboard">
-              <Button
-                variant="outline"
-                size="sm"
-                className=" py-5 border-4 border-black bg-white hover:bg-yellow-400 font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
-              >
-                <ArrowLeft className=" h-6 w-4" />
-              </Button>
+            <Link
+              href="/"
+              className="flex items-center transition-colors hover:text-yellow-400"
+            >
+              <ArrowLeft className="h-8 w-8" />
             </Link>
+
             <div>
-              <h1 className="text-3xl font-black text-white uppercase">
+              <h1 className="text-4xl font-black uppercase text-white">
                 Create New Contest
               </h1>
-              <p className="text-pink-100 font-bold">
+              <p className="text-white font-bold">
                 Set up a content clipping contest for your audience
               </p>
             </div>
@@ -389,11 +387,11 @@ export default function CreateContestPage() {
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Basic Information */}
           <Card className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white">
-            <CardHeader className="bg-yellow-400">
-              <CardTitle className="text-xl font-black uppercase">
+            <CardHeader className="text-black ">
+              <CardTitle className="text-3xl font-black uppercase flex items-center gap-3 relative z-10">
                 Basic Information
               </CardTitle>
-              <CardDescription className="font-bold text-black">
+              <CardDescription className="text-black font-bold relative z-10">
                 Set up the core details of your contest
               </CardDescription>
             </CardHeader>
@@ -409,7 +407,7 @@ export default function CreateContestPage() {
                   onChange={(e) =>
                     setContestData({ ...contestData, title: e.target.value })
                   }
-                  className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                  className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] focus:border-cyan-400 transition-all duration-200 pl-4"
                   required
                 />
               </div>
@@ -427,7 +425,7 @@ export default function CreateContestPage() {
                       description: e.target.value,
                     })
                   }
-                  className="border-4 border-black bg-white min-h-[120px] font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                  className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] focus:border-cyan-400 transition-all duration-200 pl-4"
                   required
                 />
               </div>
@@ -465,7 +463,7 @@ export default function CreateContestPage() {
                         });
                       }
                     }}
-                    className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                    className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] focus:border-cyan-400 transition-all duration-200 pl-4"
                     required
                   />
                   <div className="mt-2 space-y-1">
@@ -489,11 +487,11 @@ export default function CreateContestPage() {
 
           {/* Winning Condition Card */}
           <Card className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white">
-            <CardHeader className="bg-cyan-400">
-              <CardTitle className="text-xl font-black uppercase">
+            <CardHeader className="text-black bg-cyan-400">
+              <CardTitle className="text-3xl font-black uppercase flex items-center gap-3 relative z-10">
                 Winning Condition
               </CardTitle>
-              <CardDescription className="font-bold text-black">
+              <CardDescription className="text-black font-bold relative z-10">
                 Set the target that clippers must reach to win.
               </CardDescription>
             </CardHeader>
@@ -507,7 +505,7 @@ export default function CreateContestPage() {
                       handleRulesChange("win_condition.metric", value)
                     }
                   >
-                    <SelectTrigger className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                    <SelectTrigger className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] focus:border-cyan-400 transition-all duration-200 pl-4">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="border-4 border-black bg-white">
@@ -555,7 +553,7 @@ export default function CreateContestPage() {
                         }
                       }
                     }}
-                    className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                    className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] focus:border-cyan-400 transition-all duration-200 pl-4"
                     required
                   />
                   <p className="text-xs text-muted-foreground font-bold mt-1">
@@ -568,10 +566,13 @@ export default function CreateContestPage() {
 
           {/* Duration & Payout Card */}
           <Card className="border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white">
-            <CardHeader className="bg-yellow-400">
-              <CardTitle className="text-xl font-black uppercase">
+            <CardHeader className="text-black bg-yellow-400">
+              <CardTitle className="text-3xl font-black uppercase flex items-center gap-3 relative z-10">
                 Payout & Duration
               </CardTitle>
+              <CardDescription className="text-black font-bold relative z-10">
+                Set contest payment distribution
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6 p-6">
               <div className="space-y-2">
@@ -596,7 +597,7 @@ export default function CreateContestPage() {
                     }
                   }}
                 >
-                  <SelectTrigger className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                  <SelectTrigger className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] focus:border-cyan-400 transition-all duration-200 pl-4">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="border-4 border-black bg-white">
@@ -619,17 +620,17 @@ export default function CreateContestPage() {
                     <Input
                       type="number"
                       placeholder="60%"
-                      className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                      className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] focus:border-cyan-400 transition-all duration-200 pl-4"
                     />
                     <Input
                       type="number"
                       placeholder="25%"
-                      className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                      className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] focus:border-cyan-400 transition-all duration-200 pl-4"
                     />
                     <Input
                       type="number"
                       placeholder="15%"
-                      className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                      className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] focus:border-cyan-400 transition-all duration-200 pl-4"
                     />
                   </div>
                 </div>
@@ -695,7 +696,7 @@ export default function CreateContestPage() {
                           },
                         });
                       }}
-                      className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] w-28"
+                      className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] focus:border-cyan-400 transition-all duration-200 pl-4"
                     />
                     <div className="text-xs font-bold text-muted-foreground">
                       Each gets:{" "}
@@ -733,7 +734,7 @@ export default function CreateContestPage() {
                     handleRulesChange("duration.type", value)
                   }
                 >
-                  <SelectTrigger className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                  <SelectTrigger className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] focus:border-cyan-400 transition-all duration-200 pl-4">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="border-4 border-black bg-white">
@@ -780,7 +781,7 @@ export default function CreateContestPage() {
                         handleRulesChange("duration.days", parsed);
                       }
                     }}
-                    className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                    className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] focus:border-cyan-400 transition-all duration-200 pl-4"
                     required
                   />
                   <p className="text-xs text-muted-foreground font-bold mt-1">
@@ -823,7 +824,7 @@ export default function CreateContestPage() {
                         handleRulesChange("duration.max_days", parsed);
                       }
                     }}
-                    className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                    className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] focus:border-cyan-400 transition-all duration-200 pl-4"
                     required
                   />
                   <p className="text-xs text-muted-foreground font-bold mt-1">
@@ -935,7 +936,7 @@ export default function CreateContestPage() {
                       requirements: e.target.value,
                     })
                   }
-                  className="border-4 border-black bg-white min-h-[120px] font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                  className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] focus:border-cyan-400 transition-all duration-200 pl-4"
                 />
               </div>
               <div className="space-y-3">
@@ -944,7 +945,7 @@ export default function CreateContestPage() {
                   placeholder="Gunakan # untuk setiap tag, contoh: #gaming #funny"
                   value={tagsInput}
                   onChange={handleTagsChange}
-                  className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                  className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] focus:border-cyan-400 transition-all duration-200 pl-4"
                 />
                 <div className="flex flex-wrap gap-2">
                   {contestData.tags.map((tag, index) => (

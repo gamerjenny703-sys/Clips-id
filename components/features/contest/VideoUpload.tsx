@@ -168,8 +168,8 @@ export default function VideoUpload({
     <Card
       className={`border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] bg-white ${className}`}
     >
-      <CardHeader className="bg-blue-400">
-        <CardTitle className="text-xl font-black uppercase text-black">
+      <CardHeader className="text-black bg-blue-400">
+        <CardTitle className="text-3xl font-black uppercase flex items-center gap-3 relative z-10">
           Contest Video
         </CardTitle>
       </CardHeader>
@@ -183,9 +183,7 @@ export default function VideoUpload({
 
         {/* Upload Type Selection */}
         <div className="space-y-4">
-          <Label className="font-black uppercase text-black">
-            Choose Upload Method
-          </Label>
+          <Label className="font-black uppercase">Choose Upload Method</Label>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* File Upload Option */}
@@ -199,7 +197,7 @@ export default function VideoUpload({
               }}
               className={`border-4 border-black font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] ${
                 uploadType === "file"
-                  ? "bg-yellow-400 text-black hover:bg-yellow-300"
+                  ? "bg-yellow-400 text-white hover:bg-yellow-300"
                   : "bg-white text-black hover:bg-blue-400"
               }`}
             >
@@ -240,7 +238,7 @@ export default function VideoUpload({
                 type="file"
                 accept="video/*"
                 onChange={handleFileSelect}
-                className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] focus:border-cyan-400 transition-all duration-200 pl-4"
               />
               <p className="text-xs text-muted-foreground font-bold">
                 Supported formats: MP4, AVI, MOV, WMV, FLV, WebM
@@ -321,17 +319,8 @@ export default function VideoUpload({
                   placeholder="https://www.youtube.com/watch?v=..."
                   value={youtubeLink}
                   onChange={(e) => handleYoutubeLinkChange(e.target.value)}
-                  className="border-4 border-black bg-white font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
+                  className="border-4 border-black bg-white text-black placeholder:text-gray-500 font-bold h-14 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] focus:shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] focus:border-cyan-400 transition-all duration-200 pl-4"
                 />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={removeYoutubeLink}
-                  className="text-red-500 hover:text-red-700 border-4 border-black"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
               </div>
               <p className="text-xs text-muted-foreground font-bold">
                 Paste the full YouTube URL of your contest video

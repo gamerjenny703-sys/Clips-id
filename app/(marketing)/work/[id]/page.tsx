@@ -393,15 +393,17 @@ export default async function ContestDetails({
 
             {/* Action Buttons */}
             <div className="space-y-3">
-              <Button className="w-full bg-pink-500 text-white border-4 border-black hover:bg-black hover:text-white font-black uppercase shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] h-16 text-lg transition-all">
-                JOIN CONTEST
-              </Button>
-              <Button
+              <Link href={`/user/submit-clip/${contest.id}`}>
+                <Button className="w-full bg-pink-500 text-white border-4 border-black hover:bg-black hover:text-white font-black uppercase shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] h-16 text-lg transition-all">
+                  JOIN CONTEST
+                </Button>
+              </Link>
+              <SaveContestButton
                 variant="outline"
                 className="w-full border-4 border-black bg-white text-black hover:bg-black hover:text-white font-black uppercase shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] h-12 transition-all"
-              >
-                {isSaved ? "SAVED ✓" : "SAVE CONTEST"}
-              </Button>
+                contestId={contest.id}
+                isInitiallySaved={isSaved}
+              ></SaveContestButton>
             </div>
           </div>
         </div>
