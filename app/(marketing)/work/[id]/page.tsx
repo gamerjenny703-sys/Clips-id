@@ -158,9 +158,6 @@ export default async function ContestDetails({
                 </p>
               </div>
             </div>
-            <Button className="bg-pink-500 text-white border-4 border-white hover:bg-white hover:text-black font-black uppercase shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] transition-all">
-              JOIN CONTEST
-            </Button>
           </div>
         </div>
       </header>

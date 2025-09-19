@@ -20,14 +20,18 @@ type SubmissionEntry = {
 
 type SubmitClipFormProps = {
   contestId: number;
+  clipperId: string;
   allowedPlatforms: string[];
   connectedPlatforms: { platform: string; username: string }[];
+  isDisabled?: boolean;
 };
 
 export default function SubmitClipForm({
   contestId,
   allowedPlatforms,
   connectedPlatforms,
+  clipperId,
+  isDisabled = false,
 }: SubmitClipFormProps) {
   const router = useRouter();
   const [submissions, setSubmissions] = useState<SubmissionEntry[]>([
@@ -62,6 +66,7 @@ export default function SubmitClipForm({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isDisabled) return;
     setIsLoading(true);
     setError("");
     setSuccess("");
@@ -200,6 +205,7 @@ export default function SubmitClipForm({
         <Button
           type="button"
           onClick={handleAddLink}
+          disabled={isDisabled}
           variant="outline"
           className="font-black uppercase border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"
         >
@@ -208,7 +214,7 @@ export default function SubmitClipForm({
         </Button>
         <Button
           type="submit"
-          disabled={isLoading}
+          disabled={isLoading || isDisabled}
           className="flex-grow bg-pink-500 text-white border-4 border-black hover:bg-black hover:text-white font-black uppercase shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] h-12 text-lg"
         >
           <Upload className="mr-2 h-5 w-5" />

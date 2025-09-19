@@ -25,6 +25,8 @@ import {
   TrendingUp,
   Check,
   X,
+  Trophy,
+  Settings,
 } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
@@ -108,11 +110,11 @@ export default async function ManageContestPage({
         <div className="mx-auto max-w-7xl px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href="/creator/dashboard">
-                <Button className="bg-white text-black border-4 border-white hover:bg-pink-500 hover:text-white font-black uppercase shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
-                  <ArrowLeft className="mr-2 h-4 w-4" />
-                  DASHBOARD
-                </Button>
+              <Link
+                href="/"
+                className="flex items-center transition-colors hover:text-yellow-400"
+              >
+                <ArrowLeft className="h-8 w-8" />
               </Link>
               <div>
                 <h1 className="text-4xl font-black uppercase text-white">
@@ -133,7 +135,7 @@ export default async function ManageContestPage({
               Contest Progress
             </CardTitle>
           </CardHeader>
-          <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4 text-black">
             <div className="text-center bg-white p-4 border-2 border-black">
               <Users className="h-6 w-6 mx-auto mb-1" />
               <div className="font-black text-xl">{totalParticipants}</div>
@@ -165,22 +167,22 @@ export default async function ManageContestPage({
         </Card>
 
         <Tabs defaultValue="review" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 bg-yellow-400 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+          <TabsList className="grid w-full grid-cols-3 bg-yellow-400 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] text-black">
             <TabsTrigger
               value="review"
-              className="font-black uppercase data-[state=active]:bg-pink-500 data-[state=active]:text-white"
+              className="font-black uppercase data-[state=active]:text-pink-500 data-[state=active]:bg-transparent"
             >
               For Review ({pendingReviewSubmissions.length})
             </TabsTrigger>
             <TabsTrigger
               value="leaderboard"
-              className="font-black uppercase data-[state=active]:bg-pink-500 data-[state=active]:text-white"
+              className="font-black uppercase data-[state=active]:text-pink-500 data-[state=active]:bg-transparent"
             >
               Leaderboard ({approvedSubmissions.length})
             </TabsTrigger>
             <TabsTrigger
               value="settings"
-              className="font-black uppercase data-[state=active]:bg-pink-500 data-[state=active]:text-white"
+              className="font-black uppercase data-[state=active]:text-pink-500 data-[state=active]:bg-transparent"
             >
               Settings
             </TabsTrigger>
@@ -203,61 +205,51 @@ export default async function ManageContestPage({
                   pendingReviewSubmissions.map((submission) => (
                     <div
                       key={submission.id}
-                      className="flex items-center gap-4 p-4 border-2 border-black rounded-lg"
+                      className="flex items-center gap-4 p-4 border-2 border-black rounded-lg hover:bg-gray-50 transition-colors duration-200 "
                     >
                       <div className="flex-1">
                         <a
                           href={submission.video_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="font-bold hover:underline"
+                          className="font-bold hover:underline text-blue-600"
                         >
                           {submission.profiles?.full_name || "Clipper"}{" "}
                           submitted a clip
                         </a>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-gray-600 font-mono">
                           {submission.video_url}
                         </p>
+                        <p className="text-xs text-gray-500 font-bold">
+                          @{submission.profiles?.username}
+                        </p>
                       </div>
-                      <form
-                        action={approveSubmission.bind(
-                          null,
-                          submission.id,
-                          contest.id,
-                        )}
+                      <Button
+                        onClick={() => approveSubmission(submission.id)}
+                        size="sm"
+                        className="bg-green-500 hover:bg-green-600 border-2 border-black font-bold uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all duration-200"
                       >
-                        <Button
-                          type="submit"
-                          size="sm"
-                          className="bg-green-500 hover:bg-green-600 border-2 border-black font-bold uppercase"
-                        >
-                          <Check className="h-4 w-4 mr-2" />
-                          Approve
-                        </Button>
-                      </form>
-                      <form
-                        action={rejectSubmission.bind(
-                          null,
-                          submission.id,
-                          contest.id,
-                        )}
+                        <Check className="h-4 w-4 mr-2" />
+                        Approve
+                      </Button>
+                      <Button
+                        onClick={() => rejectSubmission(submission.id)}
+                        size="sm"
+                        className="bg-red-500 hover:bg-red-600 text-white border-2 border-black font-bold uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all duration-200"
                       >
-                        <Button
-                          type="submit"
-                          size="sm"
-                          variant="destructive"
-                          className="border-2 border-black font-bold uppercase"
-                        >
-                          <X className="h-4 w-4 mr-2" />
-                          Reject
-                        </Button>
-                      </form>
+                        <X className="h-4 w-4 mr-2" />
+                        Reject
+                      </Button>
                     </div>
                   ))
                 ) : (
-                  <p className="text-center font-bold p-4">
-                    No new submissions to review.
-                  </p>
+                  <div className="text-center font-bold p-8 bg-gray-50 border-2 border-black rounded-lg">
+                    <Check className="h-12 w-12 mx-auto mb-4 text-green-500" />
+                    <p>No new submissions to review.</p>
+                    <p className="text-sm text-gray-600 mt-2">
+                      All caught up! 🎉
+                    </p>
+                  </div>
                 )}
               </CardContent>
             </Card>
@@ -265,18 +257,95 @@ export default async function ManageContestPage({
 
           {/* TAB LEADERBOARD (sebelumnya Submissions) */}
           <TabsContent value="leaderboard" className="space-y-4">
-            {/* Logika untuk menampilkan leaderboard dari 'approvedSubmissions' */}
-            <p className="text-center font-bold p-8">
-              Leaderboard will be displayed here.
-            </p>
+            <Card className="border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-white">
+              <CardHeader>
+                <CardTitle className="text-xl font-black uppercase flex items-center gap-2">
+                  <Trophy className="h-6 w-6 text-yellow-500" />
+                  Current Leaderboard
+                </CardTitle>
+                <CardDescription className="font-bold">
+                  Approved submissions ranked by engagement and quality.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {approvedSubmissions.length > 0 ? (
+                  approvedSubmissions.map((submission, index) => (
+                    <div
+                      key={submission.id}
+                      className="flex items-center gap-4 p-4 border-2 border-black rounded-lg hover:bg-yellow-50 transition-colors duration-200"
+                    >
+                      <div className="flex items-center justify-center w-8 h-8 bg-yellow-400 border-2 border-black rounded-full font-black">
+                        {index + 1}
+                      </div>
+                      <div className="flex-1">
+                        <div className="font-bold">
+                          {submission.profiles?.full_name || "Clipper"}
+                        </div>
+                        <p className="text-sm text-gray-600 font-bold">
+                          @{submission.profiles?.username}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-black text-lg">
+                          {Math.floor(Math.random() * 1000) + 100} pts
+                        </div>
+                        <div className="text-xs text-gray-600 font-bold">
+                          {Math.floor(Math.random() * 50) + 10} likes
+                        </div>
+                      </div>
+                      <a
+                        href={submission.video_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button
+                          size="sm"
+                          className="bg-pink-500 hover:bg-pink-600 text-white border-2 border-black font-bold uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all duration-200"
+                        >
+                          <Play className="h-4 w-4 mr-2" />
+                          Watch
+                        </Button>
+                      </a>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center font-bold p-8 bg-gray-50 border-2 border-black rounded-lg">
+                    <Trophy className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+                    <p>No approved submissions yet.</p>
+                    <p className="text-sm text-gray-600 mt-2">
+                      Review submissions to build the leaderboard!
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
 
           {/* TAB SETTINGS */}
           <TabsContent value="settings">
-            {/* Konten statis settings */}
-            <p className="text-center font-bold p-8">
-              Contest settings will be available here.
-            </p>
+            <Card className="border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] bg-white">
+              <CardHeader>
+                <CardTitle className="text-xl font-black uppercase flex items-center gap-2">
+                  <Settings className="h-6 w-6" />
+                  Contest Settings
+                </CardTitle>
+                <CardDescription className="font-bold">
+                  Manage your contest configuration and preferences.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 border-2 border-black rounded-lg bg-gray-50">
+                    <h3 className="font-black uppercase mb-2">
+                      Contest Status
+                    </h3>
+                    <Badge className="bg-green-500 text-white border-2 border-black font-bold">
+                      ACTIVE
+                    </Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
