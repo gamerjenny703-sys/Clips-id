@@ -16,7 +16,7 @@ export default function StatsSection() {
       color: "bg-cyan-400",
     },
     {
-      number: "98%",
+      number: "100%",
       label: "Creator Puas",
       color: "bg-green-400",
     },
@@ -27,7 +27,7 @@ export default function StatsSection() {
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-black mb-4 text-balance">
-            Platform Terpercaya #1 Indonesia
+            #1 satu-satunya cliper contest contest
           </h2>
           <p className="text-xl text-gray-300 max-w-2xl mx-auto text-pretty">
             Bergabung dengan ribuan creator yang sudah merasakan kesuksesan
