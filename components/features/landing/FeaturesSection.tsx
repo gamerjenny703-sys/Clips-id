@@ -39,9 +39,9 @@ export default function FeaturesSection() {
       color: "bg-purple-400",
     },
     {
-      title: "Community Support",
+      title: "Fees Rendah",
       description:
-        "Bergabung dengan komunitas creator gaming terbesar Indonesia. Sharing tips, kolaborasi, dan saling support!",
+        "Gratis untuk Contest maker dan 10% ~ fee untuk cliper pemenang contest ",
       icon: "👥",
       color: "bg-orange-400",
     },

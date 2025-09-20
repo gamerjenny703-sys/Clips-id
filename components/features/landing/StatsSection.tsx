@@ -4,21 +4,25 @@ export default function StatsSection() {
       number: "1JT+",
       label: "Potensi Jangkauan Penonton",
       color: "bg-pink-400",
+      icon: "👀",
     },
     {
       number: "^100%",
       label: "Kontes Baru Diluncurkan",
       color: "bg-yellow-400",
+      icon: "🚀",
     },
     {
       number: "On Time",
       label: "Hadiah Terbayar Tepat Waktu",
       color: "bg-cyan-400",
+      icon: "👌",
     },
     {
       number: "100%",
-      label: "Tanpa Biaya",
+      label: "Tanpa Biaya Daftar",
       color: "Untuk Bergabung",
+      icon: "😱",
     },
   ];
 
@@ -43,7 +47,7 @@ export default function StatsSection() {
               <div
                 className={`${stat.color} w-20 h-20 rounded-full border-4 border-white flex items-center justify-center mx-auto mb-4 group-hover:rotate-12 transition-transform duration-300`}
               >
-                <span className="text-2xl">🎮</span>
+                <span className="text-2xl">{stat.icon}</span>
               </div>
               <div className="text-4xl md:text-5xl font-black mb-2 text-white">
                 {stat.number}

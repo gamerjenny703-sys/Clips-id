@@ -4,7 +4,7 @@ export default function TestimonialsSection() {
   const testimonials = [
     {
       name: "My Mom",
-      role: "Content Creator",
+      role: "Ibu Ibu Biasa",
       content:
         "Gila! Clip Mobile Legends gue jadi viral dan dapet hadiah 5 juta! Clipper di sini emang pro banget.",
       rating: 5,
@@ -13,7 +13,7 @@ export default function TestimonialsSection() {
     },
     {
       name: "My Dad",
-      role: "Professional Clipper",
+      role: "Bapak Bapak Biasa",
       content:
         "Platform terbaik buat clipper! Banyak konten berkualitas dan sistem pembayarannya transparan.",
       rating: 5,
@@ -22,7 +22,7 @@ export default function TestimonialsSection() {
     },
     {
       name: "My friends",
-      role: "Content Creator",
+      role: "Normal Human Being",
       content:
         "Dari konten biasa jadi viral berkat clipper handal. Sekarang subscriber naik 10x lipat!",
       rating: 5,
