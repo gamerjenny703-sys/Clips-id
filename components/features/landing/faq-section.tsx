@@ -69,18 +69,6 @@ export default function FaqSection() {
             ))}
           </Accordion>
         </div>
-
-        <div className="text-center mt-12">
-          <p className="text-lg text-gray-600 mb-4">
-            Masih ada pertanyaan lain?
-          </p>
-          <a
-            href="#contact"
-            className="inline-block bg-cyan-400 hover:bg-cyan-500 text-black font-black text-lg px-8 py-4 border-4 border-black shadow-[4px_4px_0px_0px_#000] hover:shadow-[2px_2px_0px_0px_#000] transition-all duration-200"
-          >
-            Hubungi Kami
-          </a>
-        </div>
       </div>
     </section>
   );

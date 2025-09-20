@@ -3,7 +3,7 @@ import { Users, Award, Coffee, Zap } from "lucide-react";
 
 export default function StatsSection() {
   const stats = [
-    { icon: Users, number: "500+", label: "HAPPY CLIENTS" },
+    { icon: Users, number: "1JT+", label: "Potensi Jangkauan Penonton" },
     { icon: Award, number: "50+", label: "DESIGN AWARDS" },
     { icon: Coffee, number: "10K+", label: "CUPS OF COFFEE" },
     { icon: Zap, number: "1M+", label: "LINES OF CODE" },

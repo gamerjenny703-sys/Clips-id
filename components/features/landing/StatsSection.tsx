@@ -1,24 +1,24 @@
 export default function StatsSection() {
   const stats = [
     {
-      number: "15,000+",
-      label: "Creator Aktif",
+      number: "1JT+",
+      label: "Potensi Jangkauan Penonton",
       color: "bg-pink-400",
     },
     {
-      number: "50,000+",
-      label: "Clip Viral",
+      number: "^100%",
+      label: "Kontes Baru Diluncurkan",
       color: "bg-yellow-400",
     },
     {
-      number: "₹2.5M+",
-      label: "Total Hadiah",
+      number: "On Time",
+      label: "Hadiah Terbayar Tepat Waktu",
       color: "bg-cyan-400",
     },
     {
       number: "100%",
-      label: "Creator Puas",
-      color: "bg-green-400",
+      label: "Tanpa Biaya",
+      color: "Untuk Bergabung",
     },
   ];
 

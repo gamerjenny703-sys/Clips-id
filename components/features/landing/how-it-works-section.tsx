@@ -20,7 +20,7 @@ export default function HowItWorksSection() {
       number: "03",
       title: "Kompetisi & Menang",
       description:
-        "Clip terbaik akan berkompetisi. Creator dengan clip paling viral berhak mendapat hadiah jutaan rupiah!",
+        "Kamu yang tentukan clip mana yang paling berdampak. Hadiah cair, jangkauan meluas",
       color: "bg-cyan-400",
     },
   ];
