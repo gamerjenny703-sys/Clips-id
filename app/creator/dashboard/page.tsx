@@ -164,7 +164,7 @@ export default async function CreatorDashboard() {
                 <div className="text-2xl font-black text-black">
                   {totalSubmissions.toLocaleString()}
                 </div>
-                <p className="text-xs font-bold text-black"></p>
+                {/*<p className="text-xs font-bold text-black"></p>*/}
               </CardContent>
             </Card>
 
@@ -291,13 +291,28 @@ export default async function CreatorDashboard() {
                 <CardContent className="space-y-4">
                   {activeContests.length > 0 ? (
                     activeContests.map((contest) => {
-                      const timeLeftMs =
-                        new Date(contest.end_date).getTime() -
-                        new Date().getTime();
+                      const now = new Date().getTime();
+                      const startDate = new Date(contest.created_at).getTime();
+                      const endDate = new Date(contest.end_date).getTime();
+
+                      const totalDuration = endDate - startDate;
+                      const elapsedTime = now - startDate;
+
+                      // Hitung progres, pastikan tidak lebih dari 100% atau kurang dari 0%
+                      let progress = 0;
+                      if (totalDuration > 0) {
+                        progress = Math.min(
+                          100,
+                          Math.max(0, (elapsedTime / totalDuration) * 100),
+                        );
+                      } else if (now >= endDate) {
+                        progress = 100;
+                      }
+
+                      const timeLeftMs = endDate - now;
                       const timeLeftDays = Math.ceil(
                         timeLeftMs / (1000 * 60 * 60 * 24),
                       );
-                      const progress = Math.min(75 + Math.random() * 20, 95);
 
                       return (
                         <div
