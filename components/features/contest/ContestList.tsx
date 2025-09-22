@@ -30,6 +30,7 @@ export default function ContestList() {
           created_at,
           requirements,
           thumbnail_url,
+          prize_pool,
           profiles!contests_creator_id_fkey (
             username,
             full_name
@@ -48,6 +49,7 @@ export default function ContestList() {
         contests?.map((contest) => ({
           id: contest.id,
           title: contest.title,
+          prize_pool: contest.prize_pool,
           created_at: new Date(contest.created_at).getFullYear().toString(),
           description: contest.description,
           creatorName:
@@ -135,7 +137,7 @@ export default function ContestList() {
                         className="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       <div className="absolute top-4 right-4 bg-yellow-400 border-2 border-black px-3 py-1 font-black text-sm shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                        {project.prize}
+                        ${Number(project.prize_pool).toLocaleString()}
                       </div>
                     </div>
 

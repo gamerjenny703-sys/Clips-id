@@ -103,6 +103,20 @@ export default async function ManageContestPage({
     approvedSubmissions.map((s) => s.profiles?.username),
   ).size;
 
+  // 1. Hitung Total Views dari semua submisi
+  const totalViews = contest.submissions.reduce(
+    (sum, submission) => sum + (submission.view_count || 0),
+    0,
+  );
+
+  // 2. Format sisa waktu dengan benar
+  const timeLeft =
+    new Date(contest.end_date) > new Date()
+      ? formatDistanceToNowStrict(new Date(contest.end_date), {
+          addSuffix: true,
+        })
+      : "Finished";
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -144,8 +158,9 @@ export default async function ManageContestPage({
             <div className="text-center bg-white p-4 border-2 border-black">
               <Eye className="h-6 w-6 mx-auto mb-1" />
               <div className="font-black text-xl">
-                {/* Data ini perlu dihitung */}
-                12.5K
+                {totalViews > 1000
+                  ? `${(totalViews / 1000).toFixed(1)}K`
+                  : totalViews}
               </div>
               <div className="text-xs font-bold">Total Views</div>
             </div>
