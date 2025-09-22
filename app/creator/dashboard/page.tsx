@@ -470,14 +470,14 @@ export default async function CreatorDashboard() {
                       CREATE NEW CONTEST
                     </Button>
                   </Link>
-                  <Button className="w-full justify-start bg-white text-black border-4 border-black hover:bg-black hover:text-white font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all">
+                  {/*<Button className="w-full justify-start bg-white text-black border-4 border-black hover:bg-black hover:text-white font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all">
                     <TrendingUp className="mr-2 h-4 w-4" />
                     VIEW ANALYTICS
                   </Button>
                   <Button className="w-full justify-start bg-cyan-400 text-black border-4 border-black hover:bg-black hover:text-white font-black uppercase shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all">
                     <DollarSign className="mr-2 h-4 w-4" />
                     MANAGE PAYMENTS
-                  </Button>
+                  </Button>*/}
                 </CardContent>
               </Card>
             </div>
