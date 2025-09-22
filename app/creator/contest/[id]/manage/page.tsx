@@ -9,6 +9,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import SubmissionActionButtons from "@/components/features/contest/SubmissionActionButtons";
+
 import {
   ArrowLeft,
   Users,
@@ -239,22 +241,19 @@ export default async function ManageContestPage({
                           @{submission.profiles?.username}
                         </p>
                       </div>
-                      <Button
-                        onClick={() => approveSubmission(submission.id)}
-                        size="sm"
-                        className="bg-green-500 hover:bg-green-600 border-2 border-black font-bold uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all duration-200"
-                      >
-                        <Check className="h-4 w-4 mr-2" />
-                        Approve
-                      </Button>
-                      <Button
-                        onClick={() => rejectSubmission(submission.id)}
-                        size="sm"
-                        className="bg-red-500 hover:bg-red-600 text-white border-2 border-black font-bold uppercase shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all duration-200"
-                      >
-                        <X className="h-4 w-4 mr-2" />
-                        Reject
-                      </Button>
+                      <SubmissionActionButtons
+                        submissionId={submission.id}
+                        onApprove={approveSubmission.bind(
+                          null,
+                          submission.id,
+                          contest.id,
+                        )}
+                        onReject={rejectSubmission.bind(
+                          null,
+                          submission.id,
+                          contest.id,
+                        )}
+                      />
                     </div>
                   ))
                 ) : (
