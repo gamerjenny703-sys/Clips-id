@@ -149,9 +149,7 @@ export default async function CreatorDashboard() {
                 <div className="text-2xl font-black text-black">
                   {activeContests.length}
                 </div>
-                <p className="text-xs font-bold text-black">
-                  +2 from last month
-                </p>
+                <p className="text-xs font-bold text-black"></p>
               </CardContent>
             </Card>
 
@@ -181,9 +179,7 @@ export default async function CreatorDashboard() {
                 <div className="text-2xl font-black text-white">
                   {(totalViews / 1000).toFixed(1)}K
                 </div>
-                <p className="text-xs font-bold text-white">
-                  +12% from last week
-                </p>
+                <p className="text-xs font-bold text-white"></p>
               </CardContent>
             </Card>
 
