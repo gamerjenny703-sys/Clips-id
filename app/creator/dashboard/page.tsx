@@ -164,7 +164,7 @@ export default async function CreatorDashboard() {
                 <div className="text-2xl font-black text-black">
                   {totalSubmissions.toLocaleString()}
                 </div>
-                <p className="text-xs font-bold text-black">+180 this week</p>
+                <p className="text-xs font-bold text-black"></p>
               </CardContent>
             </Card>
 
